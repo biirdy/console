@@ -10,9 +10,9 @@
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-
     <!-- Custom styles for this template -->
     <link href="/css/index.css" rel="stylesheet">
+    <link href="/css/jasny-bootstrap.min.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -52,23 +52,12 @@
 
       <div class="starter-template">
         <h2>Connected Sensors</h2>
-        <table class="table table-hover" id="connected_sensors">
-          <tr>
-            <th>ID</th>
-            <th>IP</th>
-            <th>Connect Time</th>
-            <th>Description</th>
-          </tr>
+        <table class="table table-hover rowlink" data-link="row" id="connected_sensors">
+		      <tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Description</th></tr>
         </table>
         <h2>Previously Connected Sensors</h2>
-        <table class="table table-hover" id="disconnected_sensors">
-          <tr>
-            <th>ID</th>
-            <th>IP</th>
-            <th>Connect Time</th>
-            <th>Disconnect Time</th>
-            <th>Description</th>
-          </tr>
+        <table class="table table-hover rowlink" data-link="row" id="disconnected_sensors">
+          <tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>
         </table>
       </div>
 
@@ -131,6 +120,9 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="/assets/js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Used for the single line links -->
+    <script src="/js/jasny-bootstrap.min.js"></script>
+
   
 
 </body></html>

@@ -17,6 +17,8 @@
 		echo "Failed to connect to MySQL: " . mysqli_connect_error();
 	}
 
+	echo "Connect";
+
 	//query
 	$sensor_query = "SELECT * FROM sensors WHERE active = 1";
 	$sensor_results = mysqli_query($con, $sensor_query);
