@@ -18,6 +18,8 @@
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
     <script src="/assets/js/ie-emulation-modes-warning.js"></script>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -51,20 +53,70 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#" id="title">Project name</a>
+          
+          <a class="navbar-brand" href="index.html">Central Sensor Management</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#rtt_container">RTT</a></li>
+            <li><a href="#throughput_container">Throughput</a></li>
+            <li><a href="#jitter_container">Jitter</a></li>
+            <li><a href="#packetloss_container">Packet Loss</a></li>
+            <li><a href="#dns_container">DNS Status</a></li>
+          </ul>
         </div>
       </div>
     </nav>
 
+    <div class="container">
+      <h1 id="title"></h1>
+    </div>
 
-    <div class="container" id="rtt_chart">
-      <h1>Round Trip Times</h1>
+    <div class="container" id="rtt_container">
+      <h2>Round Trip Times</h1>
+      <div id="rtt_graph"></div>
+
+      <h3>Automated</h3>  
+      <form class="form-inline" role="form">
+        <div class="form-group">
+          <label for="interval">Interval:</label>
+          <input type="test" class="form-control" id="interval">
+        </div>
+        <button type="button" class="btn btn-success" value="start">Start</button>
+        <button type="button" class="btn btn-danger" value="stop">Stop</button>
+      </form>
+
+    </div>
+    <div class="container" id="throughput_container">
+      <h2>Throughput</h1>
+    </div>
+    <div class="container" id="jitter_container">
+      <h2>Jitter</h1>
+    </div>
+    <div class="container" id="packetloss_container">
+      <h2>Packet Loss</h1>
+    </div>
+    <div class="container" id="dns_container">
+      <h2>DNS Status</h1>
     </div>
 
     <script src="http://d3js.org/d3.v3.js"></script>
     <script type="text/javascript">
+
+        $(document).ready(function(){
+          $('.btn').click(function(){
+            var clickBtnValue = $(this).val();
+            var ajaxurl = 'test.php',
+            data =  {'action': clickBtnValue};
+            $.post(ajaxurl, data, function (response) {
+              // Response div goes here.
+              alert("action performed successfully" + clickBtnValue);
+            });
+          });
+        });
+
         var sensor_id = location.search.replace("?", "");
-        document.getElementById("title").innerHTML = sensor_id;
+        document.getElementById("title").innerHTML = "Sensor " + sensor_id;
 
         var margin = {top: 20, right: 20, bottom: 30, left: 50},
         width = 960 - margin.left - margin.right,
@@ -90,7 +142,7 @@
             .x(function(d) { return x(d.time); })
             .y(function(d) { return y(d.avg); });
 
-        var svg = d3.select("#rtt_chart").append("svg")
+        var svg = d3.select("#rtt_graph").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
@@ -141,7 +193,7 @@
      <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
