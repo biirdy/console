@@ -6,7 +6,7 @@
     <meta name="author" content="Jamie Bird">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Central Sensor Management</title>
+    <title>Sensor Management</title>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
@@ -19,6 +19,8 @@
     <script src="/assets/js/ie-emulation-modes-warning.js"></script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -54,14 +56,13 @@
             <span class="icon-bar"></span>
           </button>
           
-          <a class="navbar-brand" href="index.html">Central Sensor Management</a>
+          <a class="navbar-brand" href="index.html">Sensor Management</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="#rtt_container">RTT</a></li>
-            <li><a href="#throughput_container">Throughput</a></li>
-            <li><a href="#jitter_container">Jitter</a></li>
-            <li><a href="#packetloss_container">Packet Loss</a></li>
+            <li><a href="#throughput_container">TCP Throughput</a></li>
+            <li><a href="#udp_container">UDP measurments</a></li>
             <li><a href="#dns_container">DNS Status</a></li>
           </ul>
         </div>
@@ -72,99 +73,399 @@
       <h1 id="title"></h1>
     </div>
 
-    <div class="container" id="rtt_container">
-      <h2>Round Trip Times</h1>
+    <div class="container panel panel-default panel-body" id="rtt_container">
+
+      <h2 id="rtt_title">Round Trip Times</h2>
+
+      <div class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" id="rtt_dropdown" data-toggle="dropdown" aria-expanded="true">
+          Period
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="rtt_dropdown">
+          <li role="presentation"><a onclick="change_rtt_period('rtt_line_1min'); return false;" href=""role="menuitem" tabindex="-1">1 minute</a></li>
+          <li role="presentation"><a onclick="change_rtt_period('rtt_line_10min'); return false;" href=""role="menuitem" tabindex="-1">10 minutes</a></li>
+          <li role="presentation"><a onclick="change_rtt_period('rtt_line_30min'); return false;" href="" role="menuitem" tabindex="-1">30 minutes</a></li>
+          <li role="presentation"><a onclick="change_rtt_period('rtt_line_1hour'); return false;" href="" role="menuitem" tabindex="-1">1 hour</a></li>
+        </ul>
+      </div>
+
       <div id="rtt_graph"></div>
 
-      <h3>Automated</h3>  
-      <form class="form-inline" role="form">
-        <div class="form-group">
-          <label for="interval">Interval:</label>
-          <input type="test" class="form-control" id="interval">
-        </div>
-        <button type="button" class="btn btn-success" value="start">Start</button>
-        <button type="button" class="btn btn-danger" value="stop">Stop</button>
-      </form>
+      <div id="latest_rtt" class="panel panel-default panel-body">
+          <h3>Latest</h3>
+          <table id="latest_rtt_table" class="table table-condensed">
+            <thead></thead>
+            <tr><th>Time</th><th>Min (ms)</th><th>Max (ms)</th><th>Avg (ms)</th><th>Dev (ms)</th></tr>
+          </table>
+      </div>
+
+      <div class="panel panel-default panel-body">
+        <form class="form-inline request_form" id="ping_form" onsubmit="ping_validate()">
+          <div class="form-group">
+            <label for="rtt_ittr">Iterations: </label>
+            <input name="rtt_ittr" class="form-control" id="rtt_ittr" value="5">
+          </div>
+          <button class="btn btn-success">ping</button>
+        </form>
+      </div>
 
     </div>
-    <div class="container" id="throughput_container">
-      <h2>Throughput</h1>
+
+    <div class="container panel panel-default" id="throughput_container">
+     
+      <h2 id="bw_title">TCP Throughput - <small>Let TCP and the OS work it out</small></h2>
+
+      <div class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+          Period
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+          <li role="presentation"><a onclick="change_bw_period('bw_line_5min'); return false;" href=""role="menuitem" tabindex="-1">5 minutes</a></li>
+          <li role="presentation"><a onclick="change_bw_period('bw_line_30min'); return false;" href="" role="menuitem" tabindex="-1">30 minutes</a></li>
+          <li role="presentation"><a onclick="change_bw_period('bw_line_1hour'); return false;" role="menuitem" tabindex="-1">1 hour</a></li>
+        </ul>
+      </div>
+
+      <div id="bw_graph"></div>
+
+      <div id="latest_bw" class="panel panel-default panel-body">
+          <h3>Latest</h3>
+          <table id="latest_bw_table" class="table table-condensed">
+            <tr><th>Time</th><th>Transfered (Bytes)</th><th>Duration (Seconds)</th><th>Speed (kbps)</th></tr>
+          </table>
+      </div>
+
+      <div class="panel panel-default panel-body">
+        <form class="form-inline request_form" id="iperf_form" onsubmit="iperf_validate()">
+          <div class="form-group">
+            <label for="bw_time">Time (seconds):</label>
+            <input name="bw_time" class="form-control" id="bw_time" value="10">
+          </div>
+          <button class="btn btn-success">TCP iperf</button>
+        </form>
+      </div>
+
+
+
     </div>
-    <div class="container" id="jitter_container">
-      <h2>Jitter</h1>
+
+    <div class="container panel panel-default panel-body" id="udp_container">
+      <h2>UDP measurments</h2>
+
+      <div class="panel panel-default panel-body">
+          <table id="udp_table" class="table table-condensed">
+            <tr><th>Time</th><th>Send Speed (kbps)</th><th>Transfered (Bytes)</th><th>Jitter (ms)</th><th>Lost Datagrams (%)</th><th>Bandwidth (kbps)</th></tr>
+          </table>
+      </div>
+
+      <div class="panel panel-default panel-body">
+        <form class="form-inline request_form" id="udp_form" onsubmit="udp_validate()">
+          <div class="form-group">
+            <label for="udp_speed">Send speed ([K,M]):</label>
+            <input name="udp_speed" class="form-control" id="udp_speed" value="1">
+          </div>
+          <div class="form-group">
+            <label for="udp_size">Datagram size (bytes):</label>
+            <input name="udp_size" class="form-control" id="udp_size" value="1470">
+          </div>
+          <div class="form-group">
+            <label for="udp_time">Duration (seconds):</label>
+            <input name="udp_time" class="form-control" id="udp_time" value="10">
+          </div>
+        </br>
+        </br>
+          <b>QoS Flags: </b>
+          <div class="radio">
+            <label><input type="radio" name="optradio"> Option 1</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" value="NUM2" name="optradio"> Option 2</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio"> Option 3</label>
+          </div>
+        </br>
+        </br>
+          <button class="btn btn-success">UDP iperf</button>
+        </form>
+      </div>      
+
     </div>
-    <div class="container" id="packetloss_container">
-      <h2>Packet Loss</h1>
+    <div class="container panel panel-default panel-body" id="dns_container">
+      <h2>DNS Status</h2>
     </div>
-    <div class="container" id="dns_container">
-      <h2>DNS Status</h1>
-    </div>
+
+    
 
     <script src="http://d3js.org/d3.v3.js"></script>
     <script type="text/javascript">
 
-        $(document).ready(function(){
-          $('.btn').click(function(){
-            var clickBtnValue = $(this).val();
-            var ajaxurl = 'test.php',
-            data =  {'action': clickBtnValue};
-            $.post(ajaxurl, data, function (response) {
-              // Response div goes here.
-              alert("action performed successfully" + clickBtnValue);
-            });
-          });
-        });
+        var bw_data = {};
+        var rtt_data = {};
 
+        //graph svg's
+        var bw_svg;
+        var rtt_svg;
+
+        var active_bw_line = "bw_line_1hour";
+        var active_rtt_line = "rtt_line_30min";
+
+        //change the period of bw graph
+        function change_bw_period(val){
+          active_bw_line = val;
+          update_bw_graph(bw_data, 0);
+        }
+
+        //change the period of bw graph
+        function change_rtt_period(val){
+          active_rtt_line = val;
+          update_rtt_graph(rtt_data, 0);
+        }
+
+        //get sensor id
         var sensor_id = location.search.replace("?", "");
         document.getElementById("title").innerHTML = "Sensor " + sensor_id;
 
+        function iperf_validate(){
+          console.log("iperf_validate");
+        }
+
+        function ping_validate(){
+          console.log("ping_validate");
+          return false;
+        }
+
+        function udp_validate(){
+          console.log("udp_validate");
+        }
+
+        /*
+        * Send request
+        */
+        $(".request_form").submit(function(event){
+          event.preventDefault();
+          
+          var request_type;
+          if(this.id == "ping_form")
+            request_type = "ping";
+          else if(this.id == "iperf_form")
+            request_type = "iperf";
+          else if(this.id == "udp_form")
+            request_type = "udp";
+          else if(this.id == "dns_form")
+            request_type = "dns";
+
+          console.log($(this).serialize());
+
+          $.ajax({
+              url: "request.php",
+              type: 'POST',
+              data: $(this).serialize() + "&sensor_id=" + sensor_id + "&request_type=" + request_type,
+              success: function(data) {
+                  alert(data);
+              }
+          });
+        });
+
+        //set margins for graphs
         var margin = {top: 20, right: 20, bottom: 30, left: 50},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
         var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
 
-        var x = d3.time.scale()
+        /*
+        * rtt graph
+        */
+        var rtt_x = d3.time.scale()
             .range([0, width]);
 
-        var y = d3.scale.linear()
+        var rtt_y = d3.scale.linear()
             .range([height, 0]);
 
-        var xAxis = d3.svg.axis()
-            .scale(x)
+        var rtt_xAxis = d3.svg.axis()
+            .scale(rtt_x)
             .orient("bottom");
 
-        var yAxis = d3.svg.axis()
-            .scale(y)
+        var rtt_yAxis = d3.svg.axis()
+            .scale(rtt_y)
             .orient("left");
 
-        var line = d3.svg.line()
-            .x(function(d) { return x(d.time); })
-            .y(function(d) { return y(d.avg); });
+        var rtt_line = d3.svg.line()
+            .x(function(d) { return rtt_x(d.time); })
+            .y(function(d) { return rtt_y(d.avg); });
+ 
+        /* 
+        * bandwidth graph
+        */
+        var bw_x = d3.time.scale()
+            .range([0, width]);
 
-        var svg = d3.select("#rtt_graph").append("svg")
+        var bw_y = d3.scale.linear()
+            .range([height, 0]);
+
+        var bw_xAxis = d3.svg.axis()
+            .scale(bw_x)
+            .orient("bottom");
+
+        var bw_yAxis = d3.svg.axis()
+            .scale(bw_y)
+            .orient("left");
+
+        var bw_line = d3.svg.line()
+            .x(function(d) { return bw_x(d.time); })
+            .y(function(d) { return bw_y(d.speed); })
+            .interpolate("basis");
+        
+        load_bw();
+        function load_bw(){
+          $.getJSON("bws.php", "sensor_id=" + sensor_id, function(jsonData){
+            
+            if(jsonData.length == 0){
+              d3.select("#bw_graph").select("svg").remove();
+              document.getElementById("bw_title").innerHTML = "TCP Throughput - <small>Let TCP and the OS work it out</small> - No data";
+            }else if(jsonData.length != bw_data.length){
+              document.getElementById("bw_title").innerHTML = "TCP Throughput - <small>Let TCP and the OS work it out</small>";
+              
+              update_bw_graph(jsonData, 1);
+              bw_data = jsonData;
+            }
+
+          });
+
+          setTimeout(load_bw, 5000);
+        }
+
+        load_rtt();
+        function load_rtt(){
+          $.getJSON("rtts.php", "sensor_id=" + sensor_id, function(jsonData){
+
+            if(jsonData.length == 0){
+              d3.select("#rtt_graph").select("svg").remove();
+              document.getElementById("latest_rtt").style.display = "none";
+              document.getElementById("rtt_title").innerHTML = "Round Trip Times - No data";
+            }else if(jsonData.length != rtt_data.length){
+              document.getElementById("latest_rtt").style.display = "block";
+              document.getElementById("rtt_title").innerHTML = "Round Trip Times";
+              update_rtt_graph(jsonData, 1);
+              rtt_data = jsonData;
+            }
+
+          });
+          setTimeout(load_rtt, 5000);
+        }
+        
+        //updates the bandwidth graph data
+        function update_bw_graph(data, auto){
+          //make copy to save altering the external data 
+          var graph_data = JSON.parse(JSON.stringify(data));
+
+          d3.select("#bw_graph").select("svg").remove();
+
+          bw_svg = d3.select("#bw_graph").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            
+          if(auto){
+            var table = document.getElementById("latest_bw_table");
+            var row = table.insertRow(1);
+            row.insertCell(0).innerHTML = data[data.length-1].time;
+            row.insertCell(1).innerHTML = data[data.length-1].bytes;
+            row.insertCell(2).innerHTML = data[data.length-1].duration;
+            row.insertCell(3).innerHTML = data[data.length-1].speed/1024;
+          }
+
+          var bw_average;
+          if(active_bw_line == 'bw_line_5min')
+            bw_average = function(d){return d;};
+          else if(active_bw_line == 'bw_line_30min')
+            bw_average = simple_moving_averager(6);
+          else if(active_bw_line == 'bw_line_1hour')
+            bw_average = simple_moving_averager(12);
+
+          graph_data.forEach(function(d) {
+            d.time = parseDate(d.time);
+            d.speed = bw_average(d.speed / 1024);
+          });
+
+          bw_x.domain(d3.extent(graph_data, function(d) { return d.time; }));
+          bw_y.domain(d3.extent(graph_data, function(d) { return d.speed; }));
+
+          bw_svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(bw_xAxis);
+
+          bw_svg.append("g")
+              .attr("class", "y axis")
+              .call(bw_yAxis)
+              .append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 6)
+              .attr("dy", ".71em")
+              .style("text-anchor", "end")
+              .text("Throughput (bps)");
+
+          bw_svg.append("path")
+              .datum(graph_data)
+              .attr("class", "line")
+              .attr("d", bw_line);
+        }
+
+        //updates the bandwidth graph data
+        //should remove svg first 
+        function update_rtt_graph(data, auto){
+          //make copy to save altering the external data 
+          var graph_data = JSON.parse(JSON.stringify(data));
+
+          d3.select("#rtt_graph").select("svg").remove();
+
+          rtt_svg = d3.select("#rtt_graph").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        d3.json("rtts.php?sensor_id=" + sensor_id, function(error, data) {
-          data.forEach(function(d) {
-            d.time = parseDate(d.time);
-            d.avg = +d.avg;
+          if(auto){
+            var table = document.getElementById("latest_rtt_table");
+            var row = table.insertRow(1);
+            row.insertCell(0).innerHTML = data[data.length-1].time;
+            row.insertCell(1).innerHTML = data[data.length-1].min;
+            row.insertCell(2).innerHTML = data[data.length-1].max;
+            row.insertCell(3).innerHTML = data[data.length-1].avg;
+            row.insertCell(4).innerHTML = data[data.length-1].dev;
+          }
+
+          var rtt_average;
+          if(active_rtt_line == 'rtt_line_1min')
+            rtt_average = function(d){return d;};
+          else if(active_rtt_line == 'rtt_line_10min')
+            rtt_average = simple_moving_averager(6);
+          else if(active_rtt_line == 'rtt_line_30min')
+            rtt_average = simple_moving_averager(30);
+          else if(active_rtt_line == 'rtt_line_1hour')
+            rtt_average = simple_moving_averager(12);
+
+          graph_data.forEach(function(d) {
+            d.time        = parseDate(d.time);
+            d.avg         = rtt_average(+d.avg);
           });
 
-          x.domain(d3.extent(data, function(d) { return d.time; }));
-          y.domain(d3.extent(data, function(d) { return d.avg; }));
+          rtt_x.domain(d3.extent(graph_data, function(d) { return d.time; }));
+          rtt_y.domain(d3.extent(graph_data, function(d) { return d.avg; }));
 
-          svg.append("g")
+          rtt_svg.append("g")
               .attr("class", "x axis")
               .attr("transform", "translate(0," + height + ")")
-              .call(xAxis)
+              .call(rtt_xAxis)
 
-          svg.append("g")
+          rtt_svg.append("g")
               .attr("class", "y axis")
-              .call(yAxis)
+              .call(rtt_yAxis)
               .append("text")
               .attr("transform", "rotate(-90)")
               .attr("y", 6)
@@ -172,22 +473,28 @@
               .style("text-anchor", "end")
               .text("RTT (ms)");
 
-          svg.append("path")
-              .datum(data)
+          rtt_svg.append("path")
+              .datum(graph_data)
               .attr("class", "line")
-              .attr("d", line);
+              .attr("d", rtt_line); 
+        }
 
-          svg.selectAll(".dot")
-            .data(data)
-            .enter().append("circle")
-            .attr("class", "dot")
-            .attr("r", 3.5)
-            .attr("cx", function(d) { return x(d.time); })
-            .attr("cy", function(d) { return y(d.avg); })
-            .style("fill", 1)
-            .append("title")
-            .text("HELLO");
-          });
+        function simple_moving_averager(period) {
+          var nums = [];
+          return function(num) {
+              nums.push(num);
+              if (nums.length > period)
+                  nums.splice(0,1);  // remove the first element of the array
+              var sum = 0;
+              for (var i in nums)
+                  sum += nums[i];
+              var n = period;
+              if (nums.length < period)
+                  n = nums.length;
+              return(sum/n);
+          }
+        }
+
     </script>
 
      <!-- Bootstrap core JavaScript
@@ -195,7 +502,7 @@
     <!-- Placed at the end of the document so the pages load faster -->
     
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="/assets/js/ie10-viewport-bug-workaround.js"></script>
 
