@@ -156,7 +156,7 @@
 
       <div class="panel panel-default panel-body">
           <table id="udp_table" class="table table-condensed">
-            <tr><th>Time</th><th>Send Speed (kbps)</th><th>Transfered (Bytes)</th><th>Jitter (ms)</th><th>Lost Datagrams (%)</th><th>Bandwidth (kbps)</th></tr>
+            <tr><th>Time</th><th>Send Speed (kbps)</th><th>DSCP flag</th><th>Transfered (Bytes)</th><th>Jitter (ms)</th><th>Lost Datagrams (%)</th><th>Bandwidth (kbps)</th></tr>
           </table>
       </div>
 
@@ -176,15 +176,23 @@
           </div>
         </br>
         </br>
-          <b>QoS Flags: </b>
-          <div class="radio">
-            <label><input type="radio" name="optradio"> Option 1</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" value="NUM2" name="optradio"> Option 2</label>
-          </div>
-          <div class="radio">
-            <label><input type="radio" name="optradio"> Option 3</label>
+          <b>DSCP Flags: </b>
+          <input name="udp_dscp" id="udp-dscp" value="0x00" type="hidden">
+          <div class="btn-group">
+              <button type="button" class="form-control btn btn-default dropdown-toggle dscp-toggle" data-toggle="dropdown">
+                  None<span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dscp-menu" role="menu">
+                  <li><a href="" data-hex="0x00" onclick="return false;">none</a></li>
+                  <li><a href="" data-hex="32" onclick="return false;">cs1</a></li>
+                  <li><a href="" data-hex="64" onclick="return false;">cs2</a></li>
+                  <li><a href="" data-hex="96" onclick="return false;">cs3</a></li>
+                  <li><a href="" data-hex="40" onclick="return false;">af11</a></li>
+                  <li><a href="" data-hex="48" onclick="return false;">af12</a></li>
+                  <li><a href="" data-hex="56" onclick="return false;">af13</a></li>
+                  <li><a href="" data-hex="176" onclick="return false;">voice-admit</a></li>
+                  <li><a href="" data-hex="184" onclick="return false;">ef</a></li>
+              </ul>
           </div>
         </br>
         </br>
@@ -193,6 +201,7 @@
       </div>      
 
     </div>
+
     <div class="container panel panel-default panel-body" id="dns_container">
       <h2>DNS Status</h2>
     </div>
@@ -204,6 +213,7 @@
 
         var bw_data = {};
         var rtt_data = {};
+        var udp_data = {};
 
         //graph svg's
         var bw_svg;
@@ -240,6 +250,13 @@
         function udp_validate(){
           console.log("udp_validate");
         }
+
+        var dscp_flag = 0x00;
+        $('.dscp-menu a').on('click', function(){    
+            $('.dscp-toggle').html($(this).html() + '<span class="caret"></span>');
+            console.log($(this).attr('data-hex'));
+            $('#udp-dscp').val($(this).attr('data-hex'));    
+        });
 
         /*
         * Send request
@@ -355,6 +372,35 @@
 
           });
           setTimeout(load_rtt, 5000);
+        }
+
+        load_udp();
+        function load_udp(){
+          $.getJSON("udps.php", "sensor_id=" + sensor_id, function(jsonData){
+
+            if(jsonData.length == 0){
+              var table = document.getElementById("udp_table");
+              table.innerHTML = "No data";
+              
+            }else if(jsonData.length != udp_data.length){
+              var table = document.getElementById("udp_table");
+              table.innerHTML = "<tr><th>Time</th><th>Send Speed (kbps)</th><th>DSCP flag</th><th>Transfered (Bytes)</th><th>Jitter (ms)</th><th>Lost Datagrams (%)</th><th>Bandwidth (kbps)</th></tr>";
+
+              for(var i = 0; i < jsonData.length; i++){
+                var row = table.insertRow(i + 1);
+                row.insertCell(0).innerHTML = jsonData[i].time;
+                row.insertCell(1).innerHTML = jsonData[i].send_bw;
+                row.insertCell(2).innerHTML = jsonData[i].dscp_flag;
+                row.insertCell(3).innerHTML = jsonData[i].size;
+                row.insertCell(4).innerHTML = jsonData[i].jitter;
+                row.insertCell(5).innerHTML = jsonData[i].packet_loss;
+                row.insertCell(6).innerHTML = jsonData[i].bw;    
+              }
+                
+              udp_data = jsonData;
+            }
+          });
+          setTimeout(load_udp, 5000);
         }
         
         //updates the bandwidth graph data
