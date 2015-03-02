@@ -70,17 +70,34 @@
     </nav>
 
     <div class="container">
-      <h1 id="title"></h1>
+      <div class="row container">
+        <div class="col-lg-3">
+          <h1 id="title"></h1>
+        </div>
+
+        <div class="col-lg-7">
+          <div class="input-group sensor-desc">
+            <input id="desc-input" type="text" class="form-control" placeholder="Sensor Description: Lorem Ipsum" maxlength="50">
+            <span class="input-group-btn">
+              <button id="desc-form" class="btn btn-default" type="button">Update</button>
+            </span>
+          </div>
+        </div>
+
+        <div class="col-lg-2">
+          <button type="button" id="sensor-disc" class="btn btn-danger sensor-disc">Disconnect</button>
+        </div>
+      </div>
     </div>
 
     <div class="container panel panel-default panel-body" id="rtt_container">
 
       <h2 id="rtt_title">Round Trip Times</h2>
 
-      <div class="dropdown">
+      Period: 
+      <div class="dropdown btn-group">
         <button class="btn btn-default dropdown-toggle" type="button" id="rtt_dropdown" data-toggle="dropdown" aria-expanded="true">
-          Period
-          <span class="caret"></span>
+          <span data-bind="label">30 Minutes</span>&nbsp;<span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu" aria-labelledby="rtt_dropdown">
           <li role="presentation"><a onclick="change_rtt_period('rtt_line_1min'); return false;" href=""role="menuitem" tabindex="-1">1 minute</a></li>
@@ -116,10 +133,10 @@
      
       <h2 id="bw_title">TCP Throughput - <small>Let TCP and the OS work it out</small></h2>
 
-      <div class="dropdown">
+      Period: 
+      <div class="dropdown btn-group">
         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
-          Period
-          <span class="caret"></span>
+          <span data-bind="label">1 Hour</span>&nbsp;<span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
           <li role="presentation"><a onclick="change_bw_period('bw_line_5min'); return false;" href=""role="menuitem" tabindex="-1">5 minutes</a></li>
@@ -180,7 +197,7 @@
           <input name="udp_dscp" id="udp-dscp" value="0x00" type="hidden">
           <div class="btn-group">
               <button type="button" class="form-control btn btn-default dropdown-toggle dscp-toggle" data-toggle="dropdown">
-                  None<span class="caret"></span>
+                <span data-bind="label">None</span>&nbsp;<span class="caret"></span>
               </button>
               <ul class="dropdown-menu dscp-menu" role="menu">
                   <li><a href="" data-hex="0x00" onclick="return false;">none</a></li>
@@ -203,7 +220,38 @@
     </div>
 
     <div class="container panel panel-default panel-body" id="dns_container">
-      <h2>DNS Status</h2>
+      <h2>DNS Status <span style="color:green" class="glyphicon glyphicon-ok" aria-hidden="true"></span> </h2>
+
+      <div class="panel panel-default panel-body">
+        <h3 id="dns_title">DNS resolution</h3>
+
+        Period: 
+        <div class="dropdown btn-group">
+          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+            <span data-bind="label">10 Minutes</span>&nbsp;<span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            <li role="presentation"><a onclick="change_dns_period('dns_line_1min'); return false;" href=""role="menuitem" tabindex="-1">1 minute</a></li>
+            <li role="presentation"><a onclick="change_dns_period('dns_line_10min'); return false;" href=""role="menuitem" tabindex="-1">10 minutes</a></li>
+            <li role="presentation"><a onclick="change_dns_period('dns_line_30min'); return false;" href="" role="menuitem" tabindex="-1">30 minutes</a></li>
+            <li role="presentation"><a onclick="change_dns_period('dns_line_1hour'); return false;" role="menuitem" tabindex="-1">1 hour</a></li>
+          </ul>
+        </div>
+
+        <div id="dns_graph"></div>
+      </div>
+
+      <div class="panel panel-default panel-body">
+        <h3 id="dns_outages">Outages</h3>
+        <table id="dns_table" class="table table-condensed">
+          <tr><th>Time</th><th>Duration (min)</th></tr>
+        </table>
+      </div>
+
+      <form class="form-inline request_form" id="dns_form" onsubmit="dns_validate()">
+        <button class="btn btn-success">DNS resolution</button>
+      </form>
+
     </div>
 
     
@@ -214,13 +262,16 @@
         var bw_data = {};
         var rtt_data = {};
         var udp_data = {};
+        var dns_data = {};
+        var dns_failure_data = {};
 
         //graph svg's
         var bw_svg;
         var rtt_svg;
 
-        var active_bw_line = "bw_line_1hour";
+        var active_bw_line  = "bw_line_1hour";
         var active_rtt_line = "rtt_line_30min";
+        var active_dns_line = "dns_line_10min";
 
         //change the period of bw graph
         function change_bw_period(val){
@@ -228,15 +279,57 @@
           update_bw_graph(bw_data, 0);
         }
 
-        //change the period of bw graph
+        //change the period of rtt graph
         function change_rtt_period(val){
           active_rtt_line = val;
           update_rtt_graph(rtt_data, 0);
         }
 
-        //get sensor id
+        //change the period of rtt graph
+        function change_dns_period(val){
+          active_dns_line = val;
+          update_dns_graph(dns_data, 0);
+        }
+
+        //get sensor id from url
         var sensor_id = location.search.replace("?", "");
         document.getElementById("title").innerHTML = "Sensor " + sensor_id;
+
+        //load in existing sensor description
+        $.ajax({
+          url: "sensor_description.php",
+          type: "GET",
+          data: "&sensor_id=" + sensor_id,
+          success: function(data){
+            $("#desc-input").attr("placeholder", "Description: " + data);
+          }
+        })
+
+        //POST for updating sensor
+        $("#desc-form").click(function(){
+          console.log(encodeURI($("#desc-input").val()));
+
+          $.ajax({
+              url: "sensor_description_update.php",
+              type: 'POST',
+              data: "&sensor_id=" + sensor_id + "&description=" + encodeURI($("#desc-input").val()),
+              success: function(data) {
+                console.log(data);
+              }
+          });
+        });
+
+        //POST for disconnect button
+        $("#sensor-disc").click(function(){
+          $.ajax({
+              url: "disconnect_sensor.php",
+              type: 'POST',
+              data: "&sensor_id=" + sensor_id,
+              success: function(data) {
+                console.log(data);
+              }
+          });
+        });
 
         function iperf_validate(){
           console.log("iperf_validate");
@@ -252,10 +345,18 @@
         }
 
         var dscp_flag = 0x00;
+        //update dscp flag for submit
         $('.dscp-menu a').on('click', function(){    
-            $('.dscp-toggle').html($(this).html() + '<span class="caret"></span>');
-            console.log($(this).attr('data-hex'));
             $('#udp-dscp').val($(this).attr('data-hex'));    
+        });
+
+        //update text on dropdowns
+        $(document.body).on('click', '.dropdown-menu li', function(event){
+            var $target = $(event.currentTarget);
+            $target.closest('.btn-group')
+            .find('[data-bind="label"]').text($target.text())
+            .end()
+            .children('.dropdown-toggle').dropdown( 'toggle');
         });
 
         /*
@@ -285,6 +386,8 @@
               }
           });
         });
+
+        
 
         //set margins for graphs
         var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -334,6 +437,28 @@
         var bw_line = d3.svg.line()
             .x(function(d) { return bw_x(d.time); })
             .y(function(d) { return bw_y(d.speed); })
+            .interpolate("basis");
+
+        /* 
+        * dns resoloution graph
+        */
+        var dns_x = d3.time.scale()
+            .range([0, width]);
+
+        var dns_y = d3.scale.linear()
+            .range([height, 0]);
+
+        var dns_xAxis = d3.svg.axis()
+            .scale(dns_x)
+            .orient("bottom");
+
+        var dns_yAxis = d3.svg.axis()
+            .scale(dns_y)
+            .orient("left");
+
+        var dns_line = d3.svg.line()
+            .x(function(d) { return dns_x(d.time); })
+            .y(function(d) { return dns_y(d.duration); })
             .interpolate("basis");
         
         load_bw();
@@ -401,6 +526,68 @@
             }
           });
           setTimeout(load_udp, 5000);
+        }
+
+        load_dns();
+        function load_dns(){
+          $.getJSON("dns.php", "sensor_id=" + sensor_id, function(jsonData){
+
+            if(jsonData.length == 0){
+              document.getElementById("dns_title").innerHTML = "DNS Resoloution - No data";
+            }else if(jsonData.length != dns_data.length){
+              document.getElementById("dns_title").innerHTML = "DNS Resoloutions";
+              update_dns_graph(jsonData, 1);
+              dns_data = jsonData;
+            }
+          });
+          setTimeout(load_dns, 5000);
+        }
+
+        load_dns_failure();
+        function load_dns_failure(){
+          $.getJSON("dns_failures.php", "sensor_id=" + sensor_id, function(jsonData){
+
+            if(jsonData.length == 0){
+              var table = document.getElementById("dns_table");
+              table.innerHTML = "<h3 id='dns_outages'>No data</h3>";
+            }else if(jsonData.length != dns_failure_data.length){
+              var table = document.getElementById("dns_table");
+              table.innerHTML = "<tr><th>Time</th><th>Duration (min)</th></tr>";
+
+              var dur = 1;
+              var rows = 0;
+              var i = 0;
+              while(i < jsonData.length){
+                if(dur == 1)
+                  start = jsonData[i].time;
+                     
+
+                if(i < jsonData.length-1){
+                  var current = parseInt(jsonData[i].time.substring(14,16));
+                  var next    = parseInt(jsonData[i+1].time.substring(14,16));
+                  var diff = next - current;
+                }else{
+                  var diff = 2;
+                }
+
+                if(diff > 1){
+                  rows ++;
+
+                  var row = table.insertRow(rows);
+                  row.insertCell(0).innerHTML = start;
+                  row.insertCell(1).innerHTML = dur;
+
+                  dur = 1;
+                }else{
+                  dur++;
+                }
+
+                i++;
+              }
+              dns_failure_data = jsonData;
+            }
+          });
+          setTimeout(load_dns, 5000);
         }
         
         //updates the bandwidth graph data
@@ -490,11 +677,11 @@
           if(active_rtt_line == 'rtt_line_1min')
             rtt_average = function(d){return d;};
           else if(active_rtt_line == 'rtt_line_10min')
-            rtt_average = simple_moving_averager(6);
+            rtt_average = simple_moving_averager(10);
           else if(active_rtt_line == 'rtt_line_30min')
             rtt_average = simple_moving_averager(30);
           else if(active_rtt_line == 'rtt_line_1hour')
-            rtt_average = simple_moving_averager(12);
+            rtt_average = simple_moving_averager(60);
 
           graph_data.forEach(function(d) {
             d.time        = parseDate(d.time);
@@ -523,6 +710,67 @@
               .datum(graph_data)
               .attr("class", "line")
               .attr("d", rtt_line); 
+        }
+
+        function update_dns_graph(data, auto){
+          //make copy to save altering the external data 
+          var graph_data = JSON.parse(JSON.stringify(data));
+
+          d3.select("#dns_graph").select("svg").remove();
+
+          dns_svg = d3.select("#dns_graph").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          /*if(auto){
+            var table = document.getElementById("latest_rtt_table");
+            var row = table.insertRow(1);
+            row.insertCell(0).innerHTML = data[data.length-1].time;
+            row.insertCell(1).innerHTML = data[data.length-1].min;
+            row.insertCell(2).innerHTML = data[data.length-1].max;
+            row.insertCell(3).innerHTML = data[data.length-1].avg;
+            row.insertCell(4).innerHTML = data[data.length-1].dev;
+          }*/
+
+          var dns_average;
+          if(active_dns_line == 'dns_line_1min')
+            dns_average = function(d){return d;};
+          else if(active_dns_line == 'dns_line_10min')
+            dns_average = simple_moving_averager(10);
+          else if(active_dns_line == 'dns_line_30min')
+            dns_average = simple_moving_averager(30);
+          else if(active_dns_line == 'dns_line_1hour')
+            dns_average = simple_moving_averager(60);
+
+          graph_data.forEach(function(d) {
+            d.time        = parseDate(d.time);
+            d.duration    = dns_average(+d.duration);
+          });
+
+          dns_x.domain(d3.extent(graph_data, function(d) { return d.time; }));
+          dns_y.domain(d3.extent(graph_data, function(d) { return d.duration; }));
+
+          dns_svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(dns_xAxis)
+
+          dns_svg.append("g")
+              .attr("class", "y axis")
+              .call(dns_yAxis)
+              .append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 6)
+              .attr("dy", ".71em")
+              .style("text-anchor", "end")
+              .text("Resolution time (ms)");
+
+          dns_svg.append("path")
+              .datum(graph_data)
+              .attr("class", "line")
+              .attr("d", dns_line); 
         }
 
         function simple_moving_averager(period) {

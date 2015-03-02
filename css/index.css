@@ -8,6 +8,26 @@ body {
 	text-align: center;
 }
 
+.disconnect-button{
+  float: right;
+  padding-right: 50px;
+  color: grey;
+}
+
+.disconnect-button:hover{
+  color: red;
+}
+
+.sensor-desc{
+  padding-top: 25px;
+  margin: 0 auto;
+}
+
+.sensor-disc{
+  margin-top: 25px;
+  float: right;
+}
+
 .panel-heading a:after {
     font-family:'Glyphicons Halflings';
     content:"\e114";

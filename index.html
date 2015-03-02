@@ -82,7 +82,7 @@
         <div class="sensor-tables">
           <h2>Connected Sensors</h2>
           <table class="table table-hover rowlink" data-link="row" id="connected_sensors">
-  		      <tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Description</th></tr>
+  		      <tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Description</th><th>Disconnect</th></tr>
           </table>
           <h2>Previously Connected Sensors</h2>
           <table class="table table-hover rowlink" data-link="row" id="disconnected_sensors">
@@ -99,7 +99,7 @@
     <script type="text/javascript">
 
       function server_status(){
-        $.post("test.php", {'action':'server_state'}, function (response) {
+        $.post("server.php", {'action':'server_state'}, function (response) {
           // Response div goes here.
           console.log(response);
           if(response == 1){
@@ -121,7 +121,7 @@
       $(document).ready(function(){
         $('.btn').click(function(){
           var clickBtnValue = $(this).val();
-          var ajaxurl = 'test.php',
+          var ajaxurl = 'server.php',
           data =  {'action': clickBtnValue};
           $.post(ajaxurl, data, function (response) {
             // Response div goes here.
@@ -146,7 +146,7 @@
 
       var sensors_xml = "";
       load_sensors();
-      function load_sensors(){
+      function load_sensors(auto){
         downloadUrl("sensors.php", function(data){
           //check for updates
           if(data.responseXML != sensors_xml){
@@ -162,49 +162,39 @@
               row.insertCell(1).innerHTML = sensors[i-1].getAttribute("ip");
               row.insertCell(2).innerHTML = sensors[i-1].getAttribute("start");
               row.insertCell(3).innerHTML = sensors[i-1].getAttribute("end");
-              row.insertCell(4).innerHTML = "Lorem Ipsum";
+              row.insertCell(4).innerHTML = sensors[i-1].getAttribute("description");
             }
 
             var sensors = sensors_xml.documentElement.getElementsByTagName("sensor");
             var table = document.getElementById("connected_sensors");
-            table.innerHTML = "<tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Description</th></tr>";
+            table.innerHTML = "<tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Description</th><th></th></tr>";
             for(var i = 1; i < sensors.length + 1; i++){
               var row = table.insertRow(i);
               row.insertCell(0).innerHTML = "<a href='sensor.html?" + sensors[i-1].getAttribute("id") + "'>" + sensors[i-1].getAttribute("id") + "</a>";
               row.insertCell(1).innerHTML = sensors[i-1].getAttribute("ip");
               row.insertCell(2).innerHTML = sensors[i-1].getAttribute("start");
-              row.insertCell(3).innerHTML = "Lorem Ipsum";
+              row.insertCell(3).innerHTML = sensors[i-1].getAttribute("description");
+              row.insertCell(4).innerHTML = "<span class='glyphicon glyphicon-remove disconnect-button rowlink-skip' aria-hidden='true' onclick='sensor_disconnect(" + sensors[i-1].getAttribute("id") + "); return false;'></span>";
             }
 
           }
         });
-        setTimeout(load_sensors, 5000);
+        if(!auto)
+          setTimeout(load_sensors, 5000);
       }
-      
-      /*downloadUrl("sensors.php", function(data){
-        var xml   = data.responseXML;
-        var sensors = xml.documentElement.getElementsByTagName("dsensor");
 
-        var table = document.getElementById("disconnected_sensors");
-        for(var i = 1; i < sensors.length + 1; i++){
-          var row = table.insertRow(i);
-          row.insertCell(0).innerHTML = "<a href='sensor.html?" + sensors[i-1].getAttribute("id") + "'>" + sensors[i-1].getAttribute("id") + "</a>";
-          row.insertCell(1).innerHTML = sensors[i-1].getAttribute("ip");
-          row.insertCell(2).innerHTML = sensors[i-1].getAttribute("start");
-          row.insertCell(3).innerHTML = sensors[i-1].getAttribute("end");
-          row.insertCell(4).innerHTML = "Lorem Ipsum";
-        }
-
-        var sensors = xml.documentElement.getElementsByTagName("sensor");
-        var table = document.getElementById("connected_sensors");
-        for(var i = 1; i < sensors.length + 1; i++){
-          var row = table.insertRow(i);
-          row.insertCell(0).innerHTML = "<a href='sensor.html?" + sensors[i-1].getAttribute("id") + "'>" + sensors[i-1].getAttribute("id") + "</a>";
-          row.insertCell(1).innerHTML = sensors[i-1].getAttribute("ip");
-          row.insertCell(2).innerHTML = sensors[i-1].getAttribute("start");
-          row.insertCell(3).innerHTML = "Lorem Ipsum";
-        }
-      })*/
+      function sensor_disconnect(id){
+        $.ajax({
+              url: "disconnect_sensor.php",
+              type: 'POST',
+              data: "&sensor_id=" + id,
+              success: function(data) {
+                console.log(data);
+                load_sensors(1);
+              }
+        });
+        console.log("Disconnect " + id);
+      }
 
       function downloadUrl(url, callback) {
         var request = window.ActiveXObject ?

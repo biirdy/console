@@ -32,6 +32,7 @@
 			echo 'id="' . parseToXML($row['sensor_id']) . '" ';
 			echo 'ip="' . parseToXML($row['ip']) . '" ';
 			echo 'start="' . parseToXML($row['start']) . '" ';
+			echo 'description="' . parseToXML($row['description']) . '" ';
 		echo '/>';
 	}
 
@@ -51,6 +52,7 @@
 			echo 'ip="' . parseToXML($row['ip']) . '" ';
 			echo 'start="' . parseToXML($row['start']) . '" ';
 			echo 'end="' . parseToXML($row['end']) . '" ';
+			echo 'description="' . parseToXML($row['description']) . '" ';
 		echo '/>';
 	}
 	
