@@ -87,11 +87,11 @@
         <div class="sensor-tables">
           <h2>Connected Sensors</h2>
           <table class="table table-hover rowlink" data-link="row" id="connected_sensors">
-  		      <tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Description</th><th>Disconnect</th></tr>
+  		      <tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Connect Time</th><th>Description</th><th>Disconnect</th></tr>
           </table>
           <h2>Previously Connected Sensors</h2>
           <table class="table table-hover rowlink" data-link="row" id="disconnected_sensors">
-            <tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>
+            <tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>
           </table>
         </div>
 
@@ -160,26 +160,28 @@
             var sensors = sensors_xml.documentElement.getElementsByTagName("dsensor");
 
             var table = document.getElementById("disconnected_sensors");
-            table.innerHTML = "<tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>";
+            table.innerHTML = "<tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>";
             for(var i = 1; i < sensors.length + 1; i++){
               var row = table.insertRow(i);
               row.insertCell(0).innerHTML = "<a href='sensor.html?" + sensors[i-1].getAttribute("id") + "'>" + sensors[i-1].getAttribute("id") + "</a>";
-              row.insertCell(1).innerHTML = sensors[i-1].getAttribute("ip");
-              row.insertCell(2).innerHTML = sensors[i-1].getAttribute("start");
-              row.insertCell(3).innerHTML = sensors[i-1].getAttribute("end");
-              row.insertCell(4).innerHTML = sensors[i-1].getAttribute("description");
+              row.insertCell(1).innerHTML = sensors[i-1].getAttribute("ether");
+              row.insertCell(2).innerHTML = sensors[i-1].getAttribute("ip");
+              row.insertCell(3).innerHTML = sensors[i-1].getAttribute("start");
+              row.insertCell(4).innerHTML = sensors[i-1].getAttribute("end");
+              row.insertCell(5).innerHTML = sensors[i-1].getAttribute("description");
             }
 
             var sensors = sensors_xml.documentElement.getElementsByTagName("sensor");
             var table = document.getElementById("connected_sensors");
-            table.innerHTML = "<tr><th>ID</th><th>IP</th><th>Connect Time</th><th>Description</th><th></th></tr>";
+            table.innerHTML = "<tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Connect Time</th><th>Description</th><th></th></tr>";
             for(var i = 1; i < sensors.length + 1; i++){
               var row = table.insertRow(i);
               row.insertCell(0).innerHTML = "<a href='sensor.html?" + sensors[i-1].getAttribute("id") + "'>" + sensors[i-1].getAttribute("id") + "</a>";
-              row.insertCell(1).innerHTML = sensors[i-1].getAttribute("ip");
-              row.insertCell(2).innerHTML = sensors[i-1].getAttribute("start");
-              row.insertCell(3).innerHTML = sensors[i-1].getAttribute("description");
-              row.insertCell(4).innerHTML = "<span class='glyphicon glyphicon-remove disconnect-button rowlink-skip' aria-hidden='true' onclick='sensor_disconnect(" + sensors[i-1].getAttribute("id") + "); return false;'></span>";
+              row.insertCell(1).innerHTML = sensors[i-1].getAttribute("ether");
+              row.insertCell(2).innerHTML = sensors[i-1].getAttribute("ip");
+              row.insertCell(3).innerHTML = sensors[i-1].getAttribute("start");
+              row.insertCell(4).innerHTML = sensors[i-1].getAttribute("description");
+              row.insertCell(5).innerHTML = "<span class='glyphicon glyphicon-remove disconnect-button rowlink-skip' aria-hidden='true' onclick='sensor_disconnect(" + sensors[i-1].getAttribute("id") + "); return false;'></span>";
             }
 
           }

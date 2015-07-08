@@ -31,6 +31,7 @@
 		echo '<sensor ';
 			echo 'id="' . parseToXML($row['sensor_id']) . '" ';
 			echo 'ip="' . parseToXML($row['ip']) . '" ';
+			echo 'ether="' . parseToXML($row['ether']) . '" ';
 			echo 'start="' . parseToXML($row['start']) . '" ';
 			echo 'description="' . parseToXML($row['description']) . '" ';
 		echo '/>';
@@ -50,6 +51,7 @@
 		echo '<dsensor ';
 			echo 'id="' . parseToXML($row['sensor_id']) . '" ';
 			echo 'ip="' . parseToXML($row['ip']) . '" ';
+			echo 'ether="' . parseToXML($row['ether']) . '" ';
 			echo 'start="' . parseToXML($row['start']) . '" ';
 			echo 'end="' . parseToXML($row['end']) . '" ';
 			echo 'description="' . parseToXML($row['description']) . '" ';

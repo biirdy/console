@@ -56,7 +56,7 @@
             <span class="icon-bar"></span>
           </button>
           
-          <a class="navbar-brand" href="index.html">Sensor Management</a>
+          <a class="navbar-brand" href="index.php">Sensor Management</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
@@ -436,8 +436,7 @@
 
         var bw_line = d3.svg.line()
             .x(function(d) { return bw_x(d.time); })
-            .y(function(d) { return bw_y(d.speed); })
-            .interpolate("basis");
+            .y(function(d) { return bw_y(d.speed); });
 
         /* 
         * dns resoloution graph
@@ -458,8 +457,7 @@
 
         var dns_line = d3.svg.line()
             .x(function(d) { return dns_x(d.time); })
-            .y(function(d) { return dns_y(d.duration); })
-            .interpolate("basis");
+            .y(function(d) { return dns_y(d.duration); });
         
         load_bw();
         function load_bw(){
