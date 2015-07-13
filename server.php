@@ -12,6 +12,9 @@ if (isset($_POST['action'])) {
             exec("sudo service network-sensor-server stop", $output, $return);
             exec("sudo service network-sensor-server start > /dev/null &", $output, $return);
             break;
+        case 'server_update':
+            echo("Not yet implemented");
+            break;
         case 'server_stop':
             exec("sudo service network-sensor-server stop", $output, $return);
             foreach ($output as $value) {

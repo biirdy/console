@@ -5,14 +5,8 @@
 		echo "Failed to connect to MySQL: " . mysqli_connect_error();
 	}
 
-	//if sensor_id is set only get individual sensor
-	$query = '';
-	if(isset($_GET['sensor_id'])){
-		$query = "SELECT * FROM sensors WHERE sensor_id = " . $_GET['sensor_id'];
-	}else{
-		$query = "SELECT * FROM sensors";
-	}
-	
+	// Select all the rows in the markers table
+	$query = "SELECT * FROM (SELECT sensor_id, dst_id, avg as feature FROM rtts ORDER BY time DESC) AS rtts GROUP BY sensor_id, dst_id";
 	$results = mysqli_query($con, $query);
 	if (!$results) {
 	  die('Invalid query: ' . mysqli_error());

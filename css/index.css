@@ -1,11 +1,16 @@
 body {
   padding-top: 50px;
+  background-color: #eee;
 }
 .main-body{
   padding: 40px 15px;
 }
 .sensor-tables{
 	text-align: center;
+}
+
+.sensor-tables table{
+  margin-bottom: 30px;
 }
 
 .disconnect-button{
@@ -41,4 +46,32 @@ body {
 #server_log {
     max-height:300px;
     overflow-y:auto;  
+}
+
+#topo-div, #topo-feature {
+  float: left;
+}
+
+#topo-div {
+  width: 80%;
+  height: 400px;
+}
+
+#topo-feature {
+  max-height: 200px;
+  overflow-y:auto;  
+  width: 20%;
+}
+
+.schedule-btn{
+  float: right;
+}
+
+.radio{
+  margin-top: 0px;
+}
+
+.input-group{
+  margin-right: 5px;
+  margin-left:5px;
 }

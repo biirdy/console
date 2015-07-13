@@ -71,7 +71,7 @@
 
     <div class="container">
       <div class="row container">
-        <div class="col-lg-3">
+        <div class="col-lg-4">
           <h1 id="title"></h1>
         </div>
 
@@ -84,7 +84,7 @@
           </div>
         </div>
 
-        <div class="col-lg-2">
+        <div class="col-lg-1">
           <button type="button" id="sensor-disc" class="btn btn-danger sensor-disc">Disconnect</button>
         </div>
       </div>
@@ -254,8 +254,6 @@
 
     </div>
 
-    
-
     <script src="http://d3js.org/d3.v3.js"></script>
     <script type="text/javascript">
 
@@ -291,19 +289,22 @@
           update_dns_graph(dns_data, 0);
         }
 
-        //get sensor id from url
+        //get sensor id from url - hopefully nothing else is passed - FIX!!
         var sensor_id = location.search.replace("?", "");
-        document.getElementById("title").innerHTML = "Sensor " + sensor_id;
+        document.getElementById("title").innerHTML = "Sensor " + sensor_id + " -> Server";
 
-        //load in existing sensor description
-        $.ajax({
-          url: "sensor_description.php",
-          type: "GET",
-          data: "&sensor_id=" + sensor_id,
-          success: function(data){
-            $("#desc-input").attr("placeholder", "Description: " + data);
+        //get sensor details
+        $.getJSON("sensors.php", "sensor_id=" + sensor_id, function(data){
+          var sensor_details = data[0];
+          $("#desc-input").attr("placeholder", "Description: " + sensor_details.description);
+
+          //if a disconnected sensor - disable all buttons excpet description update and graph periods
+          if(sensor_details.active == 0){
+            $(".btn").attr('disabled', 'disabled');
+            $("#desc-form").removeAttr('disabled');
+            $(".dropdown-toggle").removeAttr('disabled');
           }
-        })
+        });
 
         //POST for updating sensor
         $("#desc-form").click(function(){
@@ -314,21 +315,25 @@
               type: 'POST',
               data: "&sensor_id=" + sensor_id + "&description=" + encodeURI($("#desc-input").val()),
               success: function(data) {
-                console.log(data);
+                alert("Sensor " + sensor_id + " description updated to '" + $("#desc-input").val() + "'");
               }
           });
         });
 
         //POST for disconnect button
         $("#sensor-disc").click(function(){
-          $.ajax({
+          
+          if(confirm("Disconnect sensor " + sensor_id + "?")){
+            $.ajax({
               url: "disconnect_sensor.php",
               type: 'POST',
               data: "&sensor_id=" + sensor_id,
               success: function(data) {
                 console.log(data);
               }
-          });
+            });
+          }
+          
         });
 
         function iperf_validate(){
