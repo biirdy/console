@@ -385,7 +385,7 @@
           $.ajax({
               url: "request.php",
               type: 'POST',
-              data: $(this).serialize() + "&sensor_id=" + sensor_id + "&request_type=" + request_type,
+              data: $(this).serialize() + "&sensor_id=" + sensor_id + "&dst_id=1" + "&request_type=" + request_type,
               success: function(data) {
                   alert(data);
               }
@@ -466,7 +466,7 @@
         
         load_bw();
         function load_bw(){
-          $.getJSON("bws.php", "sensor_id=" + sensor_id, function(jsonData){
+          $.getJSON("bws.php", "sensor_id=" + sensor_id + "&dst_id=1", function(jsonData){
             
             if(jsonData.length == 0){
               d3.select("#bw_graph").select("svg").remove();
@@ -485,7 +485,7 @@
 
         load_rtt();
         function load_rtt(){
-          $.getJSON("rtts.php", "sensor_id=" + sensor_id, function(jsonData){
+          $.getJSON("rtts.php", "sensor_id=" + sensor_id + "&dst_id=1", function(jsonData){
 
             if(jsonData.length == 0){
               d3.select("#rtt_graph").select("svg").remove();
@@ -504,7 +504,7 @@
 
         load_udp();
         function load_udp(){
-          $.getJSON("udps.php", "sensor_id=" + sensor_id, function(jsonData){
+          $.getJSON("udps.php", "sensor_id=" + sensor_id + "&dst_id=1", function(jsonData){
 
             if(jsonData.length == 0){
               var table = document.getElementById("udp_table");

@@ -9,20 +9,34 @@ body {
 	text-align: center;
 }
 
+.modal {
+    overflow-y:auto;
+    max-height:100%;
+}
+
 .sensor-tables table{
   margin-bottom: 30px;
 }
 
-.disconnect-button{
-  float: right;
-  padding-right: 50px;
+.table-button{
   color: grey;
+}
+
+.table-button:hover{
+  cursor: pointer;
+}
+
+.susspend-button:hover{
+  color: orange;
 }
 
 .disconnect-button:hover{
   color: red;
 }
 
+.remove-button:hover{
+  color: red;
+}
 .sensor-desc{
   padding-top: 25px;
   margin: 0 auto;
@@ -64,6 +78,7 @@ body {
 }
 
 .schedule-btn{
+  margin-top: 10px;
   float: right;
 }
 

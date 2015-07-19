@@ -77,13 +77,15 @@
       <!-- Server Panel-->
       <div class="container panel panel-default panel-body" id="server-con">
 
-          <h1 id="server_status">Server <span style="color:green" class="glyphicon glyphicon-ok" aria-hidden="true"><small>Running</small></span></h1>
+          <h1 id="server_status">Server <span style="color:green" class="glyphicon glyphicon-ok" aria-hidden="true"><small>Running</small></span> </h1>
+
           
           <div class="panel panel-default">
             <div class="panel-heading">
               <h4 class="panel-title">
                 <a data-toggle="collapse" data-target="#collapseOne" class="collapsed">Server Log</a>
               </h4>
+        
 
             </div>
             <div id="collapseOne" class="panel-collapse collapse">
@@ -98,6 +100,8 @@
               <button type="button" class="btn btn-danger server-btn" id="server_stop" value="server_stop">Stop</button>
           </form>
 
+          <a href="logs/server.log" target"_self">Full server log</a>
+
       </div>
 
       <!-- Sensor Panel -->
@@ -105,12 +109,7 @@
 
         <h1>Sensors</h1>
         <div class="sensor-tables">
-          <h2>Connected Sensors</h2>
-          <table class="table table-hover rowlink" data-link="row" id="connected_sensors">
-  		      <tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Local IP</th><th>Connect Time</th><th>Description</th><th>Disconnect</th></tr>
-          </table>
-          <h2>Previously Connected Sensors</h2>
-          <table class="table table-hover rowlink" data-link="row" id="disconnected_sensors">
+          <table class="table table-hover rowlink" data-link="row" id="sensors">
             <tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Local IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>
           </table>
         </div>
@@ -159,7 +158,7 @@
 
         <!-- Schedule Table-->
         <table class="table table-hover rowlink" data-link="row" id="schedules">
-          <tr><th>From</th><th>To</th><th>Schedule</th><th>Details</th><th>Description</th></tr>
+          <tr><th>From</th><th>To</th><th>Interval (seconds)</th><th>Details</th><th>Description</th><th style='text-align: center;'>Start/Suspend</th><th style='text-align: center;'>Delete</th></tr>
         </table>
 
         <form class="form-inline" role="form">
@@ -183,22 +182,11 @@
             <!-- Modal body-->
             <div class="modal-body">
 
-                <div class="alert alert-danger" role="alert"><b>Measurement might not work as expected!</b><br> Recipient does not have a public facing IP address.</div>
-                <div class="alert alert-danger" role="alert"><b><i>To</i> and <i>from</i> cannot be the same sensor!</b></div>
+                <div id="ip-warning" style="display: none;" class="alert alert-danger" role="alert"><b>Measurement might not work as expected!</b><br> Recipient does not have a public facing IP address.</div>
+                <div id="same-sensor-warning" style="display: none;" class="alert alert-danger" role="alert"><b><i>To</i> and <i>from</i> cannot be the same sensor!</b></div>
+                <div id="no-sensor-warning" style="display: none;" class="alert alert-danger" role="alert"><b>Select both <i>To</i> and <i>from</i> sensor!</b></div>
               
                 <div class="form-group">
-                  
-                  <div class="form-group">
-                    <label for="to">To: </label><br>
-                    <div class="dropdown btn-group">
-                      <button class="btn btn-default dropdown-toggle" type="button" id="to-dropdown" data-toggle="dropdown" aria-expanded="true">
-                        <span data-bind="label">Select sensor</span>&nbsp;<span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu" id="to-dropdown-list" role="menu" aria-labelledby="to-dropdown">
-                      </ul>
-                      <input style="display: none;" hidden name="to" class="form-control" type="hidded">
-                    </div> 
-                  </div>
 
                   <div class="form-group">
                     <label for="from">From: </label><br>
@@ -208,23 +196,40 @@
                       </button>
                       <ul class="dropdown-menu" id="from-dropdown-list" role="menu" aria-labelledby="to-dropdown">
                       </ul>
-                      <input style="display: none;" name="from" class="form-control" type="hidded">
+                      <input id="from-input" value="0" style="display: none;" name="from" class="form-control" type="hidded">
                     </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="to">To: </label><br>
+                    <div class="dropdown btn-group">
+                      <button class="btn btn-default dropdown-toggle" type="button" id="to-dropdown" data-toggle="dropdown" aria-expanded="true">
+                        <span data-bind="label">Select sensor</span>&nbsp;<span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" id="to-dropdown-list" role="menu" aria-labelledby="to-dropdown">
+                      </ul>
+                      <input id="to-input" value="0" style="display: none;" hidden name="to" class="form-control" type="hidded">
+                    </div> 
+                  </div>
+
+                  <div class="form-group">
+                    <label for="description">Description: </label>
+                    <input name="description" class="form-control" placeholder="Description:">
                   </div>
 
                   <div class="form-group">
                   <label for="type">Measurement: </label>
                   <div class="radio">
-                    <label><input type="radio" name="type-radio" value="rtt-details" id="type-rtt">Round Trip Time</label>
+                    <label><input type="radio" name="type-radio" value="rtt" data-div="rtt-details" id="type-rtt">Round Trip Time</label>
                   </div>
                   <div class="radio">
-                    <label><input type="radio" name="type-radio" value="tcp-details" id="type-tcp">TCP throughput</label>
+                    <label><input type="radio" name="type-radio" value="tcp" data-div="tcp-details" id="type-tcp">TCP throughput</label>
                   </div>
                   <div class="radio">
-                    <label><input type="radio" name="type-radio" value="udp-details" id="type-udp">UDP measurements</label>
+                    <label><input type="radio" name="type-radio" value="udp" data-div="udp-details" id="type-udp">UDP measurements</label>
                   </div>
                   <div class="radio">
-                    <label><input type="radio" name="type-radio" value="dns-details" id="type-dns">DNS resolution</label>
+                    <label><input type="radio" name="type-radio" value="dns" data-div="dns-details" id="type-dns">DNS resolution</label>
                   </div>
                   </div>
 
@@ -247,11 +252,31 @@
 
                     <label for="udp-details-dur">Duration (Seconds): </label>
                     <input name="udp-details-dur" class="form-control" id="udp-details-dur" value="10">
+
+                    <label for="udp-details-dscp">DSCP flag: </label>
+                    <br>
+                    <div class="btn-group dropdown">
+                      <button type="button" class="form-control btn btn-default dropdown-toggle dscp-toggle" data-toggle="dropdown">
+                        <span data-bind="label">None</span>&nbsp;<span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" role="menu">
+                          <li value="0"><a href="" value="0" onclick="return false;">none</a></li>
+                          <li value="32"><a href="" value="32" onclick="return false;">cs1</a></li>
+                          <li value="64"><a href="" value="64" onclick="return false;">cs2</a></li>
+                          <li value="96"><a href="" vlaue="96" onclick="return false;">cs3</a></li>
+                          <li value="40"><a href="" value="40" onclick="return false;">af11</a></li>
+                          <li value="48"><a href="" value="48" onclick="return false;">af12</a></li>
+                          <li value="56"><a href="" value="56" onclick="return false;">af13</a></li>
+                          <li value="176"><a href="" onclick="return false;">voice-admit</a></li>
+                          <li value="184"><a href="" onclick="return false;">ef</a></li>
+                      </ul>
+                      <input style="display: none;" name="udp-details-dscp" class="form-control" type="hidded">
+                    </div>
                   </div>
 
                   <div class="form-group" style="display: none;" id="dns-details">
                     <label for="dns-details-addr">URL: </label>
-                    <input name="dns-details-addr" class="form-control" id="dns-details-addr" value="google.co.uk">
+                    <input class="form-control" id="dns-details-addr" value="google.co.uk">
                   </div>
 
                   <div class="form-group">
@@ -259,17 +284,17 @@
                   <table>
                     <tr><td>
                       <div class="input-group">
-                        <input type="text" class="form-control" value="1" aria-describedby="basic-addon2">
+                        <input name="hours" type="text" class="form-control" value="1" aria-describedby="basic-addon2">
                         <span class="input-group-addon" id="basic-addon2">Hours</span>
                       </div>
                     </td><td>
                       <div class="input-group">
-                        <input type="text" class="form-control" value="0" aria-describedby="basic-addon2">
+                        <input name="minutes" type="text" class="form-control" value="0" aria-describedby="basic-addon2">
                         <span class="input-group-addon" id="basic-addon2">Minues</span>
                       </div>
                     </td><td>
                       <div class="input-group">
-                        <input type="text" class="form-control" value="0" aria-describedby="basic-addon2">
+                        <input name="seconds" type="text" class="form-control" value="0" aria-describedby="basic-addon2">
                         <span class="input-group-addon" id="basic-addon2">Seconds</span>
                       </div>
                     </td></tr>
@@ -284,7 +309,7 @@
             <!-- Modal Footer-->
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-success">Create Schedule</button>
+              <button disabled id="schedule-submit" type="submit" class="btn btn-success">Create Schedule</button>
             </div>
             </form>
           </div>
@@ -372,18 +397,19 @@
       //auto refresh server log
       load_log();
       function load_log(){
-        $('#server_log').load('logs/server.log', function(){
-          var server_log = document.getElementById("server_log");
-          document.getElementById("server_log").innerHTML = document.getElementById("server_log").innerHTML.replace(/\n/g, "<br />"); 
+        $('#server_log').load('server_log.php', function(){
           document.getElementById("server_log").scrollTop = document.getElementById("server_log").scrollHeight; 
+          setTimeout(load_log, 5000);  
         });
-        setTimeout(load_log, 5000);
       }
-
       
       //initial load of sensor data 
       var sensor_data;
       load_sensors();
+
+      //initial load of schedule sata
+      var schedule_data;
+      load_schedules();
 
       /*
       * Loads in sensor data and fills out tables
@@ -398,8 +424,7 @@
             sensor_data = data;
 
             //clear tables
-            $("#connected_sensors").find("tr:gt(0)").remove();
-            $("#disconnected_sensors").find("tr:gt(0)").remove();
+            $("#sensors").find("tr:gt(0)").remove();
 
             //clear schdule creator dropdowns
             $("#to-dropdown-list").empty();
@@ -407,30 +432,19 @@
 
             //repopulate tables
             for(x in sensor_data){
-
-              if(sensor_data[x].active == 1){
-                $('#connected_sensors tr:last').after('<tr><td><a href="sensor.html?"' + sensor_data[x].sensor_id + '>' + sensor_data[x].sensor_id + '</a></td>' + 
-                                                      '<td>' + sensor_data[x].ether + '</td>' + 
-                                                      '<td>' + sensor_data[x].ip + '</td>' + 
-                                                      '<td>' + sensor_data[x].local_ip + '</td>' + 
-                                                      '<td>' + sensor_data[x].start + '</td>' + 
-                                                      '<td>' + sensor_data[x].description + '</td>' + 
-                                                      '<td><span class="glyphicon glyphicon-remove disconnect-button rowlink-skip" aria-hidden="true" onclick="sensor_disconnect(' + sensor_data[x].sensor_id + '); return false;"></span></td></tr>');
-              }else{
-                $('#disconnected_sensors tr:last').after('<tr><td><a href="sensor.html?"' + sensor_data[x].sensor_id + '>' + sensor_data[x].sensor_id + '</a></td>' + 
-                                                      '<td>' + sensor_data[x].ether + '</td>' + 
-                                                      '<td>' + sensor_data[x].ip + '</td>' + 
-                                                      '<td>' + sensor_data[x].local_ip + '</td>' + 
-                                                      '<td>' + sensor_data[x].start + '</td>' + 
-                                                      '<td>' + sensor_data[x].end + '</td>' + 
-                                                      '<td>' + sensor_data[x].description + '</td></tr>');
+              $('#sensors tr:last').after('<tr bgcolor=' + (sensor_data[x].active == 0 ? "'#FFCCCC'" : "'#99FF99'") + '><td><a href="sensor.html?' + sensor_data[x].sensor_id + '">' + sensor_data[x].sensor_id + '</a></td>' + 
+                                                    '<td>' + sensor_data[x].ether + '</td>' + 
+                                                    '<td>' + sensor_data[x].ip + '</td>' + 
+                                                    '<td>' + sensor_data[x].local_ip + '</td>' + 
+                                                    '<td>' + sensor_data[x].start + '</td>' + 
+                                                    '<td' + (sensor_data[x].active == 0 ? '>' + sensor_data[x].end : " style='text-align: center;'>-") + '</td>' + 
+                                                    '<td>' + sensor_data[x].description + '</td></tr>');
                                                       
-              }
+              
 
               //add to schedule creator dropdowns 
               $("#to-dropdown-list").append('<li role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
               $("#from-dropdown-list").append('<li role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
-
             }
 
           }
@@ -438,6 +452,30 @@
 
         if(!auto)
           setTimeout(load_sensors, 5000);
+      }
+
+      function load_schedules(auto){
+        $.getJSON("schedules.php", null, function(data){
+
+          if(JSON.stringify(schedule_data) != JSON.stringify(data)){
+            schedule_data = data;
+
+            $("#schedules").find("tr:gt(0)").remove();
+
+            for(x in schedule_data){
+              $('#schedules tr:last').after("<tr bgcolor=" + (schedule_data[x].active == 0 ? "'#FFCCCC'" : "'#99FF99'") + "><td>" + schedule_data[x].sensor + "</td>" + 
+                                            "<td>" + schedule_data[x].recipient + "</td>" + 
+                                            "<td>" + schedule_data[x].period + "</td>" + 
+                                            "<td>" + schedule_data[x].details + "</td>" + 
+                                            "<td>" + (schedule_data[x].description == "" ? "-" : schedule_data[x].description) + "</td>" + 
+                                            "<td style='text-align: center;' class='rowlink-skip'><span class='glyphicon " + (schedule_data[x].active == 0 ? "glyphicon-play" : "glyphicon-pause") + " susspend-button table-button' aria-hidden='true' onclick='" + (schedule_data[x].active == 0 ? "schedule_start(" : "schedule_susspend(") + schedule_data[x].schedule_id + "); return false;'></span></td>"  + 
+                                            "<td style='text-align: center;'class='rowlink-skip'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='schedule_delete(" + schedule_data[x].schedule_id + ")'></span></td>" + "</tr>");
+            }
+          }
+        }); 
+
+        if(!auto)
+          setTimeout(load_schedules, 5000);
       }
 
       /*
@@ -450,29 +488,81 @@
           .end()
           .children('.dropdown-toggle').dropdown( 'toggle');
 
+          console.log($target);
+          console.log($target.val());
+
           $target.closest('.btn-group')
           .find('[type="hidded"]').val($target.val())
           .end()
+
+          //checks
+          if($("#to-input").val() == 0 || $("#from-input").val() == 0){
+            $("#same-sensor-warning").hide();
+            $("#no-sensor-warning").show();
+            $("#schedule-submit").attr('disabled', 'disabled');
+          }else if($("#to-input").val() == $("#from-input").val()){
+            $("#no-sensor-warning").hide();
+            $("#same-sensor-warning").show();
+            $("#schedule-submit").attr('disabled', 'disabled');
+          }else{
+            $("#same-sensor-warning").hide();
+            $("#no-sensor-warning").hide();
+            $("#schedule-submit").removeAttr('disabled');
+          }//check for non differnet IP's
+
+          $("#create-schedule").data("bs.modal").handleUpdate();
       });
 
-      /*
-      * Disconnect sensor
-      */
-      function sensor_disconnect(id){
-          
-        if(confirm("Disconnect sensor " + id + "?")){
+    /*
+    * Disconnect sensor
+    */
+    function sensor_disconnect(id){
+        
+      if(confirm("Disconnect sensor " + id + "?")){
 
-          $.ajax({
-                url: "disconnect_sensor.php",
-                type: 'POST',
-                data: "&sensor_id=" + id,
-                success: function(data) {
-                  console.log(data);
-                  load_sensors(1);
-                }
-          });
-        }
+        $.ajax({
+              url: "disconnect_sensor.php",
+              type: 'POST',
+              data: "&sensor_id=" + id,
+              success: function(data) {
+                console.log(data);
+                load_sensors(1);
+              }
+        });
       }
+    }
+
+    /*
+    *
+    */
+    function schedule_susspend(sid){
+
+      console.log("Susspend schedule " + sid);
+
+      $.post("scheduler.php", {Function: "stopSchedule", Data: {sid: sid}}, function(data){
+        
+        alert(data);
+        load_schedules(1);
+      });
+
+    }
+
+    function schedule_start(sid){
+
+      console.log("Start schedule " + sid);
+
+    }
+
+    function schedule_delete(sid){
+
+      console.log("Delete delete " + sid);
+
+      if(confirm("Stop and delete schedule " + sid + "?")){
+        $.post("scheduler.php", {Function: "deleteSchedule", Data: {sid: sid}}, function(data){
+          load_schedules(1);
+        });
+      }
+    } 
 
     /*
     * Updates the topology view.
@@ -493,9 +583,6 @@
             json_sensor[x].label = json_sensor[x].ip;
           else if(sensor_label == "description")
             json_sensor[x].label = json_sensor[x].description;
-
-          
-
         }
 
         json_sensor.push({id: 1, label: "Server"});
@@ -568,6 +655,7 @@
       autoResize: true,
       height: '100%',
       width: '100%',
+      clickToUse: true,
       edges: {
         length: 200,
         smooth: {
@@ -629,16 +717,49 @@
         document.getElementById('udp-details').style.display = 'none';
         document.getElementById('dns-details').style.display = 'none';        
 
-        document.getElementById(this.value).style.display = 'block';
+        document.getElementById(this.getAttribute("data-div")).style.display = 'block';
+
+        $("#create-schedule").data("bs.modal").handleUpdate();
       }
     }
 
+    /*
+    * POST create schedule
+    */
     $("#create-schedule-form").submit(function(event){
       event.preventDefault();
 
-      console.log($(this).serialize());
+      console.log($(this).serializeObject());
+
+      $.post("scheduler.php", {Function: "createSchedule", Data:$(this).serializeObject()}, function(data){
+        //check if succeeds
+        if(!isNaN(data)){
+          alert("Created schedule with ID "  + data);
+          $("#create-schedule").modal('hide');
+          load_schedules(1);
+        }else{
+          alert("Failed - " + data);
+        }
+      });
+
 
     });
+
+    $.fn.serializeObject = function(){
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name] !== undefined) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
   
 
     </script>

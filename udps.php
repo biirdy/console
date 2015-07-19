@@ -6,7 +6,7 @@
 	}
 
 	// Select all the rows in the markers table
-	$bw_query = "SELECT * FROM udps WHERE sensor_id = " . $_GET['sensor_id'];
+	$bw_query = "SELECT * FROM udps WHERE sensor_id = " . $_GET['sensor_id'] . " AND dst_id = " . $_GET['dst_id'];
 	$bw_results = mysqli_query($con, $bw_query);
 	if (!$bw_results) {
 	  die('Invalid query: ' . mysqli_error());

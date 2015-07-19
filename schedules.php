@@ -5,16 +5,17 @@
 		echo "Failed to connect to MySQL: " . mysqli_connect_error();
 	}
 
-	// Select all the rows in the markers table
-	$rtt_query = "SELECT * FROM rtts WHERE sensor_id = " . $_GET['sensor_id'] . " AND dst_id = " . $_GET['dst_id'];
-	$rtt_results = mysqli_query($con, $rtt_query);
-	if (!$rtt_results) {
+	//if sensor_id is set only get individual sensor
+	$query = "SELECT * FROM schedules";
+	
+	$results = mysqli_query($con, $query);
+	if (!$results) {
 	  die('Invalid query: ' . mysqli_error());
 	}
 
 	$data = array();
 
-    while ($row = @mysqli_fetch_assoc($rtt_results)){
+    while ($row = @mysqli_fetch_assoc($results)){
     	$data[] = $row;
     }
 
