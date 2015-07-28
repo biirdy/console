@@ -398,7 +398,7 @@
       load_log();
       function load_log(){
         $('#server_log').load('server_log.php', function(){
-          document.getElementById("server_log").scrollTop = document.getElementById("server_log").scrollHeight; 
+          //document.getElementById("server_log").scrollTop = document.getElementById("server_log").scrollHeight; 
           setTimeout(load_log, 5000);  
         });
       }
@@ -550,6 +550,12 @@
     function schedule_start(sid){
 
       console.log("Start schedule " + sid);
+
+      $.post("scheduler.php", {Function: "startSchedule", Data: {sid: sid}}, function(data){
+
+        alert(data);
+        load_schedules(1);
+      })
 
     }
 
