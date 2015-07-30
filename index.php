@@ -107,7 +107,18 @@
       <!-- Sensor Panel -->
       <div class="container panel panel-default panel-body" id="sensors-con">
 
-        <h1>Sensors</h1>
+        <div class="row container">
+          <div class="col-lg-10">
+            <h1>Sensors</h1>
+          </div>
+          <div class="col-lg-2 legend-row">
+            <ul class="legend">
+                <li><span class="green-legend"></span> Active</li>
+                <li><span class="red-legend"></span> Inactive</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="sensor-tables">
           <table class="table table-hover rowlink" data-link="row" id="sensors">
             <tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Local IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>
@@ -154,8 +165,21 @@
 
       <!-- Schedule Panel -->
       <div class="container panel panel-default panel-body" id="schedules-con">
-        <h1>Schedules</h1>
-
+        
+        <div class="row container">
+          <div class="col-lg-10">
+            <h1>Schedules</h1>
+          </div>
+          <div class="col-lg-2 legend-row">
+            <ul class="legend">
+                <li><span class="green-legend"></span> Active</li>
+                <li><span class="orange-legend"></span> Fault</li>
+                <li><span class="red-legend"></span> Inactive</li>
+            </ul>
+          </div>
+        </div>
+        
+        
         <!-- Schedule Table-->
         <table class="table table-hover rowlink" data-link="row" id="schedules">
           <tr><th>From</th><th>To</th><th>Interval (seconds)</th><th>Details</th><th>Description</th><th style='text-align: center;'>Start/Suspend</th><th style='text-align: center;'>Delete</th></tr>
@@ -463,8 +487,8 @@
             $("#schedules").find("tr:gt(0)").remove();
 
             for(x in schedule_data){
-              $('#schedules tr:last').after("<tr bgcolor=" + (schedule_data[x].active == 0 ? "'#FFCCCC'" : "'#99FF99'") + "><td>" + schedule_data[x].sensor + "</td>" + 
-                                            "<td>" + schedule_data[x].recipient + "</td>" + 
+              $('#schedules tr:last').after("<tr bgcolor=" + (schedule_data[x].active == 0 ? "'#FFCCCC'" : (schedule_data[x].status == 1 ?  "'#99FF99'" : "'#FFCC66'")) + "><td>" + schedule_data[x].sensor + "</td>" + 
+                                            "<td>" + (schedule_data[x].recipient == null ? "-" : schedule_data[x].recipient) + "</td>" + 
                                             "<td>" + schedule_data[x].period + "</td>" + 
                                             "<td>" + schedule_data[x].details + "</td>" + 
                                             "<td>" + (schedule_data[x].description == "" ? "-" : schedule_data[x].description) + "</td>" + 

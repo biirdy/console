@@ -5,9 +5,6 @@ body {
 .main-body{
   padding: 40px 15px;
 }
-.sensor-tables{
-	text-align: center;
-}
 
 .modal {
     overflow-y:auto;
@@ -89,4 +86,29 @@ body {
 .input-group{
   margin-right: 5px;
   margin-left:5px;
+}
+
+.legend li { 
+  float: left; 
+  margin-right: 10px; 
+}
+
+.legend span{ 
+  float: left; 
+  padding-right: 4px;
+  width: 18px; 
+  height: 18px; 
+  margin: 2px; 
+}
+
+.green-legend{
+  background-color: #99FF99;
+}
+
+.orange-legend{
+  background-color: #FFCC66;
+}
+
+.red-legend{
+  background-color: #FFCCCC;
 }
