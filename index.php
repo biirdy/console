@@ -22,6 +22,7 @@
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
     <script src="/assets/js/ie-emulation-modes-warning.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -32,10 +33,6 @@
     <!-- vis.js -->
     <script type="text/javascript" src="/js/vis.js"></script>
     <link href="/css/vis.css" rel="stylesheet" type="text/css" />
-
-    <!-- bootstap-timepicker.js -->
-    <script type="text/javascript" src="/js/bootstrap-timepicker.js"></script>
-    <link type="text/css" href="/css/bootstrap-timepicker.css" />
 
   </head>
 
@@ -119,11 +116,10 @@
           </div>
         </div>
 
-        <div class="sensor-tables">
-          <table class="table table-hover rowlink" data-link="row" id="sensors">
-            <tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Local IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>
-          </table>
-        </div>
+        <table class="table table-hover rowlink" data-link="row" id="sensors">
+          <tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Local IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>
+        </table>
+     
 
       </div>
 
@@ -140,15 +136,18 @@
           <div class="radio">
             <label><input type="radio" name="feature-radio" id="feature-bw" checked>TCP Bandwidth</label>
           </div>
-          <div class="radio disabled">
-            <label><input type="radio" name="feature-radio" disabled>Option 3</label>
+          <div class="radio">
+            <label><input type="radio" name="feature-radio" id="feature-jitter">Jitter</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="feature-radio" id="feature-packetloss">Packet Loss</label>
           </div>
         </div>
 
         <div class="panel-body container panel panel-default" id="topo-feature">
           <p><b>Sensor Label</b></p>
           <div class="radio">
-            <label><input type="radio" name="label-radio" id="mac" checked>MAC address</label>
+            <label><input type="radio" name="label-radio" id="mac">MAC address</label>
           </div>
           <div class="radio">
             <label><input type="radio" name="label-radio" id="ip">IP address</label>
@@ -157,7 +156,7 @@
             <label><input type="radio" name="label-radio" id="id">Sensor ID</label>
           </div>
           <div class="radio">
-            <label><input type="radio" name="label-radio" id="description">Description</label>
+            <label><input type="radio" name="label-radio" id="description" checked>Description</label>
           </div>
         </div>
 
@@ -186,7 +185,7 @@
         </table>
 
         <form class="form-inline" role="form">
-          <button type="button" class="btn btn-success schedule-btn" data-toggle="modal" data-target="#create-schedule">Create Schedule</button>
+          <button type="button" class="btn btn-success create-btn" data-toggle="modal" data-target="#create-schedule">Create Schedule</button>
         </form>  
       </div>
 
@@ -206,9 +205,9 @@
             <!-- Modal body-->
             <div class="modal-body">
 
-                <div id="ip-warning" style="display: none;" class="alert alert-danger" role="alert"><b>Measurement might not work as expected!</b><br> Recipient does not have a public facing IP address.</div>
+                <div id="ip-warning" style="display: none;" class="alert alert-warning" role="alert"><b>Measurement might not work as expected!</b><br> Recipient does not have a public facing IP address.</div>
                 <div id="same-sensor-warning" style="display: none;" class="alert alert-danger" role="alert"><b><i>To</i> and <i>from</i> cannot be the same sensor!</b></div>
-                <div id="no-sensor-warning" style="display: none;" class="alert alert-danger" role="alert"><b>Select both <i>To</i> and <i>from</i> sensor!</b></div>
+                <div id="no-sensor-warning" style="display: none;" class="alert alert-danger" role="alert"><b>Select both <i>to</i> and <i>from</i> sensor!</b></div>
               
                 <div class="form-group">
 
@@ -216,11 +215,12 @@
                     <label for="from">From: </label><br>
                     <div class="dropdown btn-group">
                       <button style="display: block; width: 100%;" class="btn btn-default dropdown-toggle" type="button" id="from-dropdown" data-toggle="dropdown" aria-expanded="true">
-                        <span data-bind="label">Select sensor</span>&nbsp;<span class="caret"></span>
+                        <span data-bind="label">Select source</span>&nbsp;<span class="caret"></span>
                       </button>
                       <ul class="dropdown-menu" id="from-dropdown-list" role="menu" aria-labelledby="to-dropdown">
                       </ul>
-                      <input id="from-input" value="0" style="display: none;" name="from" class="form-control" type="hidded">
+                      <input id="from-input" class="dropdown-input" value="0" style="display: none;" name="from" class="form-control" type="hidded">
+                      <input id="from-type" class="dropdown-type" value="0" style="display: none;" name="from-type" class="form-control" type="hidded">
                     </div>
                   </div>
 
@@ -228,11 +228,12 @@
                     <label for="to">To: </label><br>
                     <div class="dropdown btn-group">
                       <button class="btn btn-default dropdown-toggle" type="button" id="to-dropdown" data-toggle="dropdown" aria-expanded="true">
-                        <span data-bind="label">Select sensor</span>&nbsp;<span class="caret"></span>
+                        <span data-bind="label">Select destination</span>&nbsp;<span class="caret"></span>
                       </button>
                       <ul class="dropdown-menu" id="to-dropdown-list" role="menu" aria-labelledby="to-dropdown">
                       </ul>
-                      <input id="to-input" value="0" style="display: none;" hidden name="to" class="form-control" type="hidded">
+                      <input id="to-input" class="dropdown-input" value="0" style="display: none;" hidden name="to" class="form-control" type="hidded">
+                      <input id="to-type" class="dropdown-type" value="0" style="display: none;" name="to-type" class="form-control" type="hidded">
                     </div> 
                   </div>
 
@@ -340,20 +341,98 @@
         </div>
       </div>  
 
+      <!-- Groups Panel -->
       <div class="container panel panel-default panel-body" id="groups-con">
-        <h1>Groups</h1>
+        <div class="row container">
+          <div class="col-lg-10">
+            <h1>Groups</h1>
+          </div>
+          <div class="col-lg-2 legend-row">
+            <ul class="legend">
+                <li><span class="green-legend"></span> All Active</li>
+                <li><span class="orange-legend"></span> Partly Active</li>
+                <li><span class="red-legend"></span> All Inactive</li>
+            </ul>
+          </div>
+        </div>
 
-        <h2>Not implemented</h2>
+        <!-- Groups Table-->
+        <table class="table table-hover" id="groups">
+          <thead>
+            <tr><th></th><th>Name</th><th># sensors</th><th>Description</th><th style='text-align: center;'>Delete</th></tr>
+          </thead>
+        </table>
+
+        <form class="form-inline" role="form">
+          <button type="button" class="btn btn-success create-btn" data-toggle="modal" data-target="#create-group">Create Group</button>
+        </form>
+      </div>
+
+      <divv class="modal fade" id="create-group" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+
+            <!-- Modal Header-->
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Create Group</h4>
+            </div>
+
+
+            <form role="form" id="create-group-form">
+            <!-- Modal body-->
+            <div class="modal-body">
+
+              <div class="form-group">
+                <label for="name">Name: </label>
+                <input id="group-name" name="name" class="form-control" placeholder="Name:">
+              </div>
+
+              <div class="form-group">
+                <label for="description">Description: </label>
+                <input id="group-description" name="description" class="form-control" placeholder="Description:">
+              </div>
+
+              <div class="form-group">
+                <label for="to">Add sensor: </label><br>
+                <div class="dropdown btn-group">
+                  <button class="btn btn-default dropdown-toggle" type="button" id="add-sensor-dropdown" data-toggle="dropdown" aria-expanded="true">
+                    <span data-bind="label">Select sensor</span>&nbsp;<span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" id="add-sensor-dropdown-list" role="menu" aria-labelledby="add-sensor-dropdown">
+                  </ul>
+                </div>
+                <button disabled type="button" class="btn btn-success" id="add-sensor-btn">Add sensor</button> 
+              </div>
+
+              <table class="table table-hover" id="create-group-table">
+                <tr><th>ID</th><th>Description</th><th>Remove</th></tr>
+              </table>
+              
+            </div>
+
+            <!-- Modal Footer-->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary clear-btn" id="create-group-clear">Clear</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <button disabled id="group-submit" type="submit" class="btn btn-success">Create Group</button>
+            </div>
+            </form>
+          </div>
+        </div>
       </div>
 
       <div class="container panel panel-default panel-body" id="alarms-con">
         <h1>Alarms</h1>
 
         <h2>Not implemented</h2>
+
       </div>
     </div>
 
     <script type="text/javascript">
+
+      
 
       /*
       * Get current state of server - update glyphicon and active server interaction buttons
@@ -362,6 +441,7 @@
         $.post("server.php", {'action':'server_state'}, function (response) {
           // Response div goes here.
           console.log(response);
+          server_running = response;
           if(response == 1){
              document.getElementById("server_status").innerHTML = "Server <span style='color:green' class='glyphicon glyphicon-ok' aria-hidden='true'><small>Running</small></span>";
              document.getElementById("server_start").disabled = true;
@@ -416,6 +496,7 @@
       });
 
       //inital state of server
+      server_running  = 0;
       server_status();
 
       //auto refresh server log
@@ -451,9 +532,12 @@
             $("#sensors").find("tr:gt(0)").remove();
 
             //clear schdule creator dropdowns
-            $("#to-dropdown-list").empty();
-            $("#from-dropdown-list").empty();
+            $("#to-dropdown-list").find('.sensor-element').remove();
+            $("#from-dropdown-list").find('.sensor-element').remove();
+            $("#add-sensor-dropdown-list").empty();
 
+            $("#to-dropdown-list").append('<li class="dropdown-header sensor-element">Sensors</li>');
+            $("#from-dropdown-list").append('<li class="dropdown-header sensor-element">Sensors</li>');
             //repopulate tables
             for(x in sensor_data){
               $('#sensors tr:last').after('<tr bgcolor=' + (sensor_data[x].active == 0 ? "'#FFCCCC'" : "'#99FF99'") + '><td><a href="sensor.html?' + sensor_data[x].sensor_id + '">' + sensor_data[x].sensor_id + '</a></td>' + 
@@ -467,8 +551,9 @@
               
 
               //add to schedule creator dropdowns 
-              $("#to-dropdown-list").append('<li role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
-              $("#from-dropdown-list").append('<li role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
+              $("#to-dropdown-list").append('<li class="to-dropdown-element sensor-element" role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
+              $("#from-dropdown-list").append('<li class="from-dropdown-element sensor-element" role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
+              $("#add-sensor-dropdown-list").append('<li class="add-sensor-dropdown-element" role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
             }
 
           }
@@ -476,6 +561,14 @@
 
         if(!auto)
           setTimeout(load_sensors, 5000);
+      }
+
+      function find_sensor(id){
+        for(x in sensor_data){
+          if(sensor_data[x].sensor_id == id)
+            return sensor_data[x];
+        }
+        return false;
       }
 
       function load_schedules(auto){
@@ -487,19 +580,110 @@
             $("#schedules").find("tr:gt(0)").remove();
 
             for(x in schedule_data){
-              $('#schedules tr:last').after("<tr bgcolor=" + (schedule_data[x].active == 0 ? "'#FFCCCC'" : (schedule_data[x].status == 1 ?  "'#99FF99'" : "'#FFCC66'")) + "><td>" + schedule_data[x].sensor + "</td>" + 
-                                            "<td>" + (schedule_data[x].recipient == null ? "-" : schedule_data[x].recipient) + "</td>" + 
+              $('#schedules tr:last').after("<tr bgcolor=" + (schedule_data[x].active == 0 ? "'#FFCCCC'" : (schedule_data[x].status == 1 ?  "'#99FF99'" : "'#FFCC66'")) + "><td>" + schedule_data[x].source_id + "</td>" + 
+                                            "<td>" + (schedule_data[x].destination_id == null ? "-" : schedule_data[x].destination_id) + "</td>" + 
                                             "<td>" + schedule_data[x].period + "</td>" + 
                                             "<td>" + schedule_data[x].details + "</td>" + 
                                             "<td>" + (schedule_data[x].description == "" ? "-" : schedule_data[x].description) + "</td>" + 
                                             "<td style='text-align: center;' class='rowlink-skip'><span class='glyphicon " + (schedule_data[x].active == 0 ? "glyphicon-play" : "glyphicon-pause") + " susspend-button table-button' aria-hidden='true' onclick='" + (schedule_data[x].active == 0 ? "schedule_start(" : "schedule_susspend(") + schedule_data[x].schedule_id + "); return false;'></span></td>"  + 
-                                            "<td style='text-align: center;'class='rowlink-skip'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='schedule_delete(" + schedule_data[x].schedule_id + ")'></span></td>" + "</tr>");
+                                            "<td style='text-align: center;' class='rowlink-skip'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='schedule_delete(" + schedule_data[x].schedule_id + ")'></span></td>" + "</tr>");
             }
           }
         }); 
 
         if(!auto)
           setTimeout(load_schedules, 5000);
+      }
+
+      //initial load of groups
+      var group_data;
+      load_groups();
+
+      function load_groups(auto){
+        $.getJSON("groups.php", null, function(data){
+
+          if(JSON.stringify(group_data) != JSON.stringify(data)){
+            group_data = data;
+
+            $("#to-dropdown-list").find(".group-element").remove();
+            $("#from-dropdown-list").find(".group-element").remove();
+            $("#to-dropdown-list").append('<li class="dropdown-header group-element">Groups</li>');
+            $("#from-dropdown-list").append('<li class="dropdown-header group-element">Groups</li>');
+            for(x in group_data){
+              $("#to-dropdown-list").append('<li class="to-dropdown-element group-element" role="presentation" value="' + group_data[x]['group_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group_data[x]['name'] + '</a></li>');
+              $("#from-dropdown-list").append('<li class="to-dropdown-element group-element" role="presentation" value="' + group_data[x]['group_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group_data[x]['name'] + '</a></li>');
+            }
+
+            $('#groups tbody').off('click', 'td.details-control');
+            var table = $('#groups').DataTable({
+                "destroy":  true, 
+                "paging":   false,
+                "ordering": false,
+                "info":     false,
+                "searching": false, 
+                "data": group_data,
+                "columns": [
+                    { 
+                      "data":null,
+                      "defaultContent": "<span class='glyphicon glyphicon-chevron-right table-button' aria-hidden='true'></span>",
+                      "className": 'details-control'
+                    },
+                    { "data": "name" },
+                    { "data": "num_sensors"},
+                    { "data": "description" },
+                    {
+                      "data": "schedule_id",
+                      "defaultContent": "<span class='delete-group glyphicon glyphicon-remove remove-button table-button' aria-hidden='true'></span>",
+                      "className": "center"
+                    }
+                ],
+                //add remove button with correct group ID & colour
+                "createdRow": function(row, data, index){
+                  $('td', row).css('background-color', (data['status'] == 0 ? '#99FF99'  : (data['status'] == 1 ? '#FFCC66' : '#FFCCCC')));
+                  $('td', row).eq(4).html("<span class='delete-group glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='group_delete(" + data['group_id'] + ")'></span>");
+                }
+            });
+
+            // Add event listener for opening and closing details
+            $('#groups tbody').on('click', 'td.details-control', function (){
+              var tr = $(this).closest('tr');
+              var row = table.row(tr);
+
+              if (row.child.isShown()){
+                  row.child.hide();
+                  $(this).find('span').removeClass('glyphicon-chevron-down');
+                  $(this).find('span').addClass('glyphicon-chevron-right');
+              }else{
+                  row.child(format(row.data())).show();
+                  $(this).find('span').removeClass('glyphicon-chevron-right');
+                  $(this).find('span').addClass('glyphicon-chevron-down');
+              }
+            });
+          }
+
+        });
+
+        if(!auto)
+          setTimeout(load_groups, 5000);
+      }
+
+      /*
+      * Format for group child table
+      */
+      function format(d) {
+          var child_table = '<table class="table child-table">';
+          child_table = child_table + "<tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Description</th><th>Remove</th></tr>";
+          for(var i = 0; i < d['sensors'].length; i++){
+            child_table = child_table + '<tr bgcolor=' + (d['sensors'][i]['active'] == 0 ? "'#FFCCCC'" : "'#99FF99'") + '>'+
+                                        '<td>'+ d['sensors'][i]['sensor_id'] +'</td>'+
+                                        '<td>'+ d['sensors'][i]['ether'] +'</td>'+
+                                        '<td>'+ d['sensors'][i]['ip'] +'</td>'+
+                                        '<td>'+ d['sensors'][i]['description'] +'</td>'+
+                                        '<td><span class="delete-group glyphicon glyphicon-remove remove-button table-button" aria-hidden="true" onclick="group_remove(' + d['group_id'] + ", " + d['sensors'][i]['sensor_id'] + ')"></span></td>'+
+                                        '</tr>';
+          }
+          child_table = child_table + '</table>';
+          return child_table;
       }
 
       /*
@@ -512,286 +696,397 @@
           .end()
           .children('.dropdown-toggle').dropdown( 'toggle');
 
-          console.log($target);
-          console.log($target.val());
+          console.log(this.classList);
+          console.log($.inArray('to-dropdown-element', this.classList));
+          console.log($.inArray('from-dropdown-element', this.classList));
+          console.log($.inArray('add-sensor-dropdown-element', this.classList));
 
-          $target.closest('.btn-group')
-          .find('[type="hidded"]').val($target.val())
-          .end()
+          //create schedule dropdowns
+          if($.inArray('to-dropdown-element', this.classList) != -1 || $.inArray('from-dropdown-element', this.classList) != -1){
+            
+            //update hidden input
+            $target.closest('.btn-group')
+            .find('.dropdown-input').val($target.val())
+            .end();
 
-          //checks
-          if($("#to-input").val() == 0 || $("#from-input").val() == 0){
-            $("#same-sensor-warning").hide();
-            $("#no-sensor-warning").show();
-            $("#schedule-submit").attr('disabled', 'disabled');
-          }else if($("#to-input").val() == $("#from-input").val()){
-            $("#no-sensor-warning").hide();
-            $("#same-sensor-warning").show();
-            $("#schedule-submit").attr('disabled', 'disabled');
-          }else{
-            $("#same-sensor-warning").hide();
-            $("#no-sensor-warning").hide();
-            $("#schedule-submit").removeAttr('disabled');
-          }//check for non differnet IP's
+            //update hidden input type
+            //0 - single sensor
+            //1 - group
+            if($.inArray('group-element', this.classList) == 1){
+              $target.closest('.btn-group').find('.dropdown-type').val("1").end();
+            }else{
+              $target.closest('.btn-group').find('.dropdown-type').val("0").end();
+            }
 
-          $("#create-schedule").data("bs.modal").handleUpdate();
+            //checks
+            if($("#to-input").val() == 0 || $("#from-input").val() == 0){
+              $("#same-sensor-warning").hide();
+              $("#no-sensor-warning").show();
+              $("#schedule-submit").attr('disabled', 'disabled');
+            }else if($("#to-input").val() == $("#from-input").val()){
+              $("#no-sensor-warning").hide();
+              $("#same-sensor-warning").show();
+              $("#schedule-submit").attr('disabled', 'disabled');
+            }else{
+              $("#same-sensor-warning").hide();
+              $("#no-sensor-warning").hide();
+              $("#schedule-submit").removeAttr('disabled');
+            }
+
+            if(find_sensor($("#to-input").val()).local_ip != find_sensor($("#to-input").val()).ip){
+              $("#ip-warning").show();
+            }else{
+              $("#ip-warning").hide();
+            }
+
+            $("#create-schedule").data("bs.modal").handleUpdate();
+
+          //create group drop down
+          }else if($target.attr('class') == 'add-sensor-dropdown-element'){
+            to_add = find_sensor($target.val());
+            $("#add-sensor-btn").removeAttr('disabled');
+            $("#create-group").data("bs.modal").handleUpdate();
+          }
       });
 
-    /*
-    * Disconnect sensor
-    */
-    function sensor_disconnect(id){
-        
-      if(confirm("Disconnect sensor " + id + "?")){
+      /*
+      * Sensor to be added to the group being created
+      */
+      var to_add = null;
+      $('#add-sensor-btn').click(function(){
 
-        $.ajax({
-              url: "disconnect_sensor.php",
-              type: 'POST',
-              data: "&sensor_id=" + id,
-              success: function(data) {
-                console.log(data);
-                load_sensors(1);
-              }
-        });
+        //check if table already contains sensor
+        if($('#create-group-table tr > td:contains(' + to_add['sensor_id'] + ') + td:contains(' + to_add['description'] + ')').length){
+          alert("Sensor already added to group");
+        }else{
+          $('#create-group-table tr:last').after( "<tr><td>" + to_add['sensor_id'] + "</td>" + 
+                                                  "<td>" + to_add['description'] + "</td>" + 
+                                                  "<td style='text-align: center;'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='create_group_remove_sensor(" + to_add['sensor_id'] + ")'></span></td>" +
+                                                  "</tr>");
+          $('#create-group-table tr:last').after('<input type="hidden" name="sensor" value="' + to_add['sensor_id'] + '"/>');
+          $("#group-submit").removeAttr('disabled');
+        }
+
+        
+      });
+
+      /*
+      * Remove row containing sensor from the create group modal
+      */
+      function create_group_remove_sensor(id){
+        $('#create-group-table tr > td:contains(' + id + ') + td:contains(' + find_sensor(id)['description'] + ')').closest('tr').remove();
+
+        if($('#create-group-table tr').length == 1){
+          $("#group-submit").attr('disabled', 'disabled');
+        }
       }
-    }
 
-    /*
-    *
-    */
-    function schedule_susspend(sid){
+      /*
+      * Clear the create group modal
+      */
+      function clear_create_group(){
+        $("#create-group-table").find("tr:gt(0)").remove();
+        $("#create-group-table").find("input").remove();
+        $("#group-name").val("");
+        $("#group-description").val("");
+        $("#group-submit").attr('disabled', 'disabled');
+      }
+      $('#create-group-clear').click(clear_create_group);
 
-      console.log("Susspend schedule " + sid);
+      /*
+      * Disconnect sensor
+      */
+      function sensor_disconnect(id){
+        if(confirm("Disconnect sensor " + id + "?")){
+          $.ajax({
+                url: "disconnect_sensor.php",
+                type: 'POST',
+                data: "&sensor_id=" + id,
+                success: function(data) {
+                  load_sensors(1);
+                }
+          });
+        }
+      }
 
-      $.post("scheduler.php", {Function: "stopSchedule", Data: {sid: sid}}, function(data){
-        
-        alert(data);
-        load_schedules(1);
-      });
-
-    }
-
-    function schedule_start(sid){
-
-      console.log("Start schedule " + sid);
-
-      $.post("scheduler.php", {Function: "startSchedule", Data: {sid: sid}}, function(data){
-
-        alert(data);
-        load_schedules(1);
-      })
-
-    }
-
-    function schedule_delete(sid){
-
-      console.log("Delete delete " + sid);
-
-      if(confirm("Stop and delete schedule " + sid + "?")){
-        $.post("scheduler.php", {Function: "deleteSchedule", Data: {sid: sid}}, function(data){
+      /*
+      *
+      */
+      function schedule_susspend(sid){
+        $.post("scheduler.php", {Function: "stopSchedule", Data: {sid: sid}}, function(data){
+          
+          if(data == 0)
+            alert("Susspended schedule " + sid);
+          else
+            alert("Failed to susspend schedule " + sid + ". Check scheduler log.");
           load_schedules(1);
         });
       }
-    } 
 
-    /*
-    * Updates the topology view.
-    * feature_url   - url of JSON file (PHP) to label the links
-    * sensor_label  - string describing how to label the sesnors (MAC, IP, ID or Description)
-    */
-    function load_topo(sensor_label, feature_url){
-      $.getJSON("sensors.php", null, function(json_sensor){
-      
-        for(x in json_sensor){
-          json_sensor[x].id = json_sensor[x].sensor_id;
-
-          if(sensor_label == "mac")
-            json_sensor[x].label = json_sensor[x].ether;
-          else if(sensor_label == "id")
-            json_sensor[x].label = json_sensor[x].sensor_id;
-          else if(sensor_label == "ip")
-            json_sensor[x].label = json_sensor[x].ip;
-          else if(sensor_label == "description")
-            json_sensor[x].label = json_sensor[x].description;
+      function schedule_start(sid){
+        if(server_running == 1){
+          $.post("scheduler.php", {Function: "startSchedule", Data: {sid: sid}}, function(data){
+            if(isNaN(data))
+              alert("Failed to start schedule. Check scheduler log.");
+            else
+              alert("Started schedule with ID " + data);
+            load_schedules(1);
+          })
+        }else{
+          alert("Cannont start schedule when server is not runnning!");
         }
+      }
 
-        json_sensor.push({id: 1, label: "Server"});
+      function schedule_delete(sid){
+        if(confirm("Stop and delete schedule " + sid + "?")){
+          $.post("scheduler.php", {Function: "deleteSchedule", Data: {sid: sid}}, function(data){
+            load_schedules(1);
+          });
+        }
+      }
 
-        $.getJSON(feature_url, null, function(json_feature){
+      function group_delete(gid){
+        if(confirm("Delete group " + gid + ". All schedules using the group will become faulty.")){
+          $.post("group_management.php", {Function: "deleteGroup", Data: {gid: gid}}, function(data){
+            load_groups(1);
+          });
+        }
+      } 
 
-          for(x in json_feature){
-            json_feature[x].from = json_feature[x].sensor_id;
-            json_feature[x].to = json_feature[x].dst_id;
-            json_feature[x].label = json_feature[x].feature + ((feature_url == "bws_topo.php") ? "kbps" : "ms");
+      function group_remove(gid, sid){
+        if(confirm("Remove sensor " + sid + " from group " + gid + ". Schedules using the group may become faulty.")){
+          $.post("group_management.php", {Function: "removeGroup", Data: {gid: gid, sid: sid}}, function(data){
+            load_groups(1);
+          });
+        }
+      }
+
+      /*
+      * Updates the topology view.
+      * feature_url   - url of JSON file (PHP) to label the links
+      * sensor_label  - string describing how to label the sesnors (MAC, IP, ID or Description)
+      */
+      function load_topo(sensor_label, feature){
+        $.getJSON("sensors.php", null, function(json_sensor){
+        
+          for(x in json_sensor){
+            json_sensor[x].id = json_sensor[x].sensor_id;
+
+            if(sensor_label == "mac")
+              json_sensor[x].label = json_sensor[x].ether;
+            else if(sensor_label == "id")
+              json_sensor[x].label = json_sensor[x].sensor_id;
+            else if(sensor_label == "ip")
+              json_sensor[x].label = json_sensor[x].ip;
+            else if(sensor_label == "description")
+              json_sensor[x].label = json_sensor[x].description;
           }
 
-          // provide the data in the vis format
-          topo_data = {
-              nodes: new vis.DataSet(json_sensor),
-              edges: new vis.DataSet(json_feature)
-          };
+          json_sensor.push({id: 1, label: "Server"});
 
-          network.setOptions(topo_options);
+          $.getJSON("topo.php", "feature=" + feature, function(json_feature){
 
-          // initialize your network!
-          network.setData(topo_data);
-
-          console.log(network.getSeed());
-
-          //freeze network once organised - 100ms
-          setTimeout(function(){
-            network.setOptions(no_sim_options);
-          }, 100);
-
-          //onclick to redirect when clicked on a sensor - not edges or sensor
-          network.on( 'click', function(properties) {
-            if(properties.nodes.length == 1){
-              if(properties.nodes != 1)
-                window.location.href = "sensor.html?" + properties.nodes;
+            for(x in json_feature){
+              json_feature[x].from = json_feature[x].sensor_id;
+              json_feature[x].to = json_feature[x].dst_id;
+              //json_feature[x].label = json_feature[x].feature + ((feature == "feature-bw") ? "kbps" : (feature == "feature-packetloss") ? "%" : "ms");
+              json_feature[x].label = ((feature == "feature-bw") ? rate_string(json_feature[x].feature) : (feature == "feature-packetloss") ? json_feature[x].feature + "%" : json_feature[x].feature + "ms");
             }
-          });       
 
-        });           
-      
-      });
-    }
+            // provide the data in the vis format
+            topo_data = {
+                nodes: new vis.DataSet(json_sensor),
+                edges: new vis.DataSet(json_feature)
+            };
 
-    // Create initial topology
-    var topo_container = document.getElementById('topo-div');
+            network.setOptions(topo_options);
 
-    var topo_data = {nodes: null, edges: null};
-    var topo_options = {
-      autoResize: true,
-      height: '100%',
-      width: '100%',
-      layout: {
-        randomSeed: 0
-      },
-      edges: {
-        length: 200,
-        smooth: {
-          enabled: false
-        }
-      },
-      physics: {
-        enabled: true,
-        barnesHut: {
-          avoidOverlap: 1
-        }
-      }
-    };
+            // initialize your network!
+            network.setData(topo_data);
 
-    var no_sim_options = {
-      autoResize: true,
-      height: '100%',
-      width: '100%',
-      clickToUse: true,
-      edges: {
-        length: 200,
-        smooth: {
-          enabled: false
-        }
-      },
-      physics: {
-        enabled: false
-      },
-      interaction: {
-        hover: true,
-        hoverConnectedEdges: false,
-        zoomView: false
-      }
-    }
+            //freeze network once organised - 100ms
+            setTimeout(function(){
+              network.setOptions(no_sim_options);
+            }, 100);
 
-    var network = new vis.Network(topo_container, topo_data, topo_options);
-    var feature_url = "bws_topo.php";
-    var sensor_label = "mac";
-    load_topo(sensor_label, feature_url); 
+            //onclick to redirect when clicked on a sensor - not edges or sensor
+            network.on( 'click', function(properties) {
+              if(properties.nodes.length == 1){
+                if(properties.nodes != 1)
+                  window.location.href = "sensor.html?" + properties.nodes;
+              }
+            });       
 
-    /*
-    * Change topology link feature according to radio buttons
-    */
-    var feature_radios = document.getElementsByName("feature-radio");
-    for (x in feature_radios){
-      feature_radios[x].onclick = function(){
-
-        if(this.id == "feature-rtt"){
-          feature_url = "rtts_topo.php";
-        }else if(this.id == "feature-bw"){
-          feature_url = "bws_topo.php";
-        }
-
-        load_topo(sensor_label, feature_url);
-
-      }
-    }
-
-    /*
-    * Change topology sensor label accoring to radio buttons
-    */
-    var label_radios = document.getElementsByName("label-radio");
-    for (x in label_radios){
-      label_radios[x].onclick = function(){
-        sensor_label = this.id;
-        load_topo(sensor_label, feature_url);
-      }
-    }
-
-    /*
-    * Change create schdule form for the type of measurement selected
-    */
-    var type_radios = document.getElementsByName("type-radio");
-    for (x in type_radios){
-      type_radios[x].onclick = function(){
-        document.getElementById('rtt-details').style.display = 'none';
-        document.getElementById('tcp-details').style.display = 'none';
-        document.getElementById('udp-details').style.display = 'none';
-        document.getElementById('dns-details').style.display = 'none';        
-
-        document.getElementById(this.getAttribute("data-div")).style.display = 'block';
-
-        $("#create-schedule").data("bs.modal").handleUpdate();
-      }
-    }
-
-    /*
-    * POST create schedule
-    */
-    $("#create-schedule-form").submit(function(event){
-      event.preventDefault();
-
-      console.log($(this).serializeObject());
-
-      $.post("scheduler.php", {Function: "createSchedule", Data:$(this).serializeObject()}, function(data){
-        //check if succeeds
-        if(!isNaN(data)){
-          alert("Created schedule with ID "  + data);
-          $("#create-schedule").modal('hide');
-          load_schedules(1);
-        }else{
-          alert("Failed - " + data);
-        }
-      });
-
-
-    });
-
-    $.fn.serializeObject = function(){
-        var o = {};
-        var a = this.serializeArray();
-        $.each(a, function() {
-            if (o[this.name] !== undefined) {
-                if (!o[this.name].push) {
-                    o[this.name] = [o[this.name]];
-                }
-                o[this.name].push(this.value || '');
-            } else {
-                o[this.name] = this.value || '';
-            }
+          });           
+        
         });
-        return o;
-    };
-  
+      }
 
+      // Create initial topology
+      var topo_container = document.getElementById('topo-div');
+
+      var topo_data = {nodes: null, edges: null};
+      var topo_options = {
+        autoResize: true,
+        height: '100%',
+        width: '100%',
+        layout: {
+          randomSeed: 0
+        },
+        edges: {
+          length: 200,
+          smooth: {
+            enabled: false
+          }
+        },
+        physics: {
+          enabled: true,
+          barnesHut: {
+            avoidOverlap: 1
+          }
+        }
+      };
+
+      var no_sim_options = {
+        autoResize: true,
+        height: '100%',
+        width: '100%',
+        clickToUse: true,
+        edges: {
+          length: 200,
+          smooth: {
+            enabled: false
+          }
+        },
+        physics: {
+          enabled: false
+        },
+        interaction: {
+          hover: true,
+          hoverConnectedEdges: false,
+          zoomView: false
+        }
+      }
+
+      var network = new vis.Network(topo_container, topo_data, topo_options);
+      var feature = "feature-bw";
+      var sensor_label = "description";
+      load_topo(sensor_label, feature); 
+
+      /*
+      * Change topology link feature according to radio buttons
+      */
+      var feature_radios = document.getElementsByName("feature-radio");
+      for (x in feature_radios){
+        feature_radios[x].onclick = function(){
+          feature = this.id;
+          load_topo(sensor_label, feature);
+        }
+      }
+
+      /*
+      * Change topology sensor label accoring to radio buttons
+      */
+      var label_radios = document.getElementsByName("label-radio");
+      for (x in label_radios){
+        label_radios[x].onclick = function(){
+          sensor_label = this.id;
+          load_topo(sensor_label, feature);
+        }
+      }
+
+      /*
+      * Change create schdule form for the type of measurement selected
+      */
+      var type_radios = document.getElementsByName("type-radio");
+      for (x in type_radios){
+        type_radios[x].onclick = function(){
+          document.getElementById('rtt-details').style.display = 'none';
+          document.getElementById('tcp-details').style.display = 'none';
+          document.getElementById('udp-details').style.display = 'none';
+          document.getElementById('dns-details').style.display = 'none';        
+
+          document.getElementById(this.getAttribute("data-div")).style.display = 'block';
+
+          $("#create-schedule").data("bs.modal").handleUpdate();
+        }
+      }
+
+      /*
+      * POST create schedule
+      */
+      $("#create-schedule-form").submit(function(event){
+        event.preventDefault();
+
+        console.log($(this).serializeObject());
+
+        $.post("scheduler.php", {Function: "createSchedule", Data:$(this).serializeObject()}, function(data){
+          //check if succeeds
+          if(!isNaN(data)){
+            alert("Created schedule with ID "  + data);
+            $("#create-schedule").modal('hide');
+            load_schedules(1);
+          }else{
+            alert("Failed - " + data);
+          }
+        });
+      });
+
+      /*
+      * POST create group
+      */
+      $("#create-group-form").submit(function(event){
+        event.preventDefault();
+
+        $.post("group_management.php", {Function: "createGroup", Data:$(this).serializeObject()}, function(data){
+
+          if(!isNaN(data)){
+            alert("Created group with ID " + data);
+            $("#create-group").modal('hide');
+            clear_create_group();
+            load_groups(1);
+          }else{
+            alert("Failed - " + data);
+          }
+        });
+      });
+
+      $.fn.serializeObject = function(){
+          var o = {};
+          var a = this.serializeArray();
+          $.each(a, function() {
+              if (o[this.name] !== undefined) {
+                  if (!o[this.name].push) {
+                      o[this.name] = [o[this.name]];
+                  }
+                  o[this.name].push(this.value || '');
+              } else {
+                  o[this.name] = this.value || '';
+              }
+          });
+          return o;
+      };
+
+      function rate_string(bps){
+        if(bps > 1024*1024*1024)
+          return  parseFloat(bps/(1024*1024*1024)).toFixed(2) + "gbps";
+        else if(bps > 1024*1024)
+          return parseFloat(bps/(1024*1024)).toFixed(2) + "mbps";
+        else if(bps > 1024)
+          return  parseFloat(bps/(1024)).toFixed(2) + "kbps";
+        else 
+          return bps + "bps";
+      }
+
+      function time_string(seconds){
+        if(seconds > 60*60)
+          return Math.floor(seconds/(60*60)) + "hours " + Math.floor((seconds%(60*60)/60)) + "min " + Math.floor(seconds%(60*60)%60) + "sec";
+        else if(seconds > 60)
+          Math.floor(seconds/60) + "min " + Math.floor(seconds%(60*60)%60) + "sec";
+        else
+          return seconds + " sec"; 
+      }
+  
     </script>
 
 

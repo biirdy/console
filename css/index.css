@@ -74,9 +74,13 @@ body {
   width: 20%;
 }
 
-.schedule-btn{
+.create-btn{
   margin-top: 10px;
   float: right;
+}
+
+.clear-btn{
+  float: left;
 }
 
 .radio{
@@ -111,4 +115,18 @@ body {
 
 .red-legend{
   background-color: #FFCCCC;
+}
+
+.center{
+  text-align: center;
+}
+
+.dataTable{
+  margin-bottom: 0;
+}
+
+table.child-table{
+  margin-bottom: 0;
+  width: 95%;
+  float: right;
 }

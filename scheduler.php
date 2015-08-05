@@ -26,19 +26,18 @@
     function createSchedule($data=array()){
         $request = '';
 
-
         $seconds = intval($data['hours']) * 60 * 60;
         $seconds = $seconds + (intval($data['minutes']) * 60);
         $seconds = $seconds + intval($data['seconds']);
 
         if(strcmp($data['type-radio'], 'rtt') == 0){
-            $request = xmlrpc_encode_request('add_rtt_schedule.request', array(intval(0), intval($data['from']), intval($data['to']), intval($data['rtt-details-itr']), $seconds));
+            $request = xmlrpc_encode_request('add_rtt_schedule.request', array(0, intval($data['from']), intval($data['from-type']), intval($data['to']), intval($data['to-type']), intval($data['rtt-details-itr']), $seconds));
         }elseif(strcmp($data['type-radio'], 'tcp') == 0){
-            $request = xmlrpc_encode_request('add_tcp_schedule.request', array(0, intval($data['from']), intval($data['to']), intval($data['tcp-details-dur']), $seconds));
+            $request = xmlrpc_encode_request('add_tcp_schedule.request', array(0, intval($data['from']), intval($data['from-type']), intval($data['to']), intval($data['to-type']), intval($data['tcp-details-dur']), $seconds));
         }elseif(strcmp($data['type-radio'], 'udp') == 0){
-            $request = xmlrpc_encode_request('add_udp_schedule.request', array(0, intval($data['from']), intval($data['to']), intval($data['udp-details-speed']), intval($data['udp-details-size']), intval($data['udp-details-dur']), intval($data['udp-details-dscp']), $seconds));
+            $request = xmlrpc_encode_request('add_udp_schedule.request', array(0, intval($data['from']), intval($data['from-type']), intval($data['to']), intval($data['to-type']), intval($data['udp-details-speed']), intval($data['udp-details-size']), intval($data['udp-details-dur']), intval($data['udp-details-dscp']), $seconds));
         }elseif(strcmp($data['type-radio'], 'dns') == 0) {
-            $request = xmlrpc_encode_request('add_dns_schedule.request', array(0, intval($data['from']), $seconds));
+            $request = xmlrpc_encode_request('add_dns_schedule.request', array(0, intval($data['from']), intval($data['from-type']), $seconds));
         }else{
             echo("Invalid measurement type " . $data['type-radio']);
             exit;
@@ -125,13 +124,13 @@
 
         //send request
         if(strcmp($row['method'], 'rtt') == 0){
-            $request = xmlrpc_encode_request('add_rtt_schedule.request', array(intval($data['sid']), intval($row['sensor']), intval($row['recipient']), intval($params['iterations']), intval($row['period'])));
+            $request = xmlrpc_encode_request('add_rtt_schedule.request', array(intval($data['sid']), intval($row['source_id']), intval($row['source_type']), intval($row['destination_id']), intval($row['destination_type']), intval($params['iterations']), intval($row['period'])));
         }elseif(strcmp($row['method'], 'tcp') == 0){
-            $request = xmlrpc_encode_request('add_tcp_schedule.request', array(intval($data['sid']), intval($row['sensor']), intval($row['recipient']), intval($params['duration']), intval($row['period'])));
+            $request = xmlrpc_encode_request('add_tcp_schedule.request', array(intval($data['sid']), intval($row['source_id']), intval($row['source_type']), intval($row['destination_id']), intval($row['destination_type']), intval($params['duration']), intval($row['period'])));
         }elseif(strcmp($row['method'], 'udp') == 0){
-            $request = xmlrpc_encode_request('add_udp_schedule.request', array(intval($data['sid']), intval($row['sensor']), intval($row['recipient']), intval($params['send_speed']), intval($params['packet_size']), intval($params['duration']), intval($params['dscp_flag']), intval($row['period'])));
+            $request = xmlrpc_encode_request('add_udp_schedule.request', array(intval($data['sid']), intval($row['source_id']), intval($row['source_type']), intval($row['destination_id']), intval($row['destination_type']), intval($params['send_speed']), intval($params['packet_size']), intval($params['duration']), intval($params['dscp_flag']), intval($row['period'])));
         }elseif(strcmp($row['method'], 'dns') == 0) {
-            $request = xmlrpc_encode_request('add_dns_schedule.request', array(intval($data['sid']), intval($row['sensor']), intval($row['period'])));
+            $request = xmlrpc_encode_request('add_dns_schedule.request', array(intval($data['sid']), intval($row['source_id']), intval($row['source_type']), intval($row['period'])));
         }else{
             echo("Invalid measurement type " . $row['method']);
             exit;
