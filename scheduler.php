@@ -25,29 +25,11 @@
 
     function createSchedule($data=array()){
         $request = '';
+        $result = 0;
 
         $seconds = intval($data['hours']) * 60 * 60;
         $seconds = $seconds + (intval($data['minutes']) * 60);
         $seconds = $seconds + intval($data['seconds']);
-
-        if(strcmp($data['type-radio'], 'rtt') == 0){
-            $request = xmlrpc_encode_request('add_rtt_schedule.request', array(0, intval($data['from']), intval($data['from-type']), intval($data['to']), intval($data['to-type']), intval($data['rtt-details-itr']), $seconds));
-        }elseif(strcmp($data['type-radio'], 'tcp') == 0){
-            $request = xmlrpc_encode_request('add_tcp_schedule.request', array(0, intval($data['from']), intval($data['from-type']), intval($data['to']), intval($data['to-type']), intval($data['tcp-details-dur']), $seconds));
-        }elseif(strcmp($data['type-radio'], 'udp') == 0){
-            $request = xmlrpc_encode_request('add_udp_schedule.request', array(0, intval($data['from']), intval($data['from-type']), intval($data['to']), intval($data['to-type']), intval($data['udp-details-speed']), intval($data['udp-details-size']), intval($data['udp-details-dur']), intval($data['udp-details-dscp']), $seconds));
-        }elseif(strcmp($data['type-radio'], 'dns') == 0) {
-            $request = xmlrpc_encode_request('add_dns_schedule.request', array(0, intval($data['from']), intval($data['from-type']), $seconds));
-        }else{
-            echo("Invalid measurement type " . $data['type-radio']);
-            exit;
-        }
-
-        $response = do_call($request);
-        $responde = (substr($response, strpos($response, "\r\n\r\n")+4));
-        $response = xmlrpc_decode($response);
-
-        echo $response;
 
         //add description to db
         $con = mysqli_connect("localhost","root","root","tnp");
@@ -55,11 +37,43 @@
             echo "Failed to connect to MySQL: " . mysqli_connect_error();
         }
 
-        $query = "UPDATE schedules SET description='" . $data['description'] . "' WHERE schedule_id = " . intval($response);
+        $query = "INSERT INTO schedules(name, description, period) VALUES('" . $data['name'] . "', '" . $data['description'] . "', '" . $seconds . "')";
         $results = mysqli_query($con, $query);
         if (!$results) {
           die('Invalid query: ' . mysqli_error($con));
         }
+
+        $id = mysqli_insert_id($con); 
+
+        for($x = 0; $x < count($data['measurement']); $x++){
+            $measurement = $data['measurement'][$x];
+
+            $delay_seconds = intval($measurement['delay-hours']) * 60 * 60;
+            $delay_seconds = $delay_seconds + (intval($measurement['delay-minutes']) * 60);
+            $delay_seconds = $delay_seconds + intval($measurement['delay-seconds']);
+
+            if(strcmp($measurement['type-radio'], 'rtt') == 0){
+                $request = xmlrpc_encode_request('add_rtt_schedule.request', array(0, intval($id), intval($measurement['source']), intval($measurement['source-type']), intval($measurement['destination']), intval($measurement['destination-type']), intval($measurement['rtt-details-itr']), $seconds, $delay_seconds));
+            }elseif(strcmp($measurement['type-radio'], 'tcp') == 0){
+                $request = xmlrpc_encode_request('add_tcp_schedule.request', array(0, intval($id), intval($measurement['source']), intval($measurement['source-type']), intval($measurement['destination']), intval($measurement['destination-type']), intval($measurement['tcp-details-dur']), $seconds, $delay_seconds));
+            }elseif(strcmp($measurement['type-radio'], 'udp') == 0){
+                $request = xmlrpc_encode_request('add_udp_schedule.request', array(0, intval($id), intval($measurement['source']), intval($measurement['source-type']), intval($measurement['destination']), intval($measurement['destination-type']), intval($measurement['udp-details-speed']), intval($measurement['udp-details-size']), intval($measurement['udp-details-dur']), intval($measurement['udp-details-dscp']), $seconds, $delay_seconds));
+            }elseif(strcmp($measurement['type-radio'], 'dns') == 0) {
+                $request = xmlrpc_encode_request('add_dns_schedule.request', array(0, intval($id), intval($measurement['source']), intval($measurement['source-type']), $seconds, $delay_seconds));
+            }else{
+                echo("Invalid measurement type " . $measurement['type-radio']);
+                exit;
+            }
+
+            $response = do_call($request);
+            $responde = (substr($response, strpos($response, "\r\n\r\n")+4));
+
+            if(is_numeric(xmlrpc_decode($response))){
+                $result += 1;
+            }
+        }
+
+        echo $result;
 
         mysqli_close($con);
     }
@@ -71,28 +85,26 @@
             echo "Failed to connect to MySQL: " . mysqli_connect_error();
         }
 
-        //if sensor_id is set only get individual sensor
-        $query = "SELECT pid, active FROM schedules WHERE schedule_id = " . $data['sid'];
-
+        $query = "SELECT * FROM schedule_measurements WHERE schedule_id = " . $data['sid'];
         $results = mysqli_query($con, $query);
         if (!$results) {
             die('Invalid query: ' . mysqli_error());
         }
 
-        $row = @mysqli_fetch_assoc($results);
-        $pid = intval($row['pid']);
+        $result = '';
 
-        $response = 0;
+        while($measurement = @mysqli_fetch_assoc($results)){
+            $pid = intval($measurement['pid']);
 
-        if($pid != 0){
-            $request = xmlrpc_encode_request("stop_schedule.request", array(intval($data['sid']), $pid));
+            if($pid != 0){
+                $request = xmlrpc_encode_request("stop_schedule.request", array(intval($measurement_id['measurement_id']), $pid));
 
-            $response = do_call($request);
-            $response = (substr($response, strpos($response, "\r\n\r\n")+4));
-            $response = xmlrpc_decode($response);
+                $response = do_call($request);
+                $response = (substr($response, strpos($response, "\r\n\r\n")+4));
+                $result =  $result . xmlrpc_decode($response);
+            }
         }
-
-        echo intval($response);
+        echo $result;
     }
 
     function startSchedule($data=array()){
@@ -102,46 +114,53 @@
             echo "Failed to connect to MySQL: " . mysqli_connect_error();
         }
 
-        //get params
-        $query = "SELECT * FROM schedule_params WHERE schedule_id = " . $data['sid'];
-        $results = mysqli_query($con, $query);
-        if (!$results) {
-          die('Invalid query: ' . mysqli_error($con));
-        }
-
-        //make param array
-        while($row = @mysqli_fetch_assoc($results)){
-            $params[$row['param']] = $row['value'];
-        }
-
-        //get details
         $query = "SELECT * FROM schedules WHERE schedule_id = " . $data['sid'];
         $results = mysqli_query($con, $query);
         if (!$results) {
-          die('Invalid query: ' . mysqli_error($con));
+            die('Invalid query: ' . mysqli_error($con));
         }
-        $row = @mysqli_fetch_assoc($results);
+        $schedule = @mysqli_fetch_assoc($results);
 
-        //send request
-        if(strcmp($row['method'], 'rtt') == 0){
-            $request = xmlrpc_encode_request('add_rtt_schedule.request', array(intval($data['sid']), intval($row['source_id']), intval($row['source_type']), intval($row['destination_id']), intval($row['destination_type']), intval($params['iterations']), intval($row['period'])));
-        }elseif(strcmp($row['method'], 'tcp') == 0){
-            $request = xmlrpc_encode_request('add_tcp_schedule.request', array(intval($data['sid']), intval($row['source_id']), intval($row['source_type']), intval($row['destination_id']), intval($row['destination_type']), intval($params['duration']), intval($row['period'])));
-        }elseif(strcmp($row['method'], 'udp') == 0){
-            $request = xmlrpc_encode_request('add_udp_schedule.request', array(intval($data['sid']), intval($row['source_id']), intval($row['source_type']), intval($row['destination_id']), intval($row['destination_type']), intval($params['send_speed']), intval($params['packet_size']), intval($params['duration']), intval($params['dscp_flag']), intval($row['period'])));
-        }elseif(strcmp($row['method'], 'dns') == 0) {
-            $request = xmlrpc_encode_request('add_dns_schedule.request', array(intval($data['sid']), intval($row['source_id']), intval($row['source_type']), intval($row['period'])));
-        }else{
-            echo("Invalid measurement type " . $row['method']);
-            exit;
+        $query = "SELECT * FROM schedule_measurements WHERE schedule_id = " . $data['sid'];
+        $results = mysqli_query($con, $query);
+        if (!$results) {
+            die('Invalid query: ' . mysqli_error($con));
         }
 
-        $response = do_call($request);
-        $responde = (substr($response, strpos($response, "\r\n\r\n")+4));
-        $response = xmlrpc_decode($response);
+        while($measurement = @mysqli_fetch_assoc($results)){
+            //get params
+            $query = "SELECT * FROM schedule_params WHERE measurement_id = " . $measurement['measurement_id'];
+            $param_results = mysqli_query($con, $query);
+            if (!$param_results) {
+                die('Invalid query: ' . mysqli_error($con));
+            } 
 
-        echo intval($response);
+            //make param array
+            while($param = @mysqli_fetch_assoc($param_results)){
+                $params[$param['param']] = $param['value'];
+            }
 
+            //send request
+            if(strcmp($measurement['method'], 'rtt') == 0){
+                $request = xmlrpc_encode_request('add_rtt_schedule.request', array(intval($measurement['measurement_id']), intval($measurement['schedule_id']), intval($measurement['source_id']), intval($measurement['source_type']), intval($measurement['destination_id']), intval($measurement['destination_type']), intval($params['iterations']), intval($schedule['period']), intval($measurement['delay'])));
+            }elseif(strcmp($measurement['method'], 'tcp') == 0){
+                $request = xmlrpc_encode_request('add_tcp_schedule.request', array(intval($measurement['measurement_id']), intval($measurement['schedule_id']), intval($measurement['source_id']), intval($measurement['source_type']), intval($measurement['destination_id']), intval($measurement['destination_type']), intval($params['duration']), intval($schedule['period']), intval($measurement['delay'])));
+            }elseif(strcmp($measurement['method'], 'udp') == 0){
+                $request = xmlrpc_encode_request('add_udp_schedule.request', array(intval($measurement['measurement_id']), intval($measurement['schedule_id']), intval($measurement['source_id']), intval($measurement['source_type']), intval($measurement['destination_id']), intval($measurement['destination_type']), intval($params['send_speed']), intval($params['packet_size']), intval($params['duration']), intval($params['dscp_flag']), intval($schedule['period']), intval($measurement['delay'])));
+            }elseif(strcmp($measurement['method'], 'dns') == 0) {
+                $request = xmlrpc_encode_request('add_dns_schedule.request', array(intval($measurement['measurement_id']), intval($measurement['schedule_id']), intval($measurement['source_id']), intval($measurement['source_type']), intval($measurement['period']), intval($measurement['delay'])));
+            }else{
+                echo("Invalid measurement type " . $measurement['method']);
+                exit;
+            }
+
+            $response = do_call($request);
+            $responde = (substr($response, strpos($response, "\r\n\r\n")+4));
+            $result = $result . xmlrpc_decode($response);
+
+        }
+
+        echo $result;
     }
 
     function deleteSchedule($data=array()){
@@ -153,10 +172,24 @@
             echo "Failed to connect to MySQL: " . mysqli_connect_error();
         }
 
-        $query = "DELETE FROM schedule_params WHERE schedule_id = " . $data['sid'];
+        $query = "SELECT * FROM schedule_measurements WHERE schedule_id = " . $data['sid'];
         $results = mysqli_query($con, $query);
         if (!$results) {
-          die('Invalid query: ' . mysqli_error($con));
+            die('Invalid query: ' . mysqli_error($con));
+        }
+
+        while($measurement = @mysqli_fetch_assoc($results)){
+            $query = "DELETE FROM schedule_params WHERE measurement_id = " . $measurement['measurement_id'];
+            $m_results = mysqli_query($con, $query);
+            if (!$m_results) {
+              die('Invalid query: ' . mysqli_error($con));
+            }
+
+            $query = "DELETE FROM schedule_measurements WHERE measurement_id = " . $measurement['measurement_id'];
+            $m_results = mysqli_query($con, $query);
+            if (!$m_results) {
+              die('Invalid query: ' . mysqli_error($con));
+            }
         }
 
         $query = "DELETE FROM schedules WHERE schedule_id = " . $data['sid'];

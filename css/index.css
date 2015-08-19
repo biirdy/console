@@ -59,19 +59,29 @@ body {
     overflow-y:auto;  
 }
 
-#topo-div, #topo-feature {
+#no-topo-div{
   float: left;
+  width: 60%;
+  height: 400px;
+  text-align:center;
+  line-height: 400px;
 }
 
 #topo-div {
-  width: 80%;
+  float: left;
+  width: 60%;
   height: 400px;
 }
 
-#topo-feature {
+.topo-radio{
+  float: left;
   max-height: 200px;
   overflow-y:auto;  
   width: 20%;
+}
+
+#topo-filter{
+  max-height: 400px;
 }
 
 .create-btn{

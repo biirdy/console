@@ -11,24 +11,18 @@
     <link rel="icon" href="../../favicon.ico">
 
     <title>Sensor Management</title>
-
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    <!-- Custom styles for this template -->
+    
     <link href="/css/index.css" rel="stylesheet">
+
+    <!-- Bootstrap -->
     <link href="/css/jasny-bootstrap.min.css" rel="stylesheet">
-
-    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="/assets/js/ie-emulation-modes-warning.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    
+    <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <!-- Datatables -->
+    <script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
 
     <!-- vis.js -->
     <script type="text/javascript" src="/js/vis.js"></script>
@@ -60,10 +54,10 @@
             <li><a href="#alarms-con">Alarms</a></li>
           </ul>
 
-            <!-- Notification Panel -->
+          <!-- Notification Panel -->
 
-            <!-- Log out button -->
-            <b id="logout" class="navbar-right navbar-text"><a href="logout.php">Log Out</a></b>
+          <!-- Log out button -->
+          <b id="logout" class="navbar-right navbar-text"><a href="logout.php">Log Out</a></b>
         </div><!--/.nav-collapse -->
         
       </div>
@@ -75,7 +69,6 @@
       <div class="container panel panel-default panel-body" id="server-con">
 
           <h1 id="server_status">Server <span style="color:green" class="glyphicon glyphicon-ok" aria-hidden="true"><small>Running</small></span> </h1>
-
           
           <div class="panel panel-default">
             <div class="panel-heading">
@@ -98,7 +91,6 @@
           </form>
 
           <a href="logs/server.log" target"_self">Full server log</a>
-
       </div>
 
       <!-- Sensor Panel -->
@@ -119,16 +111,23 @@
         <table class="table table-hover rowlink" data-link="row" id="sensors">
           <tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Local IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>
         </table>
-     
-
       </div>
 
       <!-- Topology Panel-->
       <div class="container panel panel-default panel-body" id="topology-con">
         <h1>Topology</h1>
+
+        <div class="panel-body container panel panel-default topo-radio" id="topo-filter">
+          <p><b>Filter</b></p>
+          <div class="radio">
+            <label><input data-filter-type="none" data-filter-id="0" type="radio" name="filter-radio" checked>None</label>
+          </div>
+        </div>
+
         <div id="topo-div"></div>
+        <div id="no-topo-div" style="display: none;"><font size="20">No data.</font></div>
         
-        <div class="panel-body container panel panel-default" id="topo-feature">
+        <div class="panel-body container panel panel-default topo-radio" id="topo-feature">
           <p><b>Link feature</b></p>
           <div class="radio">
             <label><input type="radio" name="feature-radio" id="feature-rtt">Round Trip Time</label>
@@ -144,7 +143,7 @@
           </div>
         </div>
 
-        <div class="panel-body container panel panel-default" id="topo-feature">
+        <div class="panel-body container panel panel-default topo-radio" id="topo-label">
           <p><b>Sensor Label</b></p>
           <div class="radio">
             <label><input type="radio" name="label-radio" id="mac">MAC address</label>
@@ -178,10 +177,11 @@
           </div>
         </div>
         
-        
         <!-- Schedule Table-->
-        <table class="table table-hover rowlink" data-link="row" id="schedules">
-          <tr><th>From</th><th>To</th><th>Interval (seconds)</th><th>Details</th><th>Description</th><th style='text-align: center;'>Start/Suspend</th><th style='text-align: center;'>Delete</th></tr>
+        <table class="table table-hover" id="schedules">
+          <thead>
+            <tr><th></th><th>Name</th><th>Description</th><th>Interval (seconds)</th><th>Start/Suspend</th><th>Remove</th></tr>
+          </thead>
         </table>
 
         <form class="form-inline" role="form">
@@ -189,7 +189,7 @@
         </form>  
       </div>
 
-      <!-- Create Schedule Modal-->
+      <!-- Create Schedule Modal -->
       <div class="modal fade" id="create-schedule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -205,6 +205,77 @@
             <!-- Modal body-->
             <div class="modal-body">
 
+              <div class="form-group">
+                <label for="name">Name: </label>
+                <input id="schedule-name" name="name" class="form-control" placeholder="Name:">
+              </div>
+
+              <div class="form-group">
+                <label for="description">Description: </label>
+                <input id="schedule-description" name="description" class="form-control" placeholder="Description:">
+              </div>
+
+              <div class="form-group form-inline">
+                <label >Add measurement: </label>
+                <button type="button" data-toggle="modal" class="btn btn-primary" id="add-schedule-measurement-btn" data-target="#add-measurement">+</button> 
+              </div>
+
+              <table class="table table-hover" id="create-schedule-table">
+                <tr><th>Source</th><th>Destination</th><th>Type</th><th>Params</th><th>Remove</th></tr>
+                <input id="create-schedule-index" value="0" style="display: none;" type="hidded">
+              </table>
+
+              <div class="form-group">
+                <label for="interval">Interval: </label>
+                <table>
+                  <tr><td>
+                    <div class="input-group">
+                      <input name="hours" type="number" class="form-control" value="1" aria-describedby="basic-addon2">
+                      <span class="input-group-addon" id="basic-addon2">Hours</span>
+                    </div>
+                  </td><td>
+                    <div class="input-group">
+                      <input name="minutes" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
+                      <span class="input-group-addon" id="basic-addon2">Minues</span>
+                    </div>
+                  </td><td>
+                    <div class="input-group">
+                      <input name="seconds" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
+                      <span class="input-group-addon" id="basic-addon2">Seconds</span>
+                    </div>
+                  </td></tr>
+                </table>
+              </div>
+              
+            </div>
+
+            <!-- Modal Footer-->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary clear-btn" id="create-schedule-clear">Clear</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <button disabled id="schedule-submit" type="submit" class="btn btn-success">Create Schedule</button>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Schedule Measument Modal-->
+      <div class="modal fade" id="add-measurement" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+
+            <!-- Modal Header-->
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Add Measurement</h4>
+            </div>
+
+
+            <form role="form" id="add-measurement-form">
+            <!-- Modal body-->
+            <div class="modal-body">
+
                 <div id="ip-warning" style="display: none;" class="alert alert-warning" role="alert"><b>Measurement might not work as expected!</b><br> Recipient does not have a public facing IP address.</div>
                 <div id="same-sensor-warning" style="display: none;" class="alert alert-danger" role="alert"><b><i>To</i> and <i>from</i> cannot be the same sensor!</b></div>
                 <div id="no-sensor-warning" style="display: none;" class="alert alert-danger" role="alert"><b>Select both <i>to</i> and <i>from</i> sensor!</b></div>
@@ -212,34 +283,29 @@
                 <div class="form-group">
 
                   <div class="form-group">
-                    <label for="from">From: </label><br>
+                    <label for="source">Source: </label><br>
                     <div class="dropdown btn-group">
-                      <button style="display: block; width: 100%;" class="btn btn-default dropdown-toggle" type="button" id="from-dropdown" data-toggle="dropdown" aria-expanded="true">
+                      <button style="display: block; width: 100%;" class="btn btn-default dropdown-toggle" type="button" id="source-dropdown" data-toggle="dropdown" aria-expanded="true">
                         <span data-bind="label">Select source</span>&nbsp;<span class="caret"></span>
                       </button>
-                      <ul class="dropdown-menu" id="from-dropdown-list" role="menu" aria-labelledby="to-dropdown">
+                      <ul class="dropdown-menu" id="source-dropdown-list" role="menu" aria-labelledby="source-dropdown">
                       </ul>
-                      <input id="from-input" class="dropdown-input" value="0" style="display: none;" name="from" class="form-control" type="hidded">
-                      <input id="from-type" class="dropdown-type" value="0" style="display: none;" name="from-type" class="form-control" type="hidded">
+                      <input id="source-input" class="dropdown-input" value="0" style="display: none;" name="source" class="form-control" type="hidded">
+                      <input id="source-type" class="dropdown-type" value="0" style="display: none;" name="source-type" class="form-control" type="hidded">
                     </div>
                   </div>
 
                   <div class="form-group">
-                    <label for="to">To: </label><br>
+                    <label for="destination">Destination: </label><br>
                     <div class="dropdown btn-group">
-                      <button class="btn btn-default dropdown-toggle" type="button" id="to-dropdown" data-toggle="dropdown" aria-expanded="true">
+                      <button class="btn btn-default dropdown-toggle" type="button" id="destination-dropdown" data-toggle="dropdown" aria-expanded="true">
                         <span data-bind="label">Select destination</span>&nbsp;<span class="caret"></span>
                       </button>
-                      <ul class="dropdown-menu" id="to-dropdown-list" role="menu" aria-labelledby="to-dropdown">
+                      <ul class="dropdown-menu" id="destination-dropdown-list" role="menu" aria-labelledby="destination-dropdown">
                       </ul>
-                      <input id="to-input" class="dropdown-input" value="0" style="display: none;" hidden name="to" class="form-control" type="hidded">
-                      <input id="to-type" class="dropdown-type" value="0" style="display: none;" name="to-type" class="form-control" type="hidded">
+                      <input id="destination-input" class="dropdown-input" value="0" style="display: none;" hidden name="destination" class="form-control" type="hidded">
+                      <input id="destination-type" class="dropdown-type" value="0" style="display: none;" name="destination-type" class="form-control" type="hidded">
                     </div> 
-                  </div>
-
-                  <div class="form-group">
-                    <label for="description">Description: </label>
-                    <input name="description" class="form-control" placeholder="Description:">
                   </div>
 
                   <div class="form-group">
@@ -260,23 +326,23 @@
 
                   <div class="form-group" style="display: none;" id="rtt-details">
                     <label for="rtt-details-itr">Itterations: </label>
-                    <input name="rtt-details-itr" class="form-control" id="rtt-details-itr" value="5">
+                    <input type="number" name="rtt-details-itr" class="form-control" id="rtt-details-itr" value="5">
                   </div>
 
                   <div class="form-group" style="display: none;" id="tcp-details">
                     <label for="tcp-details-dur">Duration (Seconds): </label>
-                    <input name="tcp-details-dur" class="form-control" id="tcp-details-dur" value="10">
+                    <input type="number" name="tcp-details-dur" class="form-control" id="tcp-details-dur" value="10">
                   </div>
 
                   <div class="form-group" style="display: none;" id="udp-details">
                     <label for="udp-details-speed">Send Speed (kbps): </label>
-                    <input name="udp-details-speed" class="form-control" id="udp-details-speed" value="1024">
+                    <input type="number" name="udp-details-speed" class="form-control" id="udp-details-speed" value="1024">
 
                     <label for="udp-details-size">Packet Size (bytes): </label>
-                    <input name="udp-details-size" class="form-control" id="udp-details-size" value="1024">
+                    <input type="number" name="udp-details-size" class="form-control" id="udp-details-size" value="1024">
 
                     <label for="udp-details-dur">Duration (Seconds): </label>
-                    <input name="udp-details-dur" class="form-control" id="udp-details-dur" value="10">
+                    <input type="number" name="udp-details-dur" class="form-control" id="udp-details-dur" value="10">
 
                     <label for="udp-details-dscp">DSCP flag: </label>
                     <br>
@@ -301,32 +367,33 @@
 
                   <div class="form-group" style="display: none;" id="dns-details">
                     <label for="dns-details-addr">URL: </label>
-                    <input class="form-control" id="dns-details-addr" value="google.co.uk">
+                    <input name="dns-details-addr" class="form-control" id="dns-details-addr" value="google.co.uk">
+
+                    <label for="dns-details-server">Server: </label>
+                    <input name="dns-details-server" class="form-control" id="dns-details-server" value="8.8.8.8">
                   </div>
 
                   <div class="form-group">
-                  <label for="interval">Every: </label>
-                  <table>
-                    <tr><td>
-                      <div class="input-group">
-                        <input name="hours" type="text" class="form-control" value="1" aria-describedby="basic-addon2">
-                        <span class="input-group-addon" id="basic-addon2">Hours</span>
-                      </div>
-                    </td><td>
-                      <div class="input-group">
-                        <input name="minutes" type="text" class="form-control" value="0" aria-describedby="basic-addon2">
-                        <span class="input-group-addon" id="basic-addon2">Minues</span>
-                      </div>
-                    </td><td>
-                      <div class="input-group">
-                        <input name="seconds" type="text" class="form-control" value="0" aria-describedby="basic-addon2">
-                        <span class="input-group-addon" id="basic-addon2">Seconds</span>
-                      </div>
-                    </td></tr>
-                  </table>
+                    <label for="interval">Delay: </label>
+                    <table>
+                      <tr><td>
+                        <div class="input-group">
+                          <input name="dealy-hours" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
+                          <span class="input-group-addon" id="basic-addon2">Hours</span>
+                        </div>
+                      </td><td>
+                        <div class="input-group">
+                          <input name="delay-minutes" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
+                          <span class="input-group-addon" id="basic-addon2">Minues</span>
+                        </div>
+                      </td><td>
+                        <div class="input-group">
+                          <input name="delay-seconds" type="number" class="form-control" value="10" aria-describedby="basic-addon2">
+                          <span class="input-group-addon" id="basic-addon2">Seconds</span>
+                        </div>
+                      </td></tr>
+                    </table>
                   </div>
-
-
                 </div>
               
             </div>
@@ -334,7 +401,7 @@
             <!-- Modal Footer-->
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-              <button disabled id="schedule-submit" type="submit" class="btn btn-success">Create Schedule</button>
+              <button disabled id="measurement-submit" type="submit" class="btn btn-success">Add Measurement</button>
             </div>
             </form>
           </div>
@@ -368,7 +435,8 @@
         </form>
       </div>
 
-      <divv class="modal fade" id="create-group" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <!-- Create group modal -->
+      <div class="modal fade" id="create-group" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
 
@@ -512,6 +580,10 @@
       var sensor_data;
       load_sensors();
 
+      //initial load of groups
+      var group_data;
+      load_groups();
+
       //initial load of schedule sata
       var schedule_data;
       load_schedules();
@@ -521,9 +593,7 @@
       * AUTO REFRESH - once called will load and check for differences every # seconds
       */
       function load_sensors(auto){
-
         $.getJSON("sensors.php", null, function(data){
-          
           if(JSON.stringify(sensor_data) != JSON.stringify(data)){
 
             sensor_data = data;
@@ -532,13 +602,17 @@
             $("#sensors").find("tr:gt(0)").remove();
 
             //clear schdule creator dropdowns
-            $("#to-dropdown-list").find('.sensor-element').remove();
-            $("#from-dropdown-list").find('.sensor-element').remove();
+            $("#destination-dropdown-list").find('.sensor-element').remove();
+            $("#source-dropdown-list").find('.sensor-element').remove();
+            
+            //clear group creator
             $("#add-sensor-dropdown-list").empty();
 
-            $("#to-dropdown-list").append('<li class="dropdown-header sensor-element">Sensors</li>');
-            $("#from-dropdown-list").append('<li class="dropdown-header sensor-element">Sensors</li>');
-            //repopulate tables
+            //schedule creator headers
+            $("#destination-dropdown-list").append('<li class="dropdown-header sensor-element">Sensors</li>');
+            $("#source-dropdown-list").append('<li class="dropdown-header sensor-element">Sensors</li>');
+            
+            //repopulate
             for(x in sensor_data){
               $('#sensors tr:last').after('<tr bgcolor=' + (sensor_data[x].active == 0 ? "'#FFCCCC'" : "'#99FF99'") + '><td><a href="sensor.html?' + sensor_data[x].sensor_id + '">' + sensor_data[x].sensor_id + '</a></td>' + 
                                                     '<td>' + sensor_data[x].ether + '</td>' + 
@@ -551,8 +625,10 @@
               
 
               //add to schedule creator dropdowns 
-              $("#to-dropdown-list").append('<li class="to-dropdown-element sensor-element" role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
-              $("#from-dropdown-list").append('<li class="from-dropdown-element sensor-element" role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
+              $("#destination-dropdown-list").append('<li class="destination-dropdown-element sensor-element" role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
+              $("#source-dropdown-list").append('<li class="source-dropdown-element sensor-element" role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
+
+              //add to group creator dropdown
               $("#add-sensor-dropdown-list").append('<li class="add-sensor-dropdown-element" role="presentation" value="' + sensor_data[x].sensor_id + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor_data[x].description + '</a></li>');
             }
 
@@ -563,31 +639,74 @@
           setTimeout(load_sensors, 5000);
       }
 
-      function find_sensor(id){
-        for(x in sensor_data){
-          if(sensor_data[x].sensor_id == id)
-            return sensor_data[x];
-        }
-        return false;
-      }
-
       function load_schedules(auto){
         $.getJSON("schedules.php", null, function(data){
 
           if(JSON.stringify(schedule_data) != JSON.stringify(data)){
             schedule_data = data;
 
-            $("#schedules").find("tr:gt(0)").remove();
+            $("#topo-filter").find(".schedule-radio").remove()
+            $("#topo-filter").append("<p class='schedule-radio'><u>Schedules</u></p>");
 
             for(x in schedule_data){
-              $('#schedules tr:last').after("<tr bgcolor=" + (schedule_data[x].active == 0 ? "'#FFCCCC'" : (schedule_data[x].status == 1 ?  "'#99FF99'" : "'#FFCC66'")) + "><td>" + schedule_data[x].source_id + "</td>" + 
-                                            "<td>" + (schedule_data[x].destination_id == null ? "-" : schedule_data[x].destination_id) + "</td>" + 
-                                            "<td>" + schedule_data[x].period + "</td>" + 
-                                            "<td>" + schedule_data[x].details + "</td>" + 
-                                            "<td>" + (schedule_data[x].description == "" ? "-" : schedule_data[x].description) + "</td>" + 
-                                            "<td style='text-align: center;' class='rowlink-skip'><span class='glyphicon " + (schedule_data[x].active == 0 ? "glyphicon-play" : "glyphicon-pause") + " susspend-button table-button' aria-hidden='true' onclick='" + (schedule_data[x].active == 0 ? "schedule_start(" : "schedule_susspend(") + schedule_data[x].schedule_id + "); return false;'></span></td>"  + 
-                                            "<td style='text-align: center;' class='rowlink-skip'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='schedule_delete(" + schedule_data[x].schedule_id + ")'></span></td>" + "</tr>");
+              $("#topo-filter").append( '<div class="radio schedule-radio">' +
+                                        '<label><input data-filter-type="schedule" data-filter-id="' + schedule_data[x]['schedule_id'] + '" type="radio" name="filter-radio">' + schedule_data[x]['name'] + '</label>' + 
+                                        '</div>');
             }
+            reload_filter_onclicks();
+
+            $('#schedules tbody').off('click', 'td.details-control');
+            var table = $('#schedules').DataTable({
+                "destroy":  true, 
+                "paging":   false,
+                "ordering": false,
+                "info":     false,
+                "searching": false, 
+                "data": schedule_data,
+                "columns": [
+                    { 
+                      "data":null,
+                      "defaultContent": "<span class='glyphicon glyphicon-chevron-right table-button' aria-hidden='true'></span>",
+                      "className": 'details-control'
+                    },
+                    { "data": "name" },
+                    { "data": "description"},
+                    { "data": null},
+                    {
+                      "data": "null",
+                      "defaultContent": "<span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true'></span>",
+                      "className": "center"
+                    },
+                    {
+                      "data": "null",
+                      "defaultContent": "<span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true'></span>",
+                      "className": "center"
+                    }
+                ],
+                //add remove button with correct group ID & colour
+                "createdRow": function(row, data, index){
+                  $('td', row).css('background-color', (data['active'] == 0 ? '#FFCCCC' : (data['faults'] > 0 ? '#FFCC66' : '#99FF99')));
+                  $('td', row).eq(3).html(time_string(parseInt(data['period'])));
+                  $('td', row).eq(4).html("<span aria-hidden='true' class='table-button glyphicon " + (data['active'] == 1 ? "glyphicon-pause susspend-button' onclick='schedule_susspend( " : "glyphicon-play susspend-button' onclick='schedule_start( ") + data['schedule_id'] + ")'></span>");
+                  $('td', row).eq(5).html("<span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='schedule_delete(" + data['schedule_id'] + ")'></span>");
+                }
+            });
+            
+            // Add event listener for opening and closing details
+            $('#schedules tbody').on('click', 'td.details-control', function (){
+              var tr = $(this).closest('tr');
+              var row = table.row(tr);
+
+              if (row.child.isShown()){
+                  row.child.hide();
+                  $(this).find('span').removeClass('glyphicon-chevron-down');
+                  $(this).find('span').addClass('glyphicon-chevron-right');
+              }else{
+                  row.child(schedule_format(row.data())).show();
+                  $(this).find('span').removeClass('glyphicon-chevron-right');
+                  $(this).find('span').addClass('glyphicon-chevron-down');
+              }
+            });
           }
         }); 
 
@@ -595,24 +714,34 @@
           setTimeout(load_schedules, 5000);
       }
 
-      //initial load of groups
-      var group_data;
-      load_groups();
-
       function load_groups(auto){
         $.getJSON("groups.php", null, function(data){
 
           if(JSON.stringify(group_data) != JSON.stringify(data)){
             group_data = data;
 
-            $("#to-dropdown-list").find(".group-element").remove();
-            $("#from-dropdown-list").find(".group-element").remove();
-            $("#to-dropdown-list").append('<li class="dropdown-header group-element">Groups</li>');
-            $("#from-dropdown-list").append('<li class="dropdown-header group-element">Groups</li>');
+            //clear schedule creator dropdowns of groups
+            $("#destination-dropdown-list").find(".group-element").remove();
+            $("#source-dropdown-list").find(".group-element").remove();
+
+            //add dropdown headers to schedule creator dropdowns
+            $("#destination-dropdown-list").append('<li class="dropdown-header group-element">Groups</li>');
+            $("#source-dropdown-list").append('<li class="dropdown-header group-element">Groups</li>');            
+
+            $("#topo-filter").find(".group-radio").remove()
+            $("#topo-filter").append("<p class='group-radio'><u>Groups</u></p>");
+
+            //repopulate
             for(x in group_data){
-              $("#to-dropdown-list").append('<li class="to-dropdown-element group-element" role="presentation" value="' + group_data[x]['group_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group_data[x]['name'] + '</a></li>');
-              $("#from-dropdown-list").append('<li class="to-dropdown-element group-element" role="presentation" value="' + group_data[x]['group_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group_data[x]['name'] + '</a></li>');
+              $("#destination-dropdown-list").append('<li class="destination-dropdown-element group-element" role="presentation" value="' + group_data[x]['group_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group_data[x]['name'] + '</a></li>');
+              $("#source-dropdown-list").append('<li class="source-dropdown-element group-element" role="presentation" value="' + group_data[x]['group_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group_data[x]['name'] + '</a></li>');
+
+              //topo filtering
+              $("#topo-filter").append( '<div class="radio group-radio">' +
+                                        '<label><input data-filter-type="group" data-filter-id="' + group_data[x]['group_id'] + '" type="radio" name="filter-radio">' + group_data[x]['name'] + '</label>' + 
+                                        '</div>');
             }
+            reload_filter_onclicks();
 
             $('#groups tbody').off('click', 'td.details-control');
             var table = $('#groups').DataTable({
@@ -632,7 +761,7 @@
                     { "data": "num_sensors"},
                     { "data": "description" },
                     {
-                      "data": "schedule_id",
+                      "data": null,
                       "defaultContent": "<span class='delete-group glyphicon glyphicon-remove remove-button table-button' aria-hidden='true'></span>",
                       "className": "center"
                     }
@@ -654,13 +783,12 @@
                   $(this).find('span').removeClass('glyphicon-chevron-down');
                   $(this).find('span').addClass('glyphicon-chevron-right');
               }else{
-                  row.child(format(row.data())).show();
+                  row.child(groups_format(row.data())).show();
                   $(this).find('span').removeClass('glyphicon-chevron-right');
                   $(this).find('span').addClass('glyphicon-chevron-down');
               }
             });
           }
-
         });
 
         if(!auto)
@@ -670,7 +798,7 @@
       /*
       * Format for group child table
       */
-      function format(d) {
+      function groups_format(d){
           var child_table = '<table class="table child-table">';
           child_table = child_table + "<tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Description</th><th>Remove</th></tr>";
           for(var i = 0; i < d['sensors'].length; i++){
@@ -686,6 +814,22 @@
           return child_table;
       }
 
+      function schedule_format(d){
+        var child_table = '<table class="table child-table">';
+        child_table = child_table + "<tr><th>Source</th><th>Destination</th><th>Type</th><th>Params</th><th>Delay</th></tr>";
+        for(var i = 0; i < d['measurements'].length; i++){
+          child_table = child_table + '<tr bgcolor=' + (d['measurements'][i]['active'] == 0 ? "'#FFCCCC'" : (d['measurements'][i]['status'] == 0 ? "'#FFCCCC'" : "'#99FF99'")) + '>'+
+                                      '<td>'+ d['measurements'][i]['source_name'] +'</td>'+
+                                      '<td>'+ d['measurements'][i]['destination_name'] +'</td>'+
+                                      '<td>'+ d['measurements'][i]['method'] +'</td>'+
+                                      '<td>'+ child_param_string(d['measurements'][i]) +'</td>'+
+                                      '<td>'+ d['measurements'][i]['delay'] +'</td>'+
+                                      '</tr>';
+        }
+        child_table = child_table + '</table>';
+        return child_table;
+      }
+
       /*
       * Update text on dropdowns
       */
@@ -696,14 +840,9 @@
           .end()
           .children('.dropdown-toggle').dropdown( 'toggle');
 
-          console.log(this.classList);
-          console.log($.inArray('to-dropdown-element', this.classList));
-          console.log($.inArray('from-dropdown-element', this.classList));
-          console.log($.inArray('add-sensor-dropdown-element', this.classList));
-
           //create schedule dropdowns
-          if($.inArray('to-dropdown-element', this.classList) != -1 || $.inArray('from-dropdown-element', this.classList) != -1){
-            
+          if($.inArray('destination-dropdown-element', this.classList) != -1 || $.inArray('source-dropdown-element', this.classList) != -1){
+
             //update hidden input
             $target.closest('.btn-group')
             .find('.dropdown-input').val($target.val())
@@ -719,27 +858,28 @@
             }
 
             //checks
-            if($("#to-input").val() == 0 || $("#from-input").val() == 0){
+            if($("#destination-input").val() == 0 || $("#source-input").val() == 0){
               $("#same-sensor-warning").hide();
               $("#no-sensor-warning").show();
-              $("#schedule-submit").attr('disabled', 'disabled');
-            }else if($("#to-input").val() == $("#from-input").val()){
+              $("#measurement-submit").attr('disabled', 'disabled');
+            }else if($("#destination-input").val() == $("#source-input").val()){
               $("#no-sensor-warning").hide();
               $("#same-sensor-warning").show();
-              $("#schedule-submit").attr('disabled', 'disabled');
+              $("#measurement-submit").attr('disabled', 'disabled');
             }else{
               $("#same-sensor-warning").hide();
               $("#no-sensor-warning").hide();
-              $("#schedule-submit").removeAttr('disabled');
+              $("#measurement-submit").removeAttr('disabled');
             }
 
-            if(find_sensor($("#to-input").val()).local_ip != find_sensor($("#to-input").val()).ip){
+            //need some fix for groups
+            /*if(find_sensor($("#destination-input").val()).local_ip != find_sensor($("#destination-input").val()).ip){
               $("#ip-warning").show();
             }else{
               $("#ip-warning").hide();
-            }
+            }*/
 
-            $("#create-schedule").data("bs.modal").handleUpdate();
+            $("#add-measurement").data("bs.modal").handleUpdate();
 
           //create group drop down
           }else if($target.attr('class') == 'add-sensor-dropdown-element'){
@@ -766,8 +906,6 @@
           $('#create-group-table tr:last').after('<input type="hidden" name="sensor" value="' + to_add['sensor_id'] + '"/>');
           $("#group-submit").removeAttr('disabled');
         }
-
-        
       });
 
       /*
@@ -775,9 +913,22 @@
       */
       function create_group_remove_sensor(id){
         $('#create-group-table tr > td:contains(' + id + ') + td:contains(' + find_sensor(id)['description'] + ')').closest('tr').remove();
+        $('#create-group-table input[value=' + id + ']').remove();
 
         if($('#create-group-table tr').length == 1){
           $("#group-submit").attr('disabled', 'disabled');
+        }
+      }
+
+      /*
+      *
+      */
+      function create_schedule_remove_measurement(index){
+        $('#create-schedule-table tr[data-index="' + index + '"]').remove();
+        $('#create-schedule-table input[data-index="' + index + '"]').remove();
+
+        if($('#create-schedule-table tr').length == 1){
+          $("#schedule-submit").attr('disabled', 'disabled');
         }
       }
 
@@ -792,6 +943,18 @@
         $("#group-submit").attr('disabled', 'disabled');
       }
       $('#create-group-clear').click(clear_create_group);
+
+      /*
+      *
+      */
+      function clear_create_schedule(){
+        $("#create-schedule-table").find("tr:gt(0)").remove();
+        $("#create-schedule-table").find("input").remove();
+        $("#schedule-name").val("");
+        $("#schedule-description").val("");
+        $("#schedule-submit").attr('disabled', 'disabled');
+      }
+      $('#create-schedule-clear').click(clear_create_schedule);
 
       /*
       * Disconnect sensor
@@ -813,6 +976,7 @@
       *
       */
       function schedule_susspend(sid){
+
         $.post("scheduler.php", {Function: "stopSchedule", Data: {sid: sid}}, function(data){
           
           if(data == 0)
@@ -824,6 +988,7 @@
       }
 
       function schedule_start(sid){
+
         if(server_running == 1){
           $.post("scheduler.php", {Function: "startSchedule", Data: {sid: sid}}, function(data){
             if(isNaN(data))
@@ -838,6 +1003,7 @@
       }
 
       function schedule_delete(sid){
+
         if(confirm("Stop and delete schedule " + sid + "?")){
           $.post("scheduler.php", {Function: "deleteSchedule", Data: {sid: sid}}, function(data){
             load_schedules(1);
@@ -866,9 +1032,11 @@
       * feature_url   - url of JSON file (PHP) to label the links
       * sensor_label  - string describing how to label the sesnors (MAC, IP, ID or Description)
       */
-      function load_topo(sensor_label, feature){
-        $.getJSON("sensors.php", null, function(json_sensor){
+      function load_topo(sensor_label, feature, filter_type, filter_id){
+        $.getJSON("sensors.php", (filter_type == "none" ? "" : "filter_type=" + filter_type + "&filter_id=" + filter_id), function(json_sensor){
         
+          console.log("Load topo");
+
           for(x in json_sensor){
             json_sensor[x].id = json_sensor[x].sensor_id;
 
@@ -882,44 +1050,86 @@
               json_sensor[x].label = json_sensor[x].description;
           }
 
-          json_sensor.push({id: 1, label: "Server"});
+          if(filter_type == "none")
+            json_sensor.push({id: 1, label: "Server"});
 
-          $.getJSON("topo.php", "feature=" + feature, function(json_feature){
+          $.getJSON("topo.php", "feature=" + feature + (filter_type == "none" ? "" : "&filter_type=" + filter_type + "&filter_id=" + filter_id), function(json_feature){
 
             for(x in json_feature){
               json_feature[x].from = json_feature[x].sensor_id;
               json_feature[x].to = json_feature[x].dst_id;
-              //json_feature[x].label = json_feature[x].feature + ((feature == "feature-bw") ? "kbps" : (feature == "feature-packetloss") ? "%" : "ms");
               json_feature[x].label = ((feature == "feature-bw") ? rate_string(json_feature[x].feature) : (feature == "feature-packetloss") ? json_feature[x].feature + "%" : json_feature[x].feature + "ms");
             }
 
-            // provide the data in the vis format
             topo_data = {
                 nodes: new vis.DataSet(json_sensor),
                 edges: new vis.DataSet(json_feature)
             };
 
-            network.setOptions(topo_options);
-
-            // initialize your network!
-            network.setData(topo_data);
-
-            //freeze network once organised - 100ms
-            setTimeout(function(){
-              network.setOptions(no_sim_options);
-            }, 100);
-
-            //onclick to redirect when clicked on a sensor - not edges or sensor
-            network.on( 'click', function(properties) {
-              if(properties.nodes.length == 1){
-                if(properties.nodes != 1)
-                  window.location.href = "sensor.html?" + properties.nodes;
-              }
-            });       
-
+            update_topo();
           });           
         
         });
+      }
+
+      /*
+      * For when new topo_data is available. Re-simulates using physics before stablising
+      * and saving posiitions.
+      */
+      function update_topo(){
+        
+        console.log(topo_data);
+
+        if(topo_data['edges'].length == 0){
+          $("#topo-div").hide();
+          $("#no-topo-div").show();
+        }else{
+
+          $("#topo-div").show();
+          $("#no-topo-div").hide();
+
+          network.setOptions(topo_options);
+
+          // initialize your network!
+          network.setData(topo_data);
+
+          //freeze network once organised - 100ms
+          setTimeout(function(){
+            network.setOptions(no_sim_options);
+            network.storePositions();
+          }, 100);
+
+          //onclick to redirect when clicked on a sensor - not edges or sensor
+          /*network.on( 'click', function(properties) {
+            if(properties.nodes.length == 1){
+              if(properties.nodes != 1)
+                window.location.href = "sensor.html?" + properties.nodes;
+            }
+          });*/
+
+          network.on("dragEnd", function(properties){
+            network.storePositions();
+          }); 
+        }  
+      }
+
+      /*
+      * Updates sensor label - sensors are repositioned using their previous positions.
+      */
+      function update_topo_label(){
+        for(x in topo_data['nodes']['_data']){
+          if(topo_data['nodes']['_data'][x]['id'] != "1"){
+            if(sensor_label == "mac")
+              topo_data['nodes']['_data'][x].label = topo_data['nodes']['_data'][x].ether;
+            else if(sensor_label == "id")
+              topo_data['nodes']['_data'][x].label = topo_data['nodes']['_data'][x].sensor_id;
+            else if(sensor_label == "ip")
+              topo_data['nodes']['_data'][x].label = topo_data['nodes']['_data'][x].ip;
+            else if(sensor_label == "description")
+              topo_data['nodes']['_data'][x].label = topo_data['nodes']['_data'][x].description;
+          }
+        }
+        network.setData(topo_data);
       }
 
       // Create initial topology
@@ -943,6 +1153,15 @@
           enabled: true,
           barnesHut: {
             avoidOverlap: 1
+          },
+          repulsion: {
+            nodeDistance: 10
+          }
+        },
+        nodes: {
+          scaling: {
+            min: 30,
+            max: 30,
           }
         }
       };
@@ -964,14 +1183,16 @@
         interaction: {
           hover: true,
           hoverConnectedEdges: false,
-          zoomView: false
+          zoomView: true
         }
       }
 
-      var network = new vis.Network(topo_container, topo_data, topo_options);
-      var feature = "feature-bw";
-      var sensor_label = "description";
-      load_topo(sensor_label, feature); 
+      var network       = new vis.Network(topo_container, topo_data, topo_options);
+      var feature       = "feature-bw";
+      var sensor_label  = "description";
+      var filter_id     = "0";
+      var filter_type   = "none";
+      load_topo(sensor_label, feature, filter_type, filter_id); 
 
       /*
       * Change topology link feature according to radio buttons
@@ -980,7 +1201,7 @@
       for (x in feature_radios){
         feature_radios[x].onclick = function(){
           feature = this.id;
-          load_topo(sensor_label, feature);
+          load_topo(sensor_label, feature, filter_type, filter_id);
         }
       }
 
@@ -991,8 +1212,19 @@
       for (x in label_radios){
         label_radios[x].onclick = function(){
           sensor_label = this.id;
-          load_topo(sensor_label, feature);
+          update_topo_label();
         }
+      }
+
+      function reload_filter_onclicks(){
+        $("[name='filter-radio']").click(function(data){
+          filter_type  = $(this).attr("data-filter-type");
+          filter_id    = $(this).attr("data-filter-id");
+
+          load_topo(sensor_label, feature, filter_type, filter_id);
+
+          console.log("Topo filter " + filter_type + " " + filter_id);
+        });  
       }
 
       /*
@@ -1008,26 +1240,61 @@
 
           document.getElementById(this.getAttribute("data-div")).style.display = 'block';
 
-          $("#create-schedule").data("bs.modal").handleUpdate();
+          $("#add-measurement").data("bs.modal").handleUpdate();
         }
       }
 
       /*
-      * POST create schedule
+      * Add measurement schedule
+      */
+      $("#add-measurement-form").submit(function(event){
+        event.preventDefault();
+
+        var measurement_json = $(this).serializeObject();
+
+        $('#create-schedule-table tr:last').after( "<tr data-index='" + $('#create-schedule-index').val() + "'>" + 
+                                                  "<td>" + measurement_json['source'] + "</td>" + 
+                                                  "<td>" + measurement_json['destination'] + "</td>" + 
+                                                  "<td>" + measurement_json['type-radio'] + "</td>" + 
+                                                  "<td>" + param_string(measurement_json) + "</td>" + 
+                                                  "<td style='text-align: center;'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='create_schedule_remove_measurement(" + $('#create-schedule-index').val() + ")'></span></td>" +
+                                                  "</tr>");
+        $('#create-schedule-table tr:last').after("<input type='hidden' data-index='" + $('#create-schedule-index').val() +"'' name='measurement' value='" + JSON.stringify(measurement_json) + "'/>");
+        $('#create-schedule-index').val(parseInt($('#create-schedule-index').val()) + 1);
+        $("#schedule-submit").removeAttr('disabled');
+        $("#add-measurement").modal('hide');
+        $("#create-schedule").data("bs.modal").handleUpdate();        
+      });
+
+      /*
+      * Create schedule POST
       */
       $("#create-schedule-form").submit(function(event){
         event.preventDefault();
 
-        console.log($(this).serializeObject());
+        var submit_data = $(this).serializeObject();
 
-        $.post("scheduler.php", {Function: "createSchedule", Data:$(this).serializeObject()}, function(data){
-          //check if succeeds
+        if(submit_data['measurement'] instanceof Array){
+          for(x in submit_data['measurement']){
+            submit_data['measurement'][x] = jQuery.parseJSON(submit_data['measurement'][x]);
+          }
+        }else{
+          submit_data['measurement'] = Array(jQuery.parseJSON(submit_data['measurement']));
+        }
+
+        $.post("scheduler.php", {Function: "createSchedule", Data:submit_data}, function(data){
+
           if(!isNaN(data)){
-            alert("Created schedule with ID "  + data);
-            $("#create-schedule").modal('hide');
-            load_schedules(1);
+            if(parseInt(data) == submit_data['measurement'].length){
+              alert("Created shcedule.");
+            }else{
+              alert("Created schedule with " + parseInt(data) + " out of " + submit_data['measurement'].length + " measurements. Check scheduler logs");
+            }
+            $('#create-schedule').modal('hide');
+            clear_create_schedule();
+            //load_schedules(1);
           }else{
-            alert("Failed - " + data);
+            alert("Failed to create schedule. Check shecduler logs.");
           }
         });
       });
@@ -1067,6 +1334,31 @@
           return o;
       };
 
+      function find_sensor(id){
+        for(s in sensor_data){
+          if(sensor_data[s].sensor_id == id)
+            return sensor_data[s];
+        }
+        return false;
+      }
+
+      function find_group(gid){
+        for(g in group_data){
+          if(group_data[g].group_id == gid){
+            return group_data[g];
+          }   
+        }
+        return false;
+      }
+
+      function find_schedule(sid){
+        for(x in schedule_data){
+          if(schedule_data[x].schedule_id == sid)
+            return schedule_data[x];
+        }
+        return false;
+      }
+
       function rate_string(bps){
         if(bps > 1024*1024*1024)
           return  parseFloat(bps/(1024*1024*1024)).toFixed(2) + "gbps";
@@ -1079,28 +1371,62 @@
       }
 
       function time_string(seconds){
-        if(seconds > 60*60)
-          return Math.floor(seconds/(60*60)) + "hours " + Math.floor((seconds%(60*60)/60)) + "min " + Math.floor(seconds%(60*60)%60) + "sec";
-        else if(seconds > 60)
-          Math.floor(seconds/60) + "min " + Math.floor(seconds%(60*60)%60) + "sec";
+        if(seconds >= 60*60)
+          return Math.floor(seconds/(60*60)) + " hour(s) " + (Math.floor((seconds%(60*60)/60)) > 0 ? Math.floor((seconds%(60*60)/60)) + " minutes(s) " : "") + (Math.floor(seconds%(60*60)%60) > 0 ? Math.floor(seconds%(60*60)%60) + " seconds(s)" : "") ;
+        else if(seconds >= 60)
+          return Math.floor(seconds/60) + " minute(s) " + (Math.floor(seconds%(60*60)%60) > 0 ? Math.floor(seconds%(60*60)%60) + " seconds(s)" : "");
         else
-          return seconds + " sec"; 
+          return seconds + " seconds(s)"; 
+      }
+
+      function param_string(measurement){
+        if(measurement['type-radio'] == 'rtt'){
+          return "Itterations: " + measurement['rtt-details-itr'];
+        }else if(measurement['type-radio'] == 'tcp'){
+          return "Duration: " + measurement['tcp-details-dur'];
+        }else if(measurement['type-radio'] == 'udp'){
+          return  "Duration: " + measurement['udp-details-dur'] + "<br/ >" +
+                  "Size: " + measurement['udp-details-size'] + "<br />" + 
+                  "Speed: " + measurement['udp-details-speed'] + "<br />" + 
+                  "DSCP: " + (measurement['udp-details-dscp'] == "" ? "None" : measurement['udp-details-dscp']); 
+        }else if(measurement['type-radio'] == 'dns'){
+          return  "Address: " + measurement['dns-details-addr'] + "<br />" + 
+                  "Server: " + measurement['dns-details-server'];
+        }else{
+          return "Invalid measurement type";
+        }
+      }
+
+      function child_param_string(measurement){
+        var string = "";
+        for(x in measurement['params']){
+          if(measurement['params'][x]['param'] == "iterations"){
+            string += "Iterations: " + measurement['params'][x]['value'] + "<br />";
+          }else if(measurement['params'][x]['param'] == "duration"){
+            string += "Duration: " + measurement['params'][x]['value'] + "<br />";
+          }else if(measurement['params'][x]['param'] == "send_speed"){
+            string += "Send Speed: " + measurement['params'][x]['value'] + "<br />";
+          }else if(measurement['params'][x]['param'] == "packet_size"){
+            string += "Packet Size: " + measurement['params'][x]['value'] + "<br />";
+          }else if(measurement['params'][x]['param'] == "dscp_flag"){
+            string += "DSCP: " + measurement['params'][x]['value'] + "<br />";
+          }else if(measurement['params'][x]['param'] == "server"){
+            string += "Server: " + measurement['params'][x]['value'] + "<br />";
+          }else if(measurement['params'][x]['param'] == "address"){
+            string += "Address: " + measurement['params'][x]['value'] + "<br />";
+          }else{
+            string += "Unrecognised param <br />";
+          }
+        }
+        return string;
       }
   
     </script>
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
     
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="/assets/js/ie10-viewport-bug-workaround.js"></script>
     <!-- Used for the single line links -->
     <script src="/js/jasny-bootstrap.min.js"></script>
 
-  
-
-</body></html>
+</body>
+</html>
