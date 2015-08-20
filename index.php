@@ -11,14 +11,15 @@
     <link rel="icon" href="../../favicon.ico">
 
     <title>Sensor Management</title>
-    
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
     <link href="/css/index.css" rel="stylesheet">
 
-    <!-- Bootstrap -->
+    <!-- single table row links -->
     <link href="/css/jasny-bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    
-    <!-- jQuery -->
+  
+    <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
     <!-- Datatables -->
@@ -54,10 +55,10 @@
             <li><a href="#alarms-con">Alarms</a></li>
           </ul>
 
-          <!-- Notification Panel -->
+            <!-- Notification Panel -->
 
-          <!-- Log out button -->
-          <b id="logout" class="navbar-right navbar-text"><a href="logout.php">Log Out</a></b>
+            <!-- Log out button -->
+            <b id="logout" class="navbar-right navbar-text"><a href="logout.php">Log Out</a></b>
         </div><!--/.nav-collapse -->
         
       </div>
@@ -69,6 +70,7 @@
       <div class="container panel panel-default panel-body" id="server-con">
 
           <h1 id="server_status">Server <span style="color:green" class="glyphicon glyphicon-ok" aria-hidden="true"><small>Running</small></span> </h1>
+
           
           <div class="panel panel-default">
             <div class="panel-heading">
@@ -91,6 +93,7 @@
           </form>
 
           <a href="logs/server.log" target"_self">Full server log</a>
+
       </div>
 
       <!-- Sensor Panel -->
@@ -111,6 +114,8 @@
         <table class="table table-hover rowlink" data-link="row" id="sensors">
           <tr><th>ID</th><th>Ethernet</th><th>IP</th><th>Local IP</th><th>Connect Time</th><th>Disconnect Time</th><th>Description</th></tr>
         </table>
+     
+
       </div>
 
       <!-- Topology Panel-->
@@ -176,6 +181,7 @@
             </ul>
           </div>
         </div>
+        
         
         <!-- Schedule Table-->
         <table class="table table-hover" id="schedules">
@@ -366,8 +372,8 @@
                   </div>
 
                   <div class="form-group" style="display: none;" id="dns-details">
-                    <label for="dns-details-addr">URL: </label>
-                    <input name="dns-details-addr" class="form-control" id="dns-details-addr" value="google.co.uk">
+                    <label for="dns-details-dn">URL: </label>
+                    <input name="dns-details-dn" class="form-control" id="dns-details-dn" value="google.co.uk">
 
                     <label for="dns-details-server">Server: </label>
                     <input name="dns-details-server" class="form-control" id="dns-details-server" value="8.8.8.8">
@@ -1412,7 +1418,7 @@
             string += "DSCP: " + measurement['params'][x]['value'] + "<br />";
           }else if(measurement['params'][x]['param'] == "server"){
             string += "Server: " + measurement['params'][x]['value'] + "<br />";
-          }else if(measurement['params'][x]['param'] == "address"){
+          }else if(measurement['params'][x]['param'] == "domain_name"){
             string += "Address: " + measurement['params'][x]['value'] + "<br />";
           }else{
             string += "Unrecognised param <br />";
@@ -1428,5 +1434,6 @@
     <!-- Used for the single line links -->
     <script src="/js/jasny-bootstrap.min.js"></script>
 
-</body>
-</html>
+  
+
+</body></html>

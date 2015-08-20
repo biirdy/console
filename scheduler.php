@@ -59,7 +59,7 @@
             }elseif(strcmp($measurement['type-radio'], 'udp') == 0){
                 $request = xmlrpc_encode_request('add_udp_schedule.request', array(0, intval($id), intval($measurement['source']), intval($measurement['source-type']), intval($measurement['destination']), intval($measurement['destination-type']), intval($measurement['udp-details-speed']), intval($measurement['udp-details-size']), intval($measurement['udp-details-dur']), intval($measurement['udp-details-dscp']), $seconds, $delay_seconds));
             }elseif(strcmp($measurement['type-radio'], 'dns') == 0) {
-                $request = xmlrpc_encode_request('add_dns_schedule.request', array(0, intval($id), intval($measurement['source']), intval($measurement['source-type']), $seconds, $delay_seconds));
+                $request = xmlrpc_encode_request('add_dns_schedule.request', array(0, intval($id), intval($measurement['source']), intval($measurement['source-type']), $measurement['dns-details-dn'], $measurement['dns-details-server'], $seconds, $delay_seconds));
             }else{
                 echo("Invalid measurement type " . $measurement['type-radio']);
                 exit;
@@ -148,7 +148,7 @@
             }elseif(strcmp($measurement['method'], 'udp') == 0){
                 $request = xmlrpc_encode_request('add_udp_schedule.request', array(intval($measurement['measurement_id']), intval($measurement['schedule_id']), intval($measurement['source_id']), intval($measurement['source_type']), intval($measurement['destination_id']), intval($measurement['destination_type']), intval($params['send_speed']), intval($params['packet_size']), intval($params['duration']), intval($params['dscp_flag']), intval($schedule['period']), intval($measurement['delay'])));
             }elseif(strcmp($measurement['method'], 'dns') == 0) {
-                $request = xmlrpc_encode_request('add_dns_schedule.request', array(intval($measurement['measurement_id']), intval($measurement['schedule_id']), intval($measurement['source_id']), intval($measurement['source_type']), intval($measurement['period']), intval($measurement['delay'])));
+                $request = xmlrpc_encode_request('add_dns_schedule.request', array(intval($measurement['measurement_id']), intval($measurement['schedule_id']), intval($measurement['source_id']), intval($measurement['source_type']), $params['domain_name'], $params['server'], intval($measurement['period']), intval($measurement['delay'])));
             }else{
                 echo("Invalid measurement type " . $measurement['method']);
                 exit;
