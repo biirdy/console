@@ -27,7 +27,11 @@
 
     <!-- vis.js -->
     <script type="text/javascript" src="/js/vis.js"></script>
-    <link href="/css/vis.css" rel="stylesheet" type="text/css" />
+    <link href="/css/vis.css" rel="stylesheet" type="text/css"/>
+
+    <!-- d3 -->
+    <script src="http://d3js.org/d3.v3.js"></script>
+    <link href="/css/d3.css" rel="stylesheet" type="text/css"/>
 
   </head>
 
@@ -186,7 +190,7 @@
         <!-- Schedule Table-->
         <table class="table table-hover" id="schedules">
           <thead>
-            <tr><th></th><th>Name</th><th>Description</th><th>Interval (seconds)</th><th>Start/Suspend</th><th>Remove</th></tr>
+            <tr><th></th><th>Name</th><th>Description</th><th>Interval</th><th>Start/Suspend</th><th>Remove</th></tr>
           </thead>
         </table>
 
@@ -205,7 +209,6 @@
               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title" id="myModalLabel">Create Schedule</h4>
             </div>
-
 
             <form role="form" id="create-schedule-form">
             <!-- Modal body-->
@@ -410,6 +413,92 @@
               <button disabled id="measurement-submit" type="submit" class="btn btn-success">Add Measurement</button>
             </div>
             </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule plot modal -->
+      <div class="modal fade" id="schedule-plot-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" id="schedule-plot-dialog" role="document">
+          <div class="modal-content">
+
+            <!-- Modal Header-->
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="schedule-plot-title">Schedule Plot</h4>
+            </div>
+
+            <!-- Modal body-->
+            <div class="modal-body">
+
+              <table width="100%">
+
+                <tr><td>
+                  <label>Feature: </label>
+                  <div class="dropdown btn-group">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="plot-feature-dropdown" data-toggle="dropdown" aria-expanded="true">
+                      <span data-bind="label" id="plot-feature-span">Select feature</span>&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="plot-feature-dropdown-list" role="menu" aria-labelledby="plot-feature-dropdown">
+                    </ul>
+                  </div>
+                </td>
+
+                <td>
+                  <label>Source: </label>
+                  <div class="dropdown btn-group">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="plot-source-dropdown" data-toggle="dropdown" aria-expanded="true">
+                      <span data-bind="label" id="plot-source-span">Select source</span>&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="plot-source-dropdown-list" role="menu" aria-labelledby="plot-source-dropdown">
+                    </ul>
+                  </div>
+                </td>
+
+                <td>
+                  <label>Destination: </label>
+                  <div class="dropdown btn-group">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="plot-destination-dropdown" data-toggle="dropdown" aria-expanded="true">
+                      <span data-bind="label" id="plot-destination-span">Select destination</span>&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="plot-destination-dropdown-list" role="menu" aria-labelledby="plot-destination-dropdown">
+                    </ul>
+                  </div>
+                </td>
+
+                <td>
+                  <label>From: </label>
+                  <div class="dropdown btn-group">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="plot-from-dropdown" data-toggle="dropdown" aria-expanded="true">
+                      <span data-bind="label" id="plot-from-span">Select start</span>&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="plot-from-dropdown-list" role="menu" aria-labelledby="plot-from-dropdown">
+                      <li class="plot-from-dropdown-element" role="presentation" value="1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour ago</a></li>
+                      <li class="plot-from-dropdown-element" role="presentation" value="3"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >3 hours ago</a></li>
+                      <li class="plot-from-dropdown-element" role="presentation" value="6"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours ago</a></li>
+                      <li class="plot-from-dropdown-element" role="presentation" value="12"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours ago</a></li>
+                      <li class="plot-from-dropdown-element" role="presentation" value="24"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day ago</a></li>
+                      <li class="plot-from-dropdown-element" role="presentation" value="168"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week ago</a></li>
+                      <li class="plot-from-dropdown-element" role="presentation" value="744"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 month ago</a></li>
+                      <!--<li class="plot-from-dropdown-element" role="presentation" value="0"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Forever</a></li>
+                      <li class="plot-from-dropdown-element" role="presentation" value="0"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Custom</a></li> -->
+                    </ul>
+                  </div>
+                </td>
+
+              <tr></table>
+
+              <div id="schedule-plot"></div>
+
+              <div id="no-schedule-plot" style="display: none;"><font size="20">No data.</font></div>
+
+            </div>
+
+            <!-- Modal Footer-->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+
           </div>
         </div>
       </div>  
@@ -691,7 +780,7 @@
                 ],
                 //add remove button with correct group ID & colour
                 "createdRow": function(row, data, index){
-                  $('td', row).css('background-color', (data['active'] == 0 ? '#FFCCCC' : (data['faults'] > 0 ? '#FFCC66' : '#99FF99')));
+                  $('td', row).css('background-color', (data['active'] == 0 ? '#FFCCCC' : (data['faults'] > 0 ? '#FFCC66' : '#99FF99')));                  
                   $('td', row).eq(3).html(time_string(parseInt(data['period'])));
                   $('td', row).eq(4).html("<span aria-hidden='true' class='table-button glyphicon " + (data['active'] == 1 ? "glyphicon-pause susspend-button' onclick='schedule_susspend( " : "glyphicon-play susspend-button' onclick='schedule_start( ") + data['schedule_id'] + ")'></span>");
                   $('td', row).eq(5).html("<span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='schedule_delete(" + data['schedule_id'] + ")'></span>");
@@ -821,11 +910,11 @@
       }
 
       function schedule_format(d){
-        var child_table = '<table class="table child-table">';
+        var child_table = '<table class="table child-table table-hover rowlink" data-link="row">';
         child_table = child_table + "<tr><th>Source</th><th>Destination</th><th>Type</th><th>Params</th><th>Delay</th></tr>";
         for(var i = 0; i < d['measurements'].length; i++){
           child_table = child_table + '<tr bgcolor=' + (d['measurements'][i]['active'] == 0 ? "'#FFCCCC'" : (d['measurements'][i]['status'] == 0 ? "'#FFCCCC'" : "'#99FF99'")) + '>'+
-                                      '<td>'+ d['measurements'][i]['source_name'] +'</td>'+
+                                      '<td><a data-toggle="modal" data-target="#schedule-plot-modal" data-id="' + d['measurements'][i]['measurement_id'] + '"></a>'+ d['measurements'][i]['source_name'] +'</td>'+
                                       '<td>'+ d['measurements'][i]['destination_name'] +'</td>'+
                                       '<td>'+ d['measurements'][i]['method'] +'</td>'+
                                       '<td>'+ child_param_string(d['measurements'][i]) +'</td>'+
@@ -834,6 +923,188 @@
         }
         child_table = child_table + '</table>';
         return child_table;
+      }
+
+      var plot_data;
+      var plot_source;
+      var plot_destination;
+      var plot_feature;
+      var plot_type;
+      var plot_from = "none";
+
+      $('#schedule-plot-modal').on('shown.bs.modal', function(event) {
+        
+        //clear lists and svg 
+        $("#plot-feature-dropdown-list").find(".feature-dropdown-element").remove();
+        $("#plot-source-dropdown-list").find(".plot-source-dropdown-element").remove();
+        $("#plot-destination-dropdown-list").find(".plot-destination-dropdown-element").remove();
+
+        var mid = $(event.relatedTarget).data('id');
+        $(this).find('#schedule-plot-title').html($('<b> Schedule plot - measurement ID ' + mid  + '</b>'));
+
+        var measurement = find_measurement(mid);
+        console.log(measurement);
+        plot_type = measurement['method'];
+
+        //build source list
+        if(measurement['source_type'] == 1){
+          //group
+          var group = find_group(measurement['source_id']);
+          for(x in group['sensors'])
+            $("#plot-source-dropdown-list").append('<li class="plot-source-dropdown-element" role="presentation" value="' + group['sensors'][x]['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group['sensors'][x]['description'] + '</a></li>');
+          plot_source = group['sensors'][0]['sensor_id'];
+          $("#plot-source-span").html(group['sensors'][0]['description']);
+        }else{
+          //single sensor
+          var sensor = find_sensor(measurement['source_id']);
+          $("#plot-source-dropdown-list").append('<li class="plot-source-dropdown-element" role="presentation" value="' + sensor['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor['description'] + '</a></li>');
+          plot_source = sensor['sensor_id'];
+          $("#plot-source-span").html(sensor['description']);
+        }
+
+        //build destination list
+        if(measurement['destination-type'] == 1){
+          //group
+          var group = find_group(measurement['destination_id']);
+          for(x in group['sensors'])
+            $("#plot-destination-dropdown-list").append('<li class="plot-destination-dropdown-element" role="presentation" value="' + group['sensors'][x]['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group['sensors'][x]['description'] + '</a></li>');
+          plot_destination = group['sensors'][0]['sensor_id'];
+          $("#plot-destination-span").html(group['sensors'][0]['description']);
+        }else{
+          //single sensor
+          var sensor = find_sensor(measurement['destination_id']);
+          $("#plot-destination-dropdown-list").append('<li class="plot-destination-dropdown-element" role="presentation" value="' + sensor['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor['description'] + '</a></li>');
+          plot_destination = sensor['sensor_id'];
+          $("#plot-destination-span").html(sensor['description']);
+        }
+        
+
+        update_plot_data();
+      });
+
+      function update_plot_data(){
+
+        $.getJSON("metric.php", "type=" + plot_type + "&sensor_id=" + plot_source + "&dst_id=" + plot_destination, function(graph_data){
+
+          //build features list
+          var keys      = Object.keys(graph_data[0]);
+          var features  = []; 
+          //remove id's and time
+          for(x in keys){
+            if(!(keys[x].indexOf("id") > -1) && keys[x] != "time"){
+              features.push(keys[x]);
+              $("#plot-feature-dropdown-list").append('<li class="feature-dropdown-element" role="presentation"  data-feature="' + keys[x] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + keys[x] + '</a></li>');
+            }
+          }
+
+          //parse time
+          var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+          graph_data.forEach(function(d) {
+            d.time        = parseDate(d.time);
+          });
+
+          console.log(graph_data[0].time.toString());
+          var d = new Date();
+          d.setDate(d.getDate() + 30);
+          console.log(d);
+
+          //set feature to first in list
+          plot_feature  = features[0];
+          $("#plot-feature-span").html(plot_feature);
+
+          plot_data     = graph_data;
+
+          update_plot();
+        });
+      }
+      
+      function update_plot(){
+
+        //remove svg
+        d3.select("#schedule-plot").select("svg").remove();
+
+        var graph_data;
+
+        if(plot_from != "none"){
+          graph_data = truncate_data(plot_data, plot_from);
+        }else{
+          graph_data = plot_data;
+        }
+
+        if(graph_data.length == 0){
+          $("#schedule-plot").hide();
+          $("#no-schedule-plot").show();
+          return;
+        }else{
+          $("#schedule-plot").show();
+          $("#no-schedule-plot").hide();
+        }
+
+        //set margins for graphs - use modal width
+        var margin = {top: 20, right: 50, bottom: 30, left: 50},
+        width = $("#schedule-plot-dialog").width() - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;        
+
+        var x = d3.time.scale()
+            .range([0, width]);
+
+        var y = d3.scale.linear()
+            .range([height, 0]);
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left");
+
+        var line = d3.svg.line()
+            .x(function(d) { return x(d.time); })
+            .y(function(d) { return y(d[plot_feature]); });
+
+        svg = d3.select("#schedule-plot").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        x.domain(d3.extent(graph_data, function(d) { return d.time; }));
+        y.domain(d3.extent(graph_data, function(d) { return d[plot_feature]; }));
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis)
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("RTT (ms)");
+
+        svg.append("path")
+            .datum(graph_data)
+            .attr("class", "line")
+            .attr("d", line);
+
+        $("#schedule-plot-modal").data("bs.modal").handleUpdate();
+      }
+
+      function truncate_data(data, start){
+
+        var new_data = [];
+
+        for(x in data){
+          if(data[x].time > start){
+            new_data.push(data[x]);
+          }
+        }
+        return new_data;
       }
 
       /*
@@ -889,9 +1160,36 @@
 
           //create group drop down
           }else if($target.attr('class') == 'add-sensor-dropdown-element'){
+            
             to_add = find_sensor($target.val());
             $("#add-sensor-btn").removeAttr('disabled');
             $("#create-group").data("bs.modal").handleUpdate();
+
+          }else if($target.attr('class') == "plot-destination-dropdown-element"){
+
+            plot_destination = $target.val();
+            update_plot_data(); 
+
+          }else if($target.attr('class') == "plot-source-dropdown-element"){
+            
+            plot_source     = $target.val();
+            update_plot_data();
+
+          }else if($target.attr('class') == "feature-dropdown-element"){
+            
+            plot_feature    = $target.attr("data-feature");
+            update_plot();
+
+          }else if($target.attr('class') == "plot-from-dropdown-element"){
+
+            var hours       = $target.val();
+            plot_from       = new Date();
+            console.log("NOW " + plot_from);
+            plot_from.setHours(plot_from.getHours() - hours);
+            console.log("FROM " + plot_from);
+
+            update_plot();
+
           }
       });
 
@@ -1361,6 +1659,16 @@
         for(x in schedule_data){
           if(schedule_data[x].schedule_id == sid)
             return schedule_data[x];
+        }
+        return false;
+      }
+
+      function find_measurement(mid){
+        for(m in schedule_data){
+          for(n in schedule_data[m]['measurements']){
+            if(schedule_data[m]['measurements'][n]['measurement_id'] == mid)
+              return schedule_data[m]['measurements'][n];
+          }
         }
         return false;
       }
