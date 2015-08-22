@@ -61,10 +61,13 @@ body {
 
 #no-topo-div{
   float: left;
-  width: 60%;
-  height: 400px;
-  text-align:center;
-  line-height: 400px;
+}
+
+.no_data{
+  width: 100%;
+  height: 500px;
+  text-align: center;
+  line-height: 500px;
 }
 
 #no-schedule-plot{

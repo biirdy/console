@@ -480,8 +480,7 @@
                       <li class="plot-from-dropdown-element" role="presentation" value="24"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day ago</a></li>
                       <li class="plot-from-dropdown-element" role="presentation" value="168"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week ago</a></li>
                       <li class="plot-from-dropdown-element" role="presentation" value="744"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 month ago</a></li>
-                      <!--<li class="plot-from-dropdown-element" role="presentation" value="0"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Forever</a></li>
-                      <li class="plot-from-dropdown-element" role="presentation" value="0"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Custom</a></li> -->
+                      <li class="plot-from-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Forever</a></li>
                     </ul>
                   </div>
                 </td>
@@ -490,7 +489,7 @@
 
               <div id="schedule-plot"></div>
 
-              <div id="no-schedule-plot" style="display: none;"><font size="20">No data.</font></div>
+              <div id="no-schedule-plot" class="no_data" style="display: none;"><font size="20">No data.</font></div>
 
             </div>
 
@@ -594,9 +593,6 @@
     </div>
 
     <script type="text/javascript">
-
-      
-
       /*
       * Get current state of server - update glyphicon and active server interaction buttons
       */
@@ -709,7 +705,7 @@
             
             //repopulate
             for(x in sensor_data){
-              $('#sensors tr:last').after('<tr bgcolor=' + (sensor_data[x].active == 0 ? "'#FFCCCC'" : "'#99FF99'") + '><td><a href="sensor.html?' + sensor_data[x].sensor_id + '">' + sensor_data[x].sensor_id + '</a></td>' + 
+              $('#sensors tr:last').after('<tr bgcolor=' + (sensor_data[x].active == 0 ? "'#FFCCCC'" : "'#99FF99'") + '><td><a href="sensor.php?' + sensor_data[x].sensor_id + '">' + sensor_data[x].sensor_id + '</a></td>' + 
                                                     '<td>' + sensor_data[x].ether + '</td>' + 
                                                     '<td>' + sensor_data[x].ip + '</td>' + 
                                                     '<td>' + sensor_data[x].local_ip + '</td>' + 
@@ -977,7 +973,6 @@
           plot_destination = sensor['sensor_id'];
           $("#plot-destination-span").html(sensor['description']);
         }
-        
 
         update_plot_data();
       });
@@ -1002,11 +997,6 @@
           graph_data.forEach(function(d) {
             d.time        = parseDate(d.time);
           });
-
-          console.log(graph_data[0].time.toString());
-          var d = new Date();
-          d.setDate(d.getDate() + 30);
-          console.log(d);
 
           //set feature to first in list
           plot_feature  = features[0];
@@ -1108,7 +1098,7 @@
       }
 
       /*
-      * Update text on dropdowns
+      * Update text on dropdowns - and other
       */
       $(document.body).on('click', '.dropdown-menu li', function(event){
           var $target = $(event.currentTarget);
@@ -1182,13 +1172,17 @@
 
           }else if($target.attr('class') == "plot-from-dropdown-element"){
 
-            var hours       = $target.val();
-            plot_from       = new Date();
-            console.log("NOW " + plot_from);
-            plot_from.setHours(plot_from.getHours() - hours);
-            console.log("FROM " + plot_from);
+            if($target.val() == -1){
 
-            update_plot();
+              plot_from = "none";
+              update_plot();
+
+            }else{
+              plot_from       = new Date();
+              plot_from.setHours(plot_from.getHours() - $target.val());
+              update_plot();
+            }
+            
 
           }
       });

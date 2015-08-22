@@ -33,7 +33,7 @@
 		}else if(strcmp($_POST['request_type'], 'udp') == 0){
 			$request = xmlrpc_encode_request('udp.request', array(intval($_POST['sensor_id']), intval($_POST['dst_id']), intval($_POST['udp_speed']), intval($_POST['udp_size']), intval($_POST['udp_time']), intval($_POST['udp_dscp'])));
 		}else if(strcmp($_POST['request_type'], 'dns') == 0){
-			$request = xmlrpc_encode_request('dns.request', array(intval($_POST['sensor_id']), "google.co.uk", "8.8.8.8"));
+			$request = xmlrpc_encode_request('dns.request', array(intval($_POST['sensor_id']), $_POST['dns_domain_name'], $_POST['dns_server']));
 		}else{
 			echo("Unknown request type");
 			exit;

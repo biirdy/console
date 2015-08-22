@@ -13,6 +13,8 @@
 			$table = "udps";
 		}else if(strcmp($_GET['type'], "dns") == 0){
 			$table = "dns";
+		}else if(strcmp($_GET['type'], "dns_failure") == 0){
+			$table = "dns_failure";
 		}else{
 			die("Unrecognised type");
 		}
@@ -27,7 +29,11 @@
 	}
 
 	// Select all the rows in the markers table
-	$query = "SELECT * FROM " . $table . " WHERE sensor_id = " . $_GET['sensor_id'] . " AND dst_id = " . $_GET['dst_id'];
+	if(strcmp($_GET['type'], "dns") == 0 || strcmp($_GET['type'], "dns_failure") == 0){
+		$query = "SELECT * FROM " . $table . " WHERE sensor_id = " . $_GET['sensor_id']; 
+	}else{
+		$query = "SELECT * FROM " . $table . " WHERE sensor_id = " . $_GET['sensor_id'] . " AND dst_id = " . $_GET['dst_id'];
+	}
 	$results = mysqli_query($con, $query);
 	if (!$results) {
 	  die('Invalid query: ' . mysqli_error());
