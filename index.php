@@ -485,6 +485,25 @@
                   </div>
                 </td>
 
+                <td>
+                  <label>Average: </label>
+                  <div class="dropdown btn-group">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="plot-average-dropdown" data-toggle="dropdown" aria-expanded="true">
+                      <span data-bind="label" id="plot-average-span">Select average</span>&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="plot-average-dropdown-list" role="menu" aria-labelledby="plot-average-dropdown">
+                      <li class="plot-average-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >None</a></li>
+                      <li class="plot-average-dropdown-element" role="presentation" value="5"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >5 minutes</a></li>
+                      <li class="plot-average-dropdown-element" role="presentation" value="30"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >30 minutes</a></li>
+                      <li class="plot-average-dropdown-element" role="presentation" value="60"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour</a></li>
+                      <li class="plot-average-dropdown-element" role="presentation" value="360"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours</a></li>
+                      <li class="plot-average-dropdown-element" role="presentation" value="720"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours</a></li>
+                      <li class="plot-average-dropdown-element" role="presentation" value="1440"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day</a></li>
+                      <li class="plot-average-dropdown-element" role="presentation" value="10080"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week</a></li>
+                    </ul>
+                  </div>
+                </td>
+
               <tr></table>
 
               <div id="schedule-plot"></div>
@@ -927,6 +946,7 @@
       var plot_feature;
       var plot_type;
       var plot_from = "none";
+      var plot_average = "none";
 
       $('#schedule-plot-modal').on('shown.bs.modal', function(event) {
         
@@ -950,6 +970,7 @@
             $("#plot-source-dropdown-list").append('<li class="plot-source-dropdown-element" role="presentation" value="' + group['sensors'][x]['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group['sensors'][x]['description'] + '</a></li>');
           plot_source = group['sensors'][0]['sensor_id'];
           $("#plot-source-span").html(group['sensors'][0]['description']);
+          console.log("Souce group " + group);
         }else{
           //single sensor
           var sensor = find_sensor(measurement['source_id']);
@@ -959,13 +980,14 @@
         }
 
         //build destination list
-        if(measurement['destination-type'] == 1){
+        if(measurement['destination_type'] == 1){
           //group
           var group = find_group(measurement['destination_id']);
           for(x in group['sensors'])
             $("#plot-destination-dropdown-list").append('<li class="plot-destination-dropdown-element" role="presentation" value="' + group['sensors'][x]['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group['sensors'][x]['description'] + '</a></li>');
           plot_destination = group['sensors'][0]['sensor_id'];
           $("#plot-destination-span").html(group['sensors'][0]['description']);
+          console.log("Destination group " + group);
         }else{
           //single sensor
           var sensor = find_sensor(measurement['destination_id']);
@@ -976,6 +998,9 @@
 
         update_plot_data();
       });
+
+      var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+      var bisectDate = d3.bisector(function(d) { return d.time; }).left;
 
       function update_plot_data(){
 
@@ -993,13 +1018,17 @@
           }
 
           //parse time
-          var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
           graph_data.forEach(function(d) {
             d.time        = parseDate(d.time);
           });
 
+          //should already be in order
+          graph_data.sort(function(a, b){
+            return a.time - b.time;
+          });
+
           //set feature to first in list
-          plot_feature  = features[0];
+          plot_feature  = features[1];
           $("#plot-feature-span").html(plot_feature);
 
           plot_data     = graph_data;
@@ -1014,11 +1043,17 @@
         d3.select("#schedule-plot").select("svg").remove();
 
         var graph_data;
-
         if(plot_from != "none"){
-          graph_data = truncate_data(plot_data, plot_from);
+          //graph_data = truncate_data(plot_data, plot_from);
+          graph_data = plot_data.filter(function(d){
+            return d.time > plot_from;
+          });
         }else{
           graph_data = plot_data;
+        }
+
+        if(plot_average != "none"){
+          graph_data = average_data(graph_data, plot_average);
         }
 
         if(graph_data.length == 0){
@@ -1031,7 +1066,7 @@
         }
 
         //set margins for graphs - use modal width
-        var margin = {top: 20, right: 50, bottom: 30, left: 50},
+        var margin = {top: 20, right: 50, bottom: 50, left: 50},
         width = $("#schedule-plot-dialog").width() - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;        
 
@@ -1065,7 +1100,7 @@
         svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
-            .call(xAxis)
+            .call(xAxis);
 
         svg.append("g")
             .attr("class", "y axis")
@@ -1082,13 +1117,99 @@
             .attr("class", "line")
             .attr("d", line);
 
+        var focus_bg = svg.append("rect")
+            .attr("fill", "white")
+            .attr("width", 50)
+            .attr("height", 50);
+
+        var focus = svg.append("g")
+            .attr("class", "focus")
+            .style("display", "none");
+
+        focus.append("circle")
+            .attr("r", 4.5);
+
+        focus.append("text")
+            .attr("x", 9)
+            .attr("dy", ".35em");
+
+        svg.append("rect")
+            .attr("class", "overlay")
+            .attr("width", width)
+            .attr("height", height)
+            .on("mouseover", function() { focus.style("display", null); focus_bg.style("display", null);})
+            .on("mouseout", function() { focus.style("display", "none"); focus_bg.style("display", "none"); })
+            .on("mousemove", mousemove);
+
+        function mousemove() {
+          var x0 = x.invert(d3.mouse(this)[0]),
+              i = bisectDate(graph_data, x0, 1),
+              d0 = graph_data[i - 1],
+              d1 = graph_data[i],
+              d = x0 - d0.time > d1.time - x0 ? d1 : d0;
+
+          focus.attr("transform", "translate(" + x(d.time) + "," + y(d[plot_feature]) + ")");
+          var bg_size = format_info(d, focus.select("text")); 
+          focus_bg.attr("transform", "translate(" + x(d.time) + "," + y(d[plot_feature]) + ")");
+          focus_bg.attr("height", bg_size[0] + "em");
+          focus_bg.attr("width", bg_size[1]);
+        }
         $("#schedule-plot-modal").data("bs.modal").handleUpdate();
       }
 
-      function truncate_data(data, start){
+      function format_info(d, text){
+        text.text("");
+        var max_len = 0;
+        var count = 0;
+        for(x in d){
+          if(!(x.indexOf("id") > -1) && x != "time"){
+            var tspan = text.append("tspan")
+              .attr("dy", "1.2em")
+              .attr("x",0)
+              .text(x + ":" + parseInt(d[x]).toFixed(2));
+            if(tspan.node().getComputedTextLength() > max_len){
+              max_len = tspan.node().getComputedTextLength();
+            } 
+            count++; 
+          }
+        }
+        return [1.2 * count, max_len];
+      }
+
+      function average_data(data, period){
 
         var new_data = [];
+        var start = null;
+        var count = 0;
+        var sum   = {};
 
+        for(x in data){
+          if(start == null){
+            start = data[x].time;
+            for(y in data[x]){
+              sum[y] = 0;
+            }
+          }else if(Math.floor((data[x].time - start) / (1000*60)) >= period || x == data.length - 1){
+            var average = {};
+            for(y in sum){
+              average[y] = sum[y] / count;
+              sum[y] = 0;
+            }
+            count = 0;
+            average.time = data[x-1].time;
+            new_data.push(average);
+            start = data[x].time;
+          }
+          for(y in data[x]){
+            sum[y] += parseInt(data[x][y]);
+          }
+          count ++;
+        }
+        return new_data;
+      }
+
+      function truncate_data(data, start){
+        var new_data = [];
         for(x in data){
           if(data[x].time > start){
             new_data.push(data[x]);
@@ -1173,17 +1294,22 @@
           }else if($target.attr('class') == "plot-from-dropdown-element"){
 
             if($target.val() == -1){
-
               plot_from = "none";
               update_plot();
-
             }else{
-              plot_from       = new Date();
+              plot_from = new Date();
               plot_from.setHours(plot_from.getHours() - $target.val());
               update_plot();
             }
-            
-
+          
+          }else if($target.attr('class') == "plot-average-dropdown-element"){
+            if($target.val() == -1){
+              plot_average = "none";
+            }else{
+              plot_average = $target.val();  
+            }
+            console.log("plot_average" + plot_average);
+            update_plot();
           }
       });
 

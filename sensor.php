@@ -72,36 +72,47 @@
 
       <h2 id="rtt_title">Round Trip Times</h2>
 
-      <!--
-      Period: 
-      <div class="dropdown btn-group">
-        <button class="btn btn-default dropdown-toggle" type="button" id="rtt_dropdown" data-toggle="dropdown" aria-expanded="true">
-          <span data-bind="label">30 Minutes</span>&nbsp;<span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="rtt_dropdown">
-          <li role="presentation"><a onclick="change_rtt_period('rtt_line_1min'); return false;" href=""role="menuitem" tabindex="-1">1 minute</a></li>
-          <li role="presentation"><a onclick="change_rtt_period('rtt_line_10min'); return false;" href=""role="menuitem" tabindex="-1">10 minutes</a></li>
-          <li role="presentation"><a onclick="change_rtt_period('rtt_line_30min'); return false;" href="" role="menuitem" tabindex="-1">30 minutes</a></li>
-          <li role="presentation"><a onclick="change_rtt_period('rtt_line_1hour'); return false;" href="" role="menuitem" tabindex="-1">1 hour</a></li>
-        </ul>
-      </div>
-      -->
-      <label>From: </label>
-      <div class="dropdown btn-group">
-        <button class="btn btn-default dropdown-toggle" type="button" id="rtt-from-dropdown" data-toggle="dropdown" aria-expanded="true">
-          <span data-bind="label" id="rtt-from-span">Select start</span>&nbsp;<span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" id="plot-from-dropdown-list" role="menu" aria-labelledby="plot-from-dropdown">
-          <li class="rtt-from-dropdown-element" role="presentation" value="1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour ago</a></li>
-          <li class="rtt-from-dropdown-element" role="presentation" value="3"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >3 hours ago</a></li>
-          <li class="rtt-from-dropdown-element" role="presentation" value="6"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours ago</a></li>
-          <li class="rtt-from-dropdown-element" role="presentation" value="12"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours ago</a></li>
-          <li class="rtt-from-dropdown-element" role="presentation" value="24"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day ago</a></li>
-          <li class="rtt-from-dropdown-element" role="presentation" value="168"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week ago</a></li>
-          <li class="rtt-from-dropdown-element" role="presentation" value="744"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 month ago</a></li>
-          <li class="rtt-from-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Forever</a></li>
-        </ul>
-      </div>
+      <table width="100%"><tr>
+
+        <td>
+          <label>From: </label>
+          <div class="dropdown btn-group">
+            <button class="btn btn-default dropdown-toggle" type="button" id="rtt-from-dropdown" data-toggle="dropdown" aria-expanded="true">
+              <span data-bind="label" id="rtt-from-span">Select start</span>&nbsp;<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" id="plot-from-dropdown-list" role="menu" aria-labelledby="plot-from-dropdown">
+              <li class="rtt-from-dropdown-element" role="presentation" value="1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour ago</a></li>
+              <li class="rtt-from-dropdown-element" role="presentation" value="3"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >3 hours ago</a></li>
+              <li class="rtt-from-dropdown-element" role="presentation" value="6"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours ago</a></li>
+              <li class="rtt-from-dropdown-element" role="presentation" value="12"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours ago</a></li>
+              <li class="rtt-from-dropdown-element" role="presentation" value="24"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day ago</a></li>
+              <li class="rtt-from-dropdown-element" role="presentation" value="168"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week ago</a></li>
+              <li class="rtt-from-dropdown-element" role="presentation" value="744"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 month ago</a></li>
+              <li class="rtt-from-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Forever</a></li>
+            </ul>
+          </div>
+        </td>
+
+        <td>
+          <label>Average: </label>
+          <div class="dropdown btn-group">
+            <button class="btn btn-default dropdown-toggle" type="button" id="rtt-average-dropdown" data-toggle="dropdown" aria-expanded="true">
+              <span data-bind="label" id="rtt-average-span">Select average</span>&nbsp;<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" id="rtt-average-dropdown-list" role="menu" aria-labelledby="rtt-average-dropdown">
+              <li class="rtt-average-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >None</a></li>
+              <li class="rtt-average-dropdown-element" role="presentation" value="5"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >5 minutes</a></li>
+              <li class="rtt-average-dropdown-element" role="presentation" value="30"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >30 minutes</a></li>
+              <li class="rtt-average-dropdown-element" role="presentation" value="60"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour</a></li>
+              <li class="rtt-average-dropdown-element" role="presentation" value="360"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours</a></li>
+              <li class="rtt-average-dropdown-element" role="presentation" value="720"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours</a></li>
+              <li class="rtt-average-dropdown-element" role="presentation" value="1440"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day</a></li>
+              <li class="rtt-average-dropdown-element" role="presentation" value="10080"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week</a></li>
+            </ul>
+          </div>
+        </td>
+
+      </tr></table>
 
       <div id="rtt_graph"></div>
       <div id="no_rtt_graph" class="no_data" style="display: none;"><font size="20">No data.</font></div>
@@ -131,35 +142,48 @@
      
       <h2 id="bw_title">TCP Throughput - <small>Let TCP and the OS work it out</small></h2>
 
-      <!-- 
-      Period: 
-      <div class="dropdown btn-group">
-        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
-          <span data-bind="label">1 Hour</span>&nbsp;<span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-          <li role="presentation"><a onclick="change_bw_period('bw_line_5min'); return false;" href=""role="menuitem" tabindex="-1">5 minutes</a></li>
-          <li role="presentation"><a onclick="change_bw_period('bw_line_30min'); return false;" href="" role="menuitem" tabindex="-1">30 minutes</a></li>
-          <li role="presentation"><a onclick="change_bw_period('bw_line_1hour'); return false;" role="menuitem" tabindex="-1">1 hour</a></li>
-        </ul>
-      </div>
-      -->
-      <label>From: </label>
-      <div class="dropdown btn-group">
-        <button class="btn btn-default dropdown-toggle" type="button" id="bw-from-dropdown" data-toggle="dropdown" aria-expanded="true">
-          <span data-bind="label" id="bw-from-span">Select start</span>&nbsp;<span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" id="plot-from-dropdown-list" role="menu" aria-labelledby="plot-from-dropdown">
-          <li class="bw-from-dropdown-element" role="presentation" value="1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour ago</a></li>
-          <li class="bw-from-dropdown-element" role="presentation" value="3"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >3 hours ago</a></li>
-          <li class="bw-from-dropdown-element" role="presentation" value="6"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours ago</a></li>
-          <li class="bw-from-dropdown-element" role="presentation" value="12"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours ago</a></li>
-          <li class="bw-from-dropdown-element" role="presentation" value="24"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day ago</a></li>
-          <li class="bw-from-dropdown-element" role="presentation" value="168"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week ago</a></li>
-          <li class="bw-from-dropdown-element" role="presentation" value="744"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 month ago</a></li>
-          <li class="bw-from-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Forever</a></li>
-        </ul>
-      </div>
+      <table width="100%"><tr>
+      
+        <td>
+          <label>From: </label>
+          <div class="dropdown btn-group">
+            <button class="btn btn-default dropdown-toggle" type="button" id="bw-from-dropdown" data-toggle="dropdown" aria-expanded="true">
+              <span data-bind="label" id="bw-from-span">Select start</span>&nbsp;<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" id="plot-from-dropdown-list" role="menu" aria-labelledby="plot-from-dropdown">
+              <li class="bw-from-dropdown-element" role="presentation" value="1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour ago</a></li>
+              <li class="bw-from-dropdown-element" role="presentation" value="3"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >3 hours ago</a></li>
+              <li class="bw-from-dropdown-element" role="presentation" value="6"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours ago</a></li>
+              <li class="bw-from-dropdown-element" role="presentation" value="12"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours ago</a></li>
+              <li class="bw-from-dropdown-element" role="presentation" value="24"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day ago</a></li>
+              <li class="bw-from-dropdown-element" role="presentation" value="168"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week ago</a></li>
+              <li class="bw-from-dropdown-element" role="presentation" value="744"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 month ago</a></li>
+              <li class="bw-from-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Forever</a></li>
+            </ul>
+          </div>
+        </td>
+
+        <td>
+          <label>Average: </label>
+          <div class="dropdown btn-group">
+            <button class="btn btn-default dropdown-toggle" type="button" id="bw-average-dropdown" data-toggle="dropdown" aria-expanded="true">
+              <span data-bind="label" id="bw-average-span">Select average</span>&nbsp;<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" id="bw-average-dropdown-list" role="menu" aria-labelledby="bw-average-dropdown">
+              <li class="bw-average-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >None</a></li>
+              <li class="bw-average-dropdown-element" role="presentation" value="5"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >5 minutes</a></li>
+              <li class="bw-average-dropdown-element" role="presentation" value="30"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >30 minutes</a></li>
+              <li class="bw-average-dropdown-element" role="presentation" value="60"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour</a></li>
+              <li class="bw-average-dropdown-element" role="presentation" value="360"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours</a></li>
+              <li class="bw-average-dropdown-element" role="presentation" value="720"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours</a></li>
+              <li class="bw-average-dropdown-element" role="presentation" value="1440"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day</a></li>
+              <li class="bw-average-dropdown-element" role="presentation" value="10080"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week</a></li>
+            </ul>
+          </div>
+        </td>
+
+      </tr></table>
+
 
       <div id="bw_graph"></div>
       <div id="no_bw_graph" class="no_data" style="display: none;"><font size="20">No data.</font></div>
@@ -242,37 +266,47 @@
       <div class="panel panel-default panel-body">
         <h3 id="dns_title">DNS resolution</h3>
 
-        <!--
-        Period: 
-        <div class="dropdown btn-group">
-          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
-            <span data-bind="label">10 Minutes</span>&nbsp;<span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-            <li role="presentation"><a onclick="change_dns_period('dns_line_1min'); return false;" href=""role="menuitem" tabindex="-1">1 minute</a></li>
-            <li role="presentation"><a onclick="change_dns_period('dns_line_10min'); return false;" href=""role="menuitem" tabindex="-1">10 minutes</a></li>
-            <li role="presentation"><a onclick="change_dns_period('dns_line_30min'); return false;" href="" role="menuitem" tabindex="-1">30 minutes</a></li>
-            <li role="presentation"><a onclick="change_dns_period('dns_line_1hour'); return false;" role="menuitem" tabindex="-1">1 hour</a></li>
-          </ul>
-        </div>
-        -->
+        <table width="100%"><tr>
 
-        <label>From: </label>
-        <div class="dropdown btn-group">
-          <button class="btn btn-default dropdown-toggle" type="button" id="dns-from-dropdown" data-toggle="dropdown" aria-expanded="true">
-            <span data-bind="label" id="dns-from-span">Select start</span>&nbsp;<span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" id="dns-from-dropdown-list" role="menu" aria-labelledby="dns-from-dropdown">
-            <li class="dns-from-dropdown-element" role="presentation" value="1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour ago</a></li>
-            <li class="dns-from-dropdown-element" role="presentation" value="3"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >3 hours ago</a></li>
-            <li class="dns-from-dropdown-element" role="presentation" value="6"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours ago</a></li>
-            <li class="dns-from-dropdown-element" role="presentation" value="12"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours ago</a></li>
-            <li class="dns-from-dropdown-element" role="presentation" value="24"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day ago</a></li>
-            <li class="dns-from-dropdown-element" role="presentation" value="168"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week ago</a></li>
-            <li class="dns-from-dropdown-element" role="presentation" value="744"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 month ago</a></li>
-            <li class="dns-from-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Forever</a></li>
-          </ul>
-        </div>
+          <td>
+            <label>From: </label>
+            <div class="dropdown btn-group">
+              <button class="btn btn-default dropdown-toggle" type="button" id="dns-from-dropdown" data-toggle="dropdown" aria-expanded="true">
+                <span data-bind="label" id="dns-from-span">Select start</span>&nbsp;<span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" id="dns-from-dropdown-list" role="menu" aria-labelledby="dns-from-dropdown">
+                <li class="dns-from-dropdown-element" role="presentation" value="1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour ago</a></li>
+                <li class="dns-from-dropdown-element" role="presentation" value="3"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >3 hours ago</a></li>
+                <li class="dns-from-dropdown-element" role="presentation" value="6"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours ago</a></li>
+                <li class="dns-from-dropdown-element" role="presentation" value="12"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours ago</a></li>
+                <li class="dns-from-dropdown-element" role="presentation" value="24"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day ago</a></li>
+                <li class="dns-from-dropdown-element" role="presentation" value="168"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week ago</a></li>
+                <li class="dns-from-dropdown-element" role="presentation" value="744"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 month ago</a></li>
+                <li class="dns-from-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Forever</a></li>
+              </ul>
+            </div>
+          </td>
+
+          <td>
+            <label>Average: </label>
+            <div class="dropdown btn-group">
+              <button class="btn btn-default dropdown-toggle" type="button" id="dns-average-dropdown" data-toggle="dropdown" aria-expanded="true">
+                <span data-bind="label" id="dns-average-span">Select average</span>&nbsp;<span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" id="dns-average-dropdown-list" role="menu" aria-labelledby="dns-average-dropdown">
+                <li class="dns-average-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >None</a></li>
+                <li class="dns-average-dropdown-element" role="presentation" value="5"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >5 minutes</a></li>
+                <li class="dns-average-dropdown-element" role="presentation" value="30"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >30 minutes</a></li>
+                <li class="dns-average-dropdown-element" role="presentation" value="60"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour</a></li>
+                <li class="dns-average-dropdown-element" role="presentation" value="360"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours</a></li>
+                <li class="dns-average-dropdown-element" role="presentation" value="720"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours</a></li>
+                <li class="dns-average-dropdown-element" role="presentation" value="1440"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day</a></li>
+                <li class="dns-average-dropdown-element" role="presentation" value="10080"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week</a></li>
+              </ul>
+            </div>
+          </td>
+
+        </tr></table>
 
         <div id="dns_graph"></div>
         <div id="no_dns_graph" class="no_data" style="display: none;"><font size="20">No data.</font></div>
@@ -317,28 +351,6 @@
         var bw_svg;
         var rtt_svg;
         var dns_svg;
-
-        //var active_bw_line  = "bw_line_1hour";
-        //var active_rtt_line = "rtt_line_30min";
-        //var active_dns_line = "dns_line_10min";
-
-        //change the period of bw graph
-        /*function change_bw_period(val){
-          active_bw_line = val;
-          update_bw_graph(bw_data, 0);
-        }*/
-
-        //change the period of rtt graph
-        /*function change_rtt_period(val){
-          active_rtt_line = val;
-          update_rtt_graph(rtt_data, 0);
-        }*/
-
-        //change the period of rtt graph
-        /*function change_dns_period(val){
-          active_dns_line = val;
-          update_dns_graph(dns_data, 0);
-        }*/
 
         //get sensor id from url - hopefully nothing else is passed - FIX!!
         var sensor_id = location.search.replace("?", "");
@@ -438,6 +450,27 @@
                 dns_from.setHours(dns_from.getHours() - $target.val());
               }
               update_dns_graph();
+            }else if($target.attr('class') == "rtt-average-dropdown-element"){
+              if($target.val() == -1){
+                rtt_average = "none";
+              }else{
+                rtt_average = $target.val();
+              }
+              update_rtt_graph();
+            }else if($target.attr('class') == "bw-average-dropdown-element"){
+              if($target.val() == -1){
+                bw_average = "none";
+              }else{
+                bw_average = $target.val();
+              }
+              update_bw_graph();
+            }else if($target.attr('class') == "dns-average-dropdown-element"){
+              if($target.val() == -1){
+                dns_average = "none";
+              }else{
+                dns_average = $target.val();
+              }
+              update_dns_graph();
             }
         });
 
@@ -480,6 +513,7 @@
         * rtt graph
         */
         var rtt_from = "none";
+        var rtt_average = "none";
         var rtt_x = d3.time.scale()
             .range([0, width]);
 
@@ -502,6 +536,7 @@
         * bandwidth graph
         */
         var bw_from = "none";
+        var bw_average = "none";
         var bw_x = d3.time.scale()
             .range([0, width]);
 
@@ -524,6 +559,7 @@
         * dns resoloution graph
         */
         var dns_from = "none";
+        var dns_average = "none";
         var dns_x = d3.time.scale()
             .range([0, width]);
 
@@ -684,19 +720,15 @@
             row.insertCell(3).innerHTML = bw_data[bw_data.length-1].speed;
           }
 
-          /*var bw_average;
-          if(active_bw_line == 'bw_line_5min')
-            bw_average = function(d){return d;};
-          else if(active_bw_line == 'bw_line_30min')
-            bw_average = simple_moving_averager(6);
-          else if(active_bw_line == 'bw_line_1hour')
-            bw_average = simple_moving_averager(12);*/
-
           var graph_data;
           if(bw_from != "none"){
             graph_data = truncate_data(bw_data, bw_from);
           }else{
             graph_data = bw_data;
+          }
+
+          if(bw_average != "none"){
+            graph_data = average_data(graph_data, bw_average);
           }
 
           if(graph_data.length == 0){
@@ -753,21 +785,15 @@
             row.insertCell(4).innerHTML = rtt_data[rtt_data.length-1].dev;
           }
 
-          /*var rtt_average;
-          if(active_rtt_line == 'rtt_line_1min')
-            rtt_average = function(d){return d;};
-          else if(active_rtt_line == 'rtt_line_10min')
-            rtt_average = simple_moving_averager(10);
-          else if(active_rtt_line == 'rtt_line_30min')
-            rtt_average = simple_moving_averager(30);
-          else if(active_rtt_line == 'rtt_line_1hour')
-            rtt_average = simple_moving_averager(60);*/
-
           var graph_data;
           if(rtt_from != "none"){
             graph_data = truncate_data(rtt_data, rtt_from);
           }else{
             graph_data = rtt_data;
+          }
+
+          if(rtt_average != "none"){
+            graph_data = average_data(graph_data, rtt_average);
           }
 
           if(graph_data.length == 0){
@@ -813,22 +839,15 @@
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-          /*var dns_average;
-          if(active_dns_line == 'dns_line_1min')
-            dns_average = function(d){return d;};
-          else if(active_dns_line == 'dns_line_10min')
-            dns_average = simple_moving_averager(10);
-          else if(active_dns_line == 'dns_line_30min')
-            dns_average = simple_moving_averager(30);
-          else if(active_dns_line == 'dns_line_1hour')
-            dns_average = simple_moving_averager(60);*/
-
           var graph_data;
           if(dns_from != "none"){
             graph_data = truncate_data(dns_data, dns_from);
           }else{
             graph_data = dns_data;
-            console.log("forever");
+          }
+
+          if(dns_average != "none"){
+            graph_data = average_data(graph_data, dns_average);
           }
 
           if(graph_data.length == 0){
@@ -864,28 +883,44 @@
               .attr("d", dns_line); 
         }
 
-        function simple_moving_averager(period) {
-          var nums = [];
-          return function(num) {
-              nums.push(num);
-              if (nums.length > period)
-                  nums.splice(0,1);  // remove the first element of the array
-              var sum = 0;
-              for (var i in nums)
-                  sum += nums[i];
-              var n = period;
-              if (nums.length < period)
-                  n = nums.length;
-              return(sum/n);
-          }
-        }
-
         function truncate_data(data, start){
           var new_data = [];
           for(x in data){
             if(data[x].time > start){
               new_data.push(data[x]);
             }
+          }
+          return new_data;
+        }
+
+        function average_data(data, period){
+
+          var new_data = [];
+          var start = null;
+          var count = 0;
+          var sum   = {};
+
+          for(x in data){
+            if(start == null){
+              start = data[x].time;
+              for(y in data[x]){
+                sum[y] = 0;
+              }
+            }else if(Math.floor((data[x].time - start) / (1000*60)) >= period || x == data.length - 1){
+              var average = {};
+              for(y in sum){
+                average[y] = sum[y] / count;
+                sum[y] = 0;
+              }
+              count = 0;
+              average.time = data[x-1].time;
+              new_data.push(average);
+              start = data[x].time;
+            }
+            for(y in data[x]){
+              sum[y] += parseInt(data[x][y]);
+            }
+            count ++;
           }
           return new_data;
         }
