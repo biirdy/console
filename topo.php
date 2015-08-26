@@ -42,7 +42,7 @@
 			}else if(intval($measurement['destination_type']) == 1){
 
 				$group_query 	= "SELECT sensor_id FROM group_membership WHERE group_id = " . $measurement['destination_id'];
-				$group_results 	= mysqli_query($con, $query);
+				$group_results 	= mysqli_query($con, $group_query);
 				if (!$group_results) {
 					die('Invalid query: ' . mysqli_error());
 				}

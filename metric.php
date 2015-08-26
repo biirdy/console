@@ -41,8 +41,48 @@
 
 	$data = array();
 
-    while ($row = @mysqli_fetch_assoc($results)){
-    	$data[] = $row;
+	//fill missing data with null
+	if(isset($_GET['measurement_id'])){
+
+		$query = "SELECT period FROM schedules WHERE schedule_id = (SELECT schedule_id FROM schedule_measurements WHERE measurement_id = " . $_GET['measurement_id'] . ")";
+		$period_res = mysqli_query($con, $query);
+		if (!$period_res) {
+		  die('Invalid query: ' . mysqli_error());
+		}
+		$period = @mysqli_fetch_assoc($period_res);
+		$period = intval($period['period']);
+
+		$query = "SELECT delay FROM schedule_measurements WHERE measurement_id = " . $_GET['measurement_id']; 
+		$delay_res = mysqli_query($con, $query);
+		if (!$period_res) {
+		  die('Invalid query: ' . mysqli_error());
+		}
+		$delay = @mysqli_fetch_assoc($delay_res);
+		$delay = intval($delay['delay']);
+		$interval = $delay + $period;
+
+		$ltime = NULL;
+		while ($row = @mysqli_fetch_assoc($results)){
+
+			$curr = new DateTime($row['time']);
+
+			if(is_null($ltime)){
+				$ltime = $curr;
+			}else if(abs($ltime->getTimestamp() - $curr->getTimestamp()) > $interval + 20){
+				$nrow =	$row;
+				$nrow['time'] = $curr->format('Y-m-d H:i:s');
+				$nrow['defined'] = "none"; 
+				$data[] = $nrow;
+			}
+
+			$ltime 	= $curr;
+			$row['defined'] = 1; 
+    		$data[] = $row;
+    	}
+	}else{
+    	while ($row = @mysqli_fetch_assoc($results)){
+    		$data[] = $row;
+    	}
     }
 
     echo json_encode($data);

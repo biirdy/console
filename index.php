@@ -134,7 +134,7 @@
         </div>
 
         <div id="topo-div"></div>
-        <div id="no-topo-div" style="display: none;"><font size="20">No data.</font></div>
+        <div id="no-topo-div" class="no_data" style="display: none;"><font size="20">No data.</font></div>
         
         <div class="panel-body container panel panel-default topo-radio" id="topo-feature">
           <p><b>Link feature</b></p>
@@ -470,7 +470,7 @@
                   <label>From: </label>
                   <div class="dropdown btn-group">
                     <button class="btn btn-default dropdown-toggle" type="button" id="plot-from-dropdown" data-toggle="dropdown" aria-expanded="true">
-                      <span data-bind="label" id="plot-from-span">Select start</span>&nbsp;<span class="caret"></span>
+                      <span data-bind="label" id="plot-from-span">1 weekago</span>&nbsp;<span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" id="plot-from-dropdown-list" role="menu" aria-labelledby="plot-from-dropdown">
                       <li class="plot-from-dropdown-element" role="presentation" value="1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour ago</a></li>
@@ -489,7 +489,7 @@
                   <label>Average: </label>
                   <div class="dropdown btn-group">
                     <button class="btn btn-default dropdown-toggle" type="button" id="plot-average-dropdown" data-toggle="dropdown" aria-expanded="true">
-                      <span data-bind="label" id="plot-average-span">Select average</span>&nbsp;<span class="caret"></span>
+                      <span data-bind="label" id="plot-average-span">5 minutes</span>&nbsp;<span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" id="plot-average-dropdown-list" role="menu" aria-labelledby="plot-average-dropdown">
                       <li class="plot-average-dropdown-element" role="presentation" value="-1"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >None</a></li>
@@ -507,7 +507,6 @@
               <tr></table>
 
               <div id="schedule-plot"></div>
-
               <div id="no-schedule-plot" class="no_data" style="display: none;"><font size="20">No data.</font></div>
 
             </div>
@@ -945,8 +944,8 @@
       var plot_destination;
       var plot_feature;
       var plot_type;
-      var plot_from = "none";
-      var plot_average = "none";
+      var plot_from = 168;
+      var plot_average = 5;
 
       $('#schedule-plot-modal').on('shown.bs.modal', function(event) {
         
@@ -956,10 +955,10 @@
         $("#plot-destination-dropdown-list").find(".plot-destination-dropdown-element").remove();
 
         var mid = $(event.relatedTarget).data('id');
+        plot_measurement = mid;
         $(this).find('#schedule-plot-title').html($('<b> Schedule plot - measurement ID ' + mid  + '</b>'));
 
         var measurement = find_measurement(mid);
-        console.log(measurement);
         plot_type = measurement['method'];
 
         //build source list
@@ -970,7 +969,6 @@
             $("#plot-source-dropdown-list").append('<li class="plot-source-dropdown-element" role="presentation" value="' + group['sensors'][x]['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group['sensors'][x]['description'] + '</a></li>');
           plot_source = group['sensors'][0]['sensor_id'];
           $("#plot-source-span").html(group['sensors'][0]['description']);
-          console.log("Souce group " + group);
         }else{
           //single sensor
           var sensor = find_sensor(measurement['source_id']);
@@ -987,7 +985,6 @@
             $("#plot-destination-dropdown-list").append('<li class="plot-destination-dropdown-element" role="presentation" value="' + group['sensors'][x]['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group['sensors'][x]['description'] + '</a></li>');
           plot_destination = group['sensors'][0]['sensor_id'];
           $("#plot-destination-span").html(group['sensors'][0]['description']);
-          console.log("Destination group " + group);
         }else{
           //single sensor
           var sensor = find_sensor(measurement['destination_id']);
@@ -1004,12 +1001,13 @@
 
       function update_plot_data(){
 
-        $.getJSON("metric.php", "type=" + plot_type + "&sensor_id=" + plot_source + "&dst_id=" + plot_destination, function(graph_data){
+        $.getJSON("metric.php", "type=" + plot_type + "&sensor_id=" + plot_source + "&dst_id=" + plot_destination + "&measurement_id=" + plot_measurement, function(graph_data){
 
           //build features list
           var keys      = Object.keys(graph_data[0]);
           var features  = []; 
           //remove id's and time
+          $("#plot-feature-dropdown-list").find(".feature-dropdown-element").remove();
           for(x in keys){
             if(!(keys[x].indexOf("id") > -1) && keys[x] != "time"){
               features.push(keys[x]);
@@ -1046,15 +1044,14 @@
         if(plot_from != "none"){
           //graph_data = truncate_data(plot_data, plot_from);
           graph_data = plot_data.filter(function(d){
-            return d.time > plot_from;
+            return d.time >= plot_from;
           });
         }else{
           graph_data = plot_data;
         }
 
-        if(plot_average != "none"){
+        if(plot_average != "none")
           graph_data = average_data(graph_data, plot_average);
-        }
 
         if(graph_data.length == 0){
           $("#schedule-plot").hide();
@@ -1066,25 +1063,37 @@
         }
 
         //set margins for graphs - use modal width
-        var margin = {top: 20, right: 50, bottom: 50, left: 50},
+        var margin = {top: 20, right: 70, bottom: 50, left: 50},
         width = $("#schedule-plot-dialog").width() - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;        
 
-        var x = d3.time.scale()
-            .range([0, width]);
+        var x = d3.time.scale().range([0, width]);
+        var y = d3.scale.linear().range([height, 0]);
 
-        var y = d3.scale.linear()
-            .range([height, 0]);
+        var customTimeFormat = d3.time.format.multi([
+          [".%L", function(d) { return d.getMilliseconds(); }],
+          [":%S", function(d) { return d.getSeconds(); }],
+          ["%b %d %I:%M", function(d) { if(x(d) >= (width/2)*0.9 && x(d) <= (width/2)*1.1 && d.getMinutes()) return true; }],
+          ["%I:%M", function(d) { return d.getMinutes(); }],
+          ["%b %d - %I %p", function(d) { if(x(d) >= (width/2)*0.9 && x(d) <= (width/2)*1.1 && d.getHours()) return true; }],
+          ["%I %p", function(d) { return d.getHours(); }],
+          ["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
+          ["%b %d", function(d) { return d.getDate() != 1; }],
+          ["%B", function(d) { return d.getMonth(); }],
+          ["%Y", function() { return true; }]
+        ]);
 
         var xAxis = d3.svg.axis()
             .scale(x)
-            .orient("bottom");
+            .orient("bottom")
+            .tickFormat(customTimeFormat);
 
         var yAxis = d3.svg.axis()
             .scale(y)
             .orient("left");
 
         var line = d3.svg.line()
+            .defined(function(d) { return !isNaN(d['defined']); })
             .x(function(d) { return x(d.time); })
             .y(function(d) { return y(d[plot_feature]); });
 
@@ -1094,8 +1103,17 @@
           .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        x.domain(d3.extent(graph_data, function(d) { return d.time; }));
-        y.domain(d3.extent(graph_data, function(d) { return d[plot_feature]; }));
+        //convert to numeric is exten, min and max work
+        graph_data.forEach(function(d) {
+          d[plot_feature] = +d[plot_feature];
+        });
+
+        //if only a single point - center
+        if(graph_data.length == 1)
+          x.domain([new Date(graph_data[0].time.getTime() - 30*60000), new Date(graph_data[0].time.getTime() + 30*60000)]);
+        else
+          x.domain(d3.extent(graph_data, function(d) { return d.time; }));
+        y.domain([d3.min(graph_data, function(d) { return d[plot_feature]; })*0.9, d3.max(graph_data, function(d) { return d[plot_feature]; }) * 1.1]);
 
         svg.append("g")
             .attr("class", "x axis")
@@ -1141,12 +1159,33 @@
             .on("mouseout", function() { focus.style("display", "none"); focus_bg.style("display", "none"); })
             .on("mousemove", mousemove);
 
+        svg.selectAll(".point")
+            .data(graph_data)
+            .enter().append("svg:circle")
+            .attr("stroke", "steelblue")
+            .attr("fill", function(d, i) { return "steelblue" })
+            .attr("cx", function(d, i) { return x(d.time) })
+            .attr("cy", function(d, i) { return y(d[plot_feature]) })
+            .attr("r", function(d, i){ 
+              if(isNaN(d['defined'])) 
+                return 0;
+              return 1;  
+            });
+
+        /*
+        * Format and position hover label for extra freatures of a point
+        */
         function mousemove() {
-          var x0 = x.invert(d3.mouse(this)[0]),
-              i = bisectDate(graph_data, x0, 1),
-              d0 = graph_data[i - 1],
-              d1 = graph_data[i],
-              d = x0 - d0.time > d1.time - x0 ? d1 : d0;
+          //choose which point the mouse is closest too
+          var x0 = x.invert(d3.mouse(this)[0]);
+              i = bisectDate(graph_data, x0, 1);
+          if(graph_data.length == 1){   //if only a single point
+            d = graph_data[0];
+          }else{
+            d0 = find_left_point(i-1);
+            d1 = find_right_point(i);
+            d = (x0 - d0.time > d1.time - x0 ? d1 : d0);
+          }
 
           focus.attr("transform", "translate(" + x(d.time) + "," + y(d[plot_feature]) + ")");
           var bg_size = format_info(d, focus.select("text")); 
@@ -1154,28 +1193,50 @@
           focus_bg.attr("height", bg_size[0] + "em");
           focus_bg.attr("width", bg_size[1]);
         }
+
+        function find_left_point(index){
+            if(isNaN(graph_data[index]['defined']))
+              return find_left_point(index - 1);
+            return graph_data[index];
+        }
+
+        function find_right_point(index){
+            if(isNaN(graph_data[index]['defined']))
+              return find_right_point(index + 1);
+            return graph_data[index];
+        }
+
         $("#schedule-plot-modal").data("bs.modal").handleUpdate();
       }
 
+      /*
+      * Format and append the text for extra features.
+      * d     -  
+      * text  - d3 svg text elemtent
+      */
       function format_info(d, text){
         text.text("");
         var max_len = 0;
         var count = 0;
         for(x in d){
-          if(!(x.indexOf("id") > -1) && x != "time"){
+          if(is_feature(x)){
             var tspan = text.append("tspan")
               .attr("dy", "1.2em")
               .attr("x",0)
-              .text(x + ":" + parseInt(d[x]).toFixed(2));
-            if(tspan.node().getComputedTextLength() > max_len){
+              .text(x + ":" + parseFloat(d[x]).toFixed(2));
+            if(tspan.node().getComputedTextLength() > max_len)
               max_len = tspan.node().getComputedTextLength();
-            } 
             count++; 
           }
         }
         return [1.2 * count, max_len];
       }
 
+      /*
+      * Creates a new data set of averages
+      * data    - original data
+      * period  - period of seconds to group samples 
+      */
       function average_data(data, period){
 
         var new_data = [];
@@ -1184,38 +1245,40 @@
         var sum   = {};
 
         for(x in data){
-          if(start == null){
-            start = data[x].time;
-            for(y in data[x]){
-              sum[y] = 0;
+          if(!isNaN(data[x]['defined'])){
+            if(start == null){
+              start = data[x].time;
+              for(y in data[x]) sum[y] = 0;
+            }else if(Math.floor((data[x].time - start) / (1000*60)) >= period || x == data.length - 1){
+              var average = {};
+              for(y in sum){
+                average[y] = parseFloat(sum[y] / count);
+                sum[y] = 0;
+              }
+              count = 0;
+              average.time = data[x].time;
+              new_data.push(average);
+              start = data[x].time;
             }
-          }else if(Math.floor((data[x].time - start) / (1000*60)) >= period || x == data.length - 1){
-            var average = {};
-            for(y in sum){
-              average[y] = sum[y] / count;
-              sum[y] = 0;
-            }
-            count = 0;
-            average.time = data[x-1].time;
-            new_data.push(average);
-            start = data[x].time;
+            for(y in data[x]) sum[y] += parseFloat(data[x][y]);
+            count ++;
+          }else{
+            //only push if a period has passed since last - no data inside an average period should be okay?
+            if(x!= 0 && Math.floor((data[x].time - data[x-1].time) / (1000*60)) >= period)
+              new_data.push(data[x]);
           }
-          for(y in data[x]){
-            sum[y] += parseInt(data[x][y]);
-          }
-          count ++;
         }
         return new_data;
       }
 
-      function truncate_data(data, start){
-        var new_data = [];
-        for(x in data){
-          if(data[x].time > start){
-            new_data.push(data[x]);
-          }
-        }
-        return new_data;
+      /*
+      *
+      */
+      function is_feature(key){
+        var not_feature = ["time", "defined"];
+        if(!(key.indexOf("id") > -1) && !(not_feature.indexOf(key) > -1))
+          return true;
+        return false;
       }
 
       /*
@@ -1308,7 +1371,6 @@
             }else{
               plot_average = $target.val();  
             }
-            console.log("plot_average" + plot_average);
             update_plot();
           }
       });
@@ -1427,7 +1489,6 @@
       }
 
       function schedule_delete(sid){
-
         if(confirm("Stop and delete schedule " + sid + "?")){
           $.post("scheduler.php", {Function: "deleteSchedule", Data: {sid: sid}}, function(data){
             load_schedules(1);
@@ -1458,9 +1519,7 @@
       */
       function load_topo(sensor_label, feature, filter_type, filter_id){
         $.getJSON("sensors.php", (filter_type == "none" ? "" : "filter_type=" + filter_type + "&filter_id=" + filter_id), function(json_sensor){
-        
-          console.log("Load topo");
-
+    
           for(x in json_sensor){
             json_sensor[x].id = json_sensor[x].sensor_id;
 
@@ -1501,8 +1560,6 @@
       * and saving posiitions.
       */
       function update_topo(){
-        
-        console.log(topo_data);
 
         if(topo_data['edges'].length == 0){
           $("#topo-div").hide();
@@ -1564,23 +1621,15 @@
         autoResize: true,
         height: '100%',
         width: '100%',
-        layout: {
-          randomSeed: 0
-        },
+        layout: {randomSeed: 0},
         edges: {
           length: 200,
-          smooth: {
-            enabled: false
-          }
+          smooth: {enabled: false}
         },
         physics: {
           enabled: true,
-          barnesHut: {
-            avoidOverlap: 1
-          },
-          repulsion: {
-            nodeDistance: 10
-          }
+          barnesHut: {avoidOverlap: 1},
+          repulsion: {nodeDistance: 1}
         },
         nodes: {
           scaling: {
@@ -1597,13 +1646,9 @@
         clickToUse: true,
         edges: {
           length: 200,
-          smooth: {
-            enabled: false
-          }
+          smooth: {enabled: false}
         },
-        physics: {
-          enabled: false
-        },
+        physics: {enabled: false},
         interaction: {
           hover: true,
           hoverConnectedEdges: false,
@@ -1646,8 +1691,6 @@
           filter_id    = $(this).attr("data-filter-id");
 
           load_topo(sensor_label, feature, filter_type, filter_id);
-
-          console.log("Topo filter " + filter_type + " " + filter_id);
         });  
       }
 
@@ -1861,7 +1904,5 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     <!-- Used for the single line links -->
     <script src="/js/jasny-bootstrap.min.js"></script>
-
-  
 
 </body></html>
