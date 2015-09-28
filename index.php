@@ -190,7 +190,7 @@
         <!-- Schedule Table-->
         <table class="table table-hover" id="schedules">
           <thead>
-            <tr><th></th><th>Name</th><th>Description</th><th>Interval</th><th>Start/Suspend</th><th>Remove</th></tr>
+            <tr><th></th><th>Name</th><th>Description</th><th>Interval</th><th>Start/Suspend</th><th>Edit</th><th>Remove</th></tr>
           </thead>
         </table>
 
@@ -207,12 +207,14 @@
             <!-- Modal Header-->
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title" id="myModalLabel">Create Schedule</h4>
+              <h4 class="modal-title" id="schedule-title">Create Schedule</h4>
             </div>
 
             <form role="form" id="create-schedule-form">
             <!-- Modal body-->
             <div class="modal-body">
+
+              <input value='0' id='schedule-id' name='schedule_id' style='display: none;' class="form-control" type="hidden"></input>
 
               <div class="form-group">
                 <label for="name">Name: </label>
@@ -230,7 +232,7 @@
               </div>
 
               <table class="table table-hover" id="create-schedule-table">
-                <tr><th>Source</th><th>Destination</th><th>Type</th><th>Params</th><th>Remove</th></tr>
+                <tr><th>Source</th><th>Destination</th><th>Type</th><th>Params</th><th>Delay</th><th>Remove</th></tr>
                 <input id="create-schedule-index" value="0" style="display: none;" type="hidded">
               </table>
 
@@ -239,17 +241,17 @@
                 <table>
                   <tr><td>
                     <div class="input-group">
-                      <input name="hours" type="number" class="form-control" value="1" aria-describedby="basic-addon2">
+                      <input id="schedule-hours" name="hours" type="number" class="form-control" value="1" aria-describedby="basic-addon2">
                       <span class="input-group-addon" id="basic-addon2">Hours</span>
                     </div>
                   </td><td>
                     <div class="input-group">
-                      <input name="minutes" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
+                      <input id="schedule-minutes" name="minutes" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
                       <span class="input-group-addon" id="basic-addon2">Minues</span>
                     </div>
                   </td><td>
                     <div class="input-group">
-                      <input name="seconds" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
+                      <input id="schedule-seconds" name="seconds" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
                       <span class="input-group-addon" id="basic-addon2">Seconds</span>
                     </div>
                   </td></tr>
@@ -299,8 +301,8 @@
                       </button>
                       <ul class="dropdown-menu" id="source-dropdown-list" role="menu" aria-labelledby="source-dropdown">
                       </ul>
-                      <input id="source-input" class="dropdown-input" value="0" style="display: none;" name="source" class="form-control" type="hidded">
-                      <input id="source-type" class="dropdown-type" value="0" style="display: none;" name="source-type" class="form-control" type="hidded">
+                      <input id="source-input" class="dropdown-input" value="0" style="display: none;" name="source_id" class="form-control" type="hidded">
+                      <input id="source-type" class="dropdown-type" value="0" style="display: none;" name="source_type" class="form-control" type="hidded">
                     </div>
                   </div>
 
@@ -312,48 +314,48 @@
                       </button>
                       <ul class="dropdown-menu" id="destination-dropdown-list" role="menu" aria-labelledby="destination-dropdown">
                       </ul>
-                      <input id="destination-input" class="dropdown-input" value="0" style="display: none;" hidden name="destination" class="form-control" type="hidded">
-                      <input id="destination-type" class="dropdown-type" value="0" style="display: none;" name="destination-type" class="form-control" type="hidded">
+                      <input id="destination-input" class="dropdown-input" value="0" style="display: none;" hidden name="destination_id" class="form-control" type="hidded">
+                      <input id="destination-type" class="dropdown-type" value="0" style="display: none;" name="destination_type" class="form-control" type="hidded">
                     </div> 
                   </div>
 
                   <div class="form-group">
                   <label for="type">Measurement: </label>
                   <div class="radio">
-                    <label><input type="radio" name="type-radio" value="rtt" data-div="rtt-details" id="type-rtt">Round Trip Time</label>
+                    <label><input type="radio" name="method" value="rtt" data-div="rtt-details" id="type-rtt">Round Trip Time</label>
                   </div>
                   <div class="radio">
-                    <label><input type="radio" name="type-radio" value="tcp" data-div="tcp-details" id="type-tcp">TCP throughput</label>
+                    <label><input type="radio" name="method" value="tcp" data-div="tcp-details" id="type-tcp">TCP throughput</label>
                   </div>
                   <div class="radio">
-                    <label><input type="radio" name="type-radio" value="udp" data-div="udp-details" id="type-udp">UDP measurements</label>
+                    <label><input type="radio" name="method" value="udp" data-div="udp-details" id="type-udp">UDP measurements</label>
                   </div>
                   <div class="radio">
-                    <label><input type="radio" name="type-radio" value="dns" data-div="dns-details" id="type-dns">DNS resolution</label>
+                    <label><input type="radio" name="method" value="dns" data-div="dns-details" id="type-dns">DNS resolution</label>
                   </div>
                   </div>
 
                   <div class="form-group" style="display: none;" id="rtt-details">
-                    <label for="rtt-details-itr">Itterations: </label>
-                    <input type="number" name="rtt-details-itr" class="form-control" id="rtt-details-itr" value="5">
+                    <label for="iterations">Iterations: </label>
+                    <input type="number" name="iterations" class="form-control" id="rtt-details-itr" value="5">
                   </div>
 
                   <div class="form-group" style="display: none;" id="tcp-details">
-                    <label for="tcp-details-dur">Duration (Seconds): </label>
-                    <input type="number" name="tcp-details-dur" class="form-control" id="tcp-details-dur" value="10">
+                    <label for="duration">Duration (Seconds): </label>
+                    <input type="number" name="duration" class="form-control" id="tcp-details-dur" value="10">
                   </div>
 
                   <div class="form-group" style="display: none;" id="udp-details">
-                    <label for="udp-details-speed">Send Speed (kbps): </label>
-                    <input type="number" name="udp-details-speed" class="form-control" id="udp-details-speed" value="1024">
+                    <label for="speed">Send Speed (kbps): </label>
+                    <input type="number" name="speed" class="form-control" id="udp-details-speed" value="1024">
 
-                    <label for="udp-details-size">Packet Size (bytes): </label>
-                    <input type="number" name="udp-details-size" class="form-control" id="udp-details-size" value="1024">
+                    <label for="size">Packet Size (bytes): </label>
+                    <input type="number" name="size" class="form-control" id="udp-details-size" value="1024">
 
-                    <label for="udp-details-dur">Duration (Seconds): </label>
-                    <input type="number" name="udp-details-dur" class="form-control" id="udp-details-dur" value="10">
+                    <label for="duration">Duration (Seconds): </label>
+                    <input type="number" name="duration" class="form-control" id="udp-details-dur" value="10">
 
-                    <label for="udp-details-dscp">DSCP flag: </label>
+                    <label for="dscp">DSCP flag: </label>
                     <br>
                     <div class="btn-group dropdown">
                       <button type="button" class="form-control btn btn-default dropdown-toggle dscp-toggle" data-toggle="dropdown">
@@ -370,16 +372,16 @@
                           <li value="176"><a href="" onclick="return false;">voice-admit</a></li>
                           <li value="184"><a href="" onclick="return false;">ef</a></li>
                       </ul>
-                      <input style="display: none;" name="udp-details-dscp" class="form-control" type="hidded">
+                      <input style="display: none;" name="dscp" class="form-control" type="hidded">
                     </div>
                   </div>
 
                   <div class="form-group" style="display: none;" id="dns-details">
-                    <label for="dns-details-dn">URL: </label>
-                    <input name="dns-details-dn" class="form-control" id="dns-details-dn" value="google.co.uk">
+                    <label for="domain_name">URL: </label>
+                    <input name="domain_name" class="form-control" id="dns-details-domain-name" value="google.co.uk">
 
-                    <label for="dns-details-server">Server: </label>
-                    <input name="dns-details-server" class="form-control" id="dns-details-server" value="8.8.8.8">
+                    <label for="server">Server: </label>
+                    <input name="server" class="form-control" id="dns-details-server" value="8.8.8.8">
                   </div>
 
                   <div class="form-group">
@@ -387,7 +389,7 @@
                     <table>
                       <tr><td>
                         <div class="input-group">
-                          <input name="dealy-hours" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
+                          <input name="delay-hours" type="number" class="form-control" value="0" aria-describedby="basic-addon2">
                           <span class="input-group-addon" id="basic-addon2">Hours</span>
                         </div>
                       </td><td>
@@ -538,7 +540,7 @@
         <!-- Groups Table-->
         <table class="table table-hover" id="groups">
           <thead>
-            <tr><th></th><th>Name</th><th># sensors</th><th>Description</th><th style='text-align: center;'>Delete</th></tr>
+            <tr><th></th><th>Name</th><th># sensors</th><th>Description</th><th style='text-align: center;'>Edit</th><th style='text-align: center;'>Delete</th></tr>
           </thead>
         </table>
 
@@ -555,13 +557,15 @@
             <!-- Modal Header-->
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title" id="myModalLabel">Create Group</h4>
+              <h4 class="modal-title" id="group-title">Create Group</h4>
             </div>
 
 
             <form role="form" id="create-group-form">
             <!-- Modal body-->
             <div class="modal-body">
+
+              <input value='0' id='group-id' name='group_id' style='display: none;' class="form-control" type="hidden"></input>
 
               <div class="form-group">
                 <label for="name">Name: </label>
@@ -603,11 +607,136 @@
       </div>
 
       <div class="container panel panel-default panel-body" id="alarms-con">
-        <h1>Alarms</h1>
+        <div class="row container">
+          <div class="col-lg-10">
+            <h1>Alarms</h1>
+          </div>
+          <div class="col-lg-2 legend-row">
+            <ul class="legend">
+                <li><span class="green-legend"></span> Okay </li>
+                <li><span class="red-legend"></span> Alarm </li>
+            </ul>
+          </div>
+        </div>
 
-        <h2>Not implemented</h2>
+        <!-- Groups Table-->
+        <table class="table table-hover" id="alarms">
+          <thead>
+            <tr><th></th><th>Name</th><th>On</th><th>Feature</th><th>Operator</th><th>Threshold</th><th>Recipient</th><th style='text-align: center;'>Delete</th></tr>
+          </thead>
+        </table>
 
+        <form class="form-inline" role="form">
+          <button type="button" class="btn btn-success create-btn" data-toggle="modal" data-target="#create-alarm">Create Alarm</button>
+        </form>
       </div>
+
+      <!-- Create alarm modal -->
+      <div class="modal fade" id="create-alarm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+
+            <!-- Modal Header-->
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Create Alarm</h4>
+            </div>
+
+            <form role="form" id="create-alarm-form">
+
+            <!-- Modal body-->
+            <div class="modal-body">
+
+              <div id="alarm-no-data-warning" style="display: none;" class="alert alert-danger" role="alert"><b>Insufficient data to create alarm.</b></div>
+
+              <div class="form-group">
+                <label for="name">Name: </label>
+                <input id="alarm-name" name="name" class="form-control" placeholder="Name:">
+              </div>
+
+              <div class="form-group">
+                <label for="description">Description: </label>
+                <input id="alarm-description" name="description" class="form-control" placeholder="Description:">
+              </div>
+
+              <div class="form-group">
+                <label>Schedule/Measurement: </label><br>
+                <div class="dropdown btn-group">
+                  <button class="btn btn-default dropdown-toggle" type="button" id="alram-schedule-dropdown" data-toggle="dropdown" aria-expanded="true">
+                    <span data-bind="label">Select schedule/measurement</span>&nbsp;<span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" id="alarm-schedule-dropdown-list" role="menu" aria-labelledby="alarm-schedule-dropdown">
+                  </ul>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Feature: </label><br>
+                <div class="dropdown btn-group">
+                  <button class="btn btn-default dropdown-toggle" type="button" id="alram-feature-dropdown" data-toggle="dropdown" aria-expanded="true">
+                    <span data-bind="label">Select feature</span>&nbsp;<span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" id="alarm-feature-dropdown-list" role="menu" aria-labelledby="alarm-feature-dropdown">
+                  </ul>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Operator: </label><br>
+                <div class="dropdown btn-group">
+                  <button class="btn btn-default dropdown-toggle" type="button" id="alram-operator-dropdown" data-toggle="dropdown" aria-expanded="true">
+                    <span data-bind="label">Select feature</span>&nbsp;<span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" id="alarm-operator-dropdown-list" role="menu" aria-labelledby="alarm-operator-dropdown">
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Equals (=)</a></li>
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Less than (&lt;)</a></li>
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Greater than (&gt;)</a></li>
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Status active</a></li>
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >Status inactive</a></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Average: </label><br>
+                <div class="dropdown btn-group">
+                  <button class="btn btn-default dropdown-toggle" type="button" id="alram-average-dropdown" data-toggle="dropdown" aria-expanded="true">
+                    <span data-bind="label">Select average</span>&nbsp;<span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" id="alarm-average-dropdown-list" role="menu" aria-labelledby="alarm-average-dropdown">
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >None</a></li>
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 hour</a></li>
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >6 hours</a></li>
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >12 hours</a></li>
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 day</a></li>
+                    <li role="presentation"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >1 week</a></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="threshold">Threshold: </label>
+                <input id="alarm-threshold" name="threshold" class="form-control" type="number">
+              </div>
+
+              <div class="form-group">
+                <label for="recipient">Threshold: </label>
+                <input id="alarm-recipient" name="recipient" class="form-control" placeholder="Recipient:">
+              </div>
+
+            </div>
+
+            <!-- Modal Footer-->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <button disabled id="alarm-submit" type="submit" class="btn btn-success">Create Alarm</button>
+            </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <script type="text/javascript">
@@ -616,21 +745,19 @@
       */
       function server_status(){
         $.post("server.php", {'action':'server_state'}, function (response) {
-          // Response div goes here.
-          console.log(response);
           server_running = response;
           if(response == 1){
-             document.getElementById("server_status").innerHTML = "Server <span style='color:green' class='glyphicon glyphicon-ok' aria-hidden='true'><small>Running</small></span>";
-             document.getElementById("server_start").disabled = true;
-             document.getElementById("server_update").disabled = true;
-             document.getElementById("server_restart").disabled = false;
-             document.getElementById("server_stop").disabled = false;
+             $("#server_status").html("Server <span style='color:green' class='glyphicon glyphicon-ok' aria-hidden='true'><small>Running</small></span>");
+             $("#server_start").prop('disabled', true);
+             $("#server_update").prop('disabled', true);
+             $("#server_restart").prop('disabled', false);
+             $("#server_stop").prop('disabled', false);
           }else{
-            document.getElementById("server_status").innerHTML = "Server <span style='color:red' class='glyphicon glyphicon-remove' aria-hidden='true'></span><small>Not Running</small>";
-            document.getElementById("server_start").disabled = false;
-            document.getElementById("server_update").disabled = false;
-            document.getElementById("server_restart").disabled = true;
-            document.getElementById("server_stop").disabled = true;
+            $("#server_status").html("Server <span style='color:red' class='glyphicon glyphicon-remove' aria-hidden='true'></span><small>Not Running</small>");
+            $("#server_start").prop('disabled', false);
+            $("#server_update").prop('disabled', false);
+            $("#server_restart").prop('disabled',true);
+            $("#server_stop").prop('disabled', true);
           }
         });
       }
@@ -662,12 +789,8 @@
           if(confirm(confirm_message)){
             data =  {'action': clickBtnValue};
             $.post('server.php', data, function (response) {
-              // Response div goes here.
               server_status();
-              console.log(response);
             });             
-          }else{
-            console.log("Nothing");
           }
         });
       });
@@ -680,7 +803,6 @@
       load_log();
       function load_log(){
         $('#server_log').load('server_log.php', function(){
-          //document.getElementById("server_log").scrollTop = document.getElementById("server_log").scrollHeight; 
           setTimeout(load_log, 5000);  
         });
       }
@@ -754,13 +876,24 @@
           if(JSON.stringify(schedule_data) != JSON.stringify(data)){
             schedule_data = data;
 
-            $("#topo-filter").find(".schedule-radio").remove()
+            //clear topo filter list
+            $("#topo-filter").find(".schedule-radio").remove();
             $("#topo-filter").append("<p class='schedule-radio'><u>Schedules</u></p>");
 
+            //clear create alarm list
+            $("#alarm-schedule-dropdown").find('.alarm-measurement-element').remove();
+            $("#alarm-schedule-dropdown").find('.alarm-schedule-element').remove();
+
             for(x in schedule_data){
+              //topo filter list
               $("#topo-filter").append( '<div class="radio schedule-radio">' +
                                         '<label><input data-filter-type="schedule" data-filter-id="' + schedule_data[x]['schedule_id'] + '" type="radio" name="filter-radio">' + schedule_data[x]['name'] + '</label>' + 
                                         '</div>');
+
+              //create alram list
+              $("#alarm-schedule-dropdown-list").append('<li class="dropdown-header alarm-schedule-element">' + schedule_data[x]['name'] + '</li>');
+              for(y in schedule_data[x]['measurements'])
+                $("#alarm-schedule-dropdown-list").append('<li class="alarm-measurement-element" role="presentation" value="' + schedule_data[x]['measurements'][y]['measurement_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + schedule_data[x]['measurements'][y]['source_name'] + (schedule_data[x]['measurements'][y]['destination_name'] == null ? "" : " -> " + schedule_data[x]['measurements'][y]['destination_name']) + " (" + schedule_data[x]['measurements'][y]['method'] + ')</a></li>');
             }
             reload_filter_onclicks();
 
@@ -788,6 +921,11 @@
                     },
                     {
                       "data": "null",
+                      "defaultContent": "<span class='glyphicon glyphicon-cog table-button' aria-hidden='true'></span>",
+                      "className": "center"
+                    },
+                    {
+                      "data": "null",
                       "defaultContent": "<span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true'></span>",
                       "className": "center"
                     }
@@ -797,7 +935,8 @@
                   $('td', row).css('background-color', (data['active'] == 0 ? '#FFCCCC' : (data['faults'] > 0 ? '#FFCC66' : '#99FF99')));                  
                   $('td', row).eq(3).html(time_string(parseInt(data['period'])));
                   $('td', row).eq(4).html("<span aria-hidden='true' class='table-button glyphicon " + (data['active'] == 1 ? "glyphicon-pause susspend-button' onclick='schedule_susspend( " : "glyphicon-play susspend-button' onclick='schedule_start( ") + data['schedule_id'] + ")'></span>");
-                  $('td', row).eq(5).html("<span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='schedule_delete(" + data['schedule_id'] + ")'></span>");
+                  $('td', row).eq(5).html("<span aria-hidden='true' class='table-button glyphicon glyphicon-cog edit-button' data-toggle='modal' data-target='#create-schedule' data-id='" + data['schedule_id'] + "'></span>");  
+                  $('td', row).eq(6).html("<span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='schedule_delete(" + data['schedule_id'] + ")'></span>");
                 }
             });
             
@@ -871,6 +1010,11 @@
                     { "data": "description" },
                     {
                       "data": null,
+                      "defaultContent": "<span aria-hidden='true' class='table-button glyphicon glyphicon-cog edit-button' data-toggle='modal' data-target='#create-group'></span>",
+                      "className": "center"
+                    },
+                    {
+                      "data": null,
                       "defaultContent": "<span class='delete-group glyphicon glyphicon-remove remove-button table-button' aria-hidden='true'></span>",
                       "className": "center"
                     }
@@ -878,7 +1022,8 @@
                 //add remove button with correct group ID & colour
                 "createdRow": function(row, data, index){
                   $('td', row).css('background-color', (data['status'] == 0 ? '#99FF99'  : (data['status'] == 1 ? '#FFCC66' : '#FFCCCC')));
-                  $('td', row).eq(4).html("<span class='delete-group glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='group_delete(" + data['group_id'] + ")'></span>");
+                  $('td', row).eq(4).html("<span aria-hidden='true' class='table-button glyphicon glyphicon-cog edit-button' data-toggle='modal' data-target='#create-group' data-id='" + data['group_id'] + "'></span>");
+                  $('td', row).eq(5).html("<span class='delete-group glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='group_delete(" + data['group_id'] + ")'></span>");
                 }
             });
 
@@ -923,27 +1068,121 @@
           return child_table;
       }
 
+      /*
+      * Propulate the create schedule modal if editing
+      */
+      $('#create-group').on('shown.bs.modal', function(event) {
+
+        clear_create_group();
+
+        if($(event.relatedTarget).attr('data-id')){
+          //get group data
+          var gid = $(event.relatedTarget).data('id');
+          var group = jQuery.extend(true, {}, find_group(gid));
+
+          //fill group data
+          $("#group-id").val(gid);
+          $("#group-name").val(group['name']);
+          $("#group-description").val(group['description']);
+
+          for(s in group['sensors']){
+            add_group_sensor(group['sensors'][s]);
+          }
+
+          $("#group-submit").html("Edit group");
+          $("#group-title").html("Edit group");
+
+        }else{
+          $("#group-id").val(0);
+          $("#group-submit").html("Create group");
+          $("#group-title").html("Create group");
+          
+        }
+        $("#create-group").data("bs.modal").handleUpdate();
+      });
+
       function schedule_format(d){
         var child_table = '<table class="table child-table table-hover rowlink" data-link="row">';
-        child_table = child_table + "<tr><th>Source</th><th>Destination</th><th>Type</th><th>Params</th><th>Delay</th></tr>";
+        child_table = child_table + "<tr><th>Source</th><th>Destination</th><th>Type</th><th>Params</th><th>Delay</th><th style='text-align: center;'>Add alarm</th></tr>";
         for(var i = 0; i < d['measurements'].length; i++){
           child_table = child_table + '<tr bgcolor=' + (d['measurements'][i]['active'] == 0 ? "'#FFCCCC'" : (d['measurements'][i]['status'] == 0 ? "'#FFCCCC'" : "'#99FF99'")) + '>'+
                                       '<td><a data-toggle="modal" data-target="#schedule-plot-modal" data-id="' + d['measurements'][i]['measurement_id'] + '"></a>'+ d['measurements'][i]['source_name'] +'</td>'+
-                                      '<td>'+ d['measurements'][i]['destination_name'] +'</td>'+
+                                      '<td>'+ (d['measurements'][i]['destination_name'] == null ? "N/A" : d['measurements'][i]['destination_name']) +'</td>'+
                                       '<td>'+ d['measurements'][i]['method'] +'</td>'+
                                       '<td>'+ child_param_string(d['measurements'][i]) +'</td>'+
-                                      '<td>'+ d['measurements'][i]['delay'] +'</td>'+
+                                      '<td>'+ time_string(parseInt(d['measurements'][i]['delay'])) +'</td>'+
+                                      '<td class="center"><span class="glyphicon glyphicon-bell table-button alarm-button" aria-hidden="true" data-toggle="modal" data-target="#create-alarm" data-id="' + d['measurements'][i]['measurement_id'] + '"></span></td>' + 
                                       '</tr>';
         }
         child_table = child_table + '</table>';
         return child_table;
       }
 
+      /*
+      * Propulate the create schedule modal if editing
+      */
+      $('#create-schedule').on('shown.bs.modal', function(event) {
+        
+        if($(event.relatedTarget).attr('data-id')){
+          
+          clear_create_schedule();
+
+          //get schedule data
+          var sid = $(event.relatedTarget).data('id');
+          var schedule = jQuery.extend(true, {}, find_schedule(sid));
+          
+          //fill schedule data
+          $("#schedule-id").val(sid);
+          $("#schedule-name").val(schedule['name']);
+          $("#schedule-description").val(schedule['description']);
+
+          if(schedule["period"] >= 60*60){
+            $("#schedule-hours").val(Math.floor(schedule['period']/(60*60)));  
+            $("#schedule-minutes").val(Math.floor(schedule['period']%(60*60)/60));
+            $("#schedule-seconds").val(Math.floor(schedule['period']%(60*60)%60));
+          }else if(schedule["period"] >= 60){
+            $("#schedule-hours").val(0);  
+            $("#schedule-minutes").val(Math.floor(schedule['period']/60));
+            $("#schedule-seconds").val(Math.floor(schedule['period']%(60*60)%60));
+          }else{
+            $("#schedule-hours").val(0);  
+            $("#schedule-minutes").val(0);
+            $("#schedule-seconds").val(Math.floor(schedule['period']%(60*60)%60));
+          }
+
+          //fill measurment data
+          for(m in schedule['measurements']){
+
+            //delay
+            var new_measurement = jQuery.extend(true, {}, schedule['measurements'][m]);
+
+            //params
+            for(p in schedule['measurements'][m]['params']){
+                new_measurement[schedule['measurements'][m]['params'][p]['param']] = schedule['measurements'][m]['params'][p]['value'];
+            }
+            delete new_measurement['params'];
+            delete new_measurement['pid'];
+
+            schedule['measurements'][m] = new_measurement;
+
+            add_schedule_measurement(new_measurement);
+          }
+
+          $("#schedule-submit").html("Edit Schedule");
+          $("#schedule-title").html("Edit Schedule");
+        }else{
+          $("#schedule-id").val(0);
+          $("#schedule-submit").html("Create Schedule");
+          $("#schedule-title").html("Create Schedule");
+          clear_create_schedule();
+        }
+        $("#create-schedule").data("bs.modal").handleUpdate();
+      });
+
       var plot_data;
       var plot_source;
       var plot_destination;
       var plot_feature;
-      var plot_type;
       var plot_from = 168;
       var plot_average = 5;
 
@@ -959,7 +1198,6 @@
         $(this).find('#schedule-plot-title').html($('<b> Schedule plot - measurement ID ' + mid  + '</b>'));
 
         var measurement = find_measurement(mid);
-        plot_type = measurement['method'];
 
         //build source list
         if(measurement['source_type'] == 1){
@@ -978,19 +1216,27 @@
         }
 
         //build destination list
-        if(measurement['destination_type'] == 1){
-          //group
-          var group = find_group(measurement['destination_id']);
-          for(x in group['sensors'])
-            $("#plot-destination-dropdown-list").append('<li class="plot-destination-dropdown-element" role="presentation" value="' + group['sensors'][x]['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group['sensors'][x]['description'] + '</a></li>');
-          plot_destination = group['sensors'][0]['sensor_id'];
-          $("#plot-destination-span").html(group['sensors'][0]['description']);
+        if(parseInt(measurement['destination_id']) == 0){
+          //dns schedule - no destination needed
+          plot_destination = 0;
+          $("#plot-destination-span").html("N/A");
+          $("#plot-destination-dropdown").prop("disabled", true);
         }else{
-          //single sensor
-          var sensor = find_sensor(measurement['destination_id']);
-          $("#plot-destination-dropdown-list").append('<li class="plot-destination-dropdown-element" role="presentation" value="' + sensor['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor['description'] + '</a></li>');
-          plot_destination = sensor['sensor_id'];
-          $("#plot-destination-span").html(sensor['description']);
+          $("#plot-destination-dropdown").prop("disabled", false);
+          if(measurement['destination_type'] == 1){
+            //group
+            var group = find_group(measurement['destination_id']);
+            for(x in group['sensors'])
+              $("#plot-destination-dropdown-list").append('<li class="plot-destination-dropdown-element" role="presentation" value="' + group['sensors'][x]['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + group['sensors'][x]['description'] + '</a></li>');
+            plot_destination = group['sensors'][0]['sensor_id'];
+            $("#plot-destination-span").html(group['sensors'][0]['description']);
+          }else{
+            //single sensor
+            var sensor = find_sensor(measurement['destination_id']);
+            $("#plot-destination-dropdown-list").append('<li class="plot-destination-dropdown-element" role="presentation" value="' + sensor['sensor_id'] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + sensor['description'] + '</a></li>');
+            plot_destination = sensor['sensor_id'];
+            $("#plot-destination-span").html(sensor['description']);
+          }
         }
 
         update_plot_data();
@@ -1001,15 +1247,29 @@
 
       function update_plot_data(){
 
-        $.getJSON("metric.php", "type=" + plot_type + "&sensor_id=" + plot_source + "&dst_id=" + plot_destination + "&measurement_id=" + plot_measurement, function(graph_data){
+        $.getJSON("metric.php", "&measurement_id=" + plot_measurement + "&sensor_id=" + plot_source + "&dst_id=" + plot_destination, function(graph_data){
+
+          if(graph_data.length == 0){
+            $("#schedule-plot").hide();
+            $("#no-schedule-plot").show();
+
+            $("#plot-feature-dropdown").prop("disabled", true);
+            $("#plot-feature-span").html("No data");
+
+            return;
+          }else{
+            $("#schedule-plot").show();
+            $("#no-schedule-plot").hide();
+
+            $("#plot-feature-dropdown").prop("false", true);
+          }
 
           //build features list
-          var keys      = Object.keys(graph_data[0]);
-          var features  = []; 
-          //remove id's and time
+          var keys        = Object.keys(graph_data[0]);
+          var features    = [];   
           $("#plot-feature-dropdown-list").find(".feature-dropdown-element").remove();
           for(x in keys){
-            if(!(keys[x].indexOf("id") > -1) && keys[x] != "time"){
+            if(is_feature(keys[x])){
               features.push(keys[x]);
               $("#plot-feature-dropdown-list").append('<li class="feature-dropdown-element" role="presentation"  data-feature="' + keys[x] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + keys[x] + '</a></li>');
             }
@@ -1026,7 +1286,7 @@
           });
 
           //set feature to first in list
-          plot_feature  = features[1];
+          plot_feature  = features[0];
           $("#plot-feature-span").html(plot_feature);
 
           plot_data     = graph_data;
@@ -1036,13 +1296,11 @@
       }
       
       function update_plot(){
-
         //remove svg
         d3.select("#schedule-plot").select("svg").remove();
 
         var graph_data;
         if(plot_from != "none"){
-          //graph_data = truncate_data(plot_data, plot_from);
           graph_data = plot_data.filter(function(d){
             return d.time >= plot_from;
           });
@@ -1275,14 +1533,14 @@
       *
       */
       function is_feature(key){
-        var not_feature = ["time", "defined"];
+        var not_feature = ["time", "defined", "server", "address"];
         if(!(key.indexOf("id") > -1) && !(not_feature.indexOf(key) > -1))
           return true;
         return false;
       }
 
       /*
-      * Update text on dropdowns - and other
+      * Update text on all dropdowns 
       */
       $(document.body).on('click', '.dropdown-menu li', function(event){
           var $target = $(event.currentTarget);
@@ -1291,88 +1549,144 @@
           .end()
           .children('.dropdown-toggle').dropdown( 'toggle');
 
-          //create schedule dropdowns
-          if($.inArray('destination-dropdown-element', this.classList) != -1 || $.inArray('source-dropdown-element', this.classList) != -1){
+      });
 
-            //update hidden input
-            $target.closest('.btn-group')
-            .find('.dropdown-input').val($target.val())
-            .end();
+      /*
+      * Dropdown handlers 
+      */
+      $(document.body).on('click', '.dropdown-menu .destination-dropdown-element, .dropdown-menu .source-dropdown-element', function(event){
+        var $target = $(event.currentTarget);
+        //update hidden input
+        $target.closest('.btn-group')
+        .find('.dropdown-input').val($target.val())
+        .end();
 
-            //update hidden input type
-            //0 - single sensor
-            //1 - group
-            if($.inArray('group-element', this.classList) == 1){
-              $target.closest('.btn-group').find('.dropdown-type').val("1").end();
-            }else{
-              $target.closest('.btn-group').find('.dropdown-type').val("0").end();
-            }
+        //update hidden input type
+        //0 - single sensor
+        //1 - group
+        if($.inArray('group-element', this.classList) == 1)
+          $target.closest('.btn-group').find('.dropdown-type').val("1").end();
+        else
+          $target.closest('.btn-group').find('.dropdown-type').val("0").end();
 
-            //checks
-            if($("#destination-input").val() == 0 || $("#source-input").val() == 0){
-              $("#same-sensor-warning").hide();
-              $("#no-sensor-warning").show();
-              $("#measurement-submit").attr('disabled', 'disabled');
-            }else if($("#destination-input").val() == $("#source-input").val()){
-              $("#no-sensor-warning").hide();
-              $("#same-sensor-warning").show();
-              $("#measurement-submit").attr('disabled', 'disabled');
-            }else{
-              $("#same-sensor-warning").hide();
-              $("#no-sensor-warning").hide();
-              $("#measurement-submit").removeAttr('disabled');
-            }
+        //checks
+        if($("#destination-input").val() == 0 || $("#source-input").val() == 0){
+          $("#same-sensor-warning").hide();
+          $("#no-sensor-warning").show();
+          $("#measurement-submit").attr('disabled', 'disabled');
+        }else if($("#destination-input").val() == $("#source-input").val()){
+          $("#no-sensor-warning").hide();
+          $("#same-sensor-warning").show();
+          $("#measurement-submit").attr('disabled', 'disabled');
+        }else{
+          $("#same-sensor-warning").hide();
+          $("#no-sensor-warning").hide();
+          $("#measurement-submit").removeAttr('disabled');
+        }
 
-            //need some fix for groups
-            /*if(find_sensor($("#destination-input").val()).local_ip != find_sensor($("#destination-input").val()).ip){
-              $("#ip-warning").show();
-            }else{
-              $("#ip-warning").hide();
-            }*/
+        //need some fix for groups
+        /*if(find_sensor($("#destination-input").val()).local_ip != find_sensor($("#destination-input").val()).ip){
+          $("#ip-warning").show();
+        }else{
+          $("#ip-warning").hide();
+        }*/
 
-            $("#add-measurement").data("bs.modal").handleUpdate();
+        $("#add-measurement").data("bs.modal").handleUpdate();
+      });
 
-          //create group drop down
-          }else if($target.attr('class') == 'add-sensor-dropdown-element'){
+      /*
+      * Create group dropdown listeners
+      */
+      $(document.body).on('click', '.dropdown-menu .add-sensor-dropdown-element', function(event){
+        var $target = $(event.currentTarget);
+        to_add = find_sensor($target.val());
+        $("#add-sensor-btn").removeAttr('disabled');
+        $("#create-group").data("bs.modal").handleUpdate();
+      });
+
+      /*
+      * Schedule plot dropdown listeners
+      */    
+      $(document.body).on('click', '.dropdown-menu .plot-destination-dropdown-element', function(event){
+        var $target = $(event.currentTarget);
+        plot_destination = $target.val();
+        update_plot_data(); 
+      });   
+
+      $(document.body).on('click', '.dropdown-menu .plot-source-dropdown-element', function(event){
+        var $target = $(event.currentTarget);
+        plot_source     = $target.val();
+        update_plot_data();
+      });
+      
+      $(document.body).on('click', '.dropdown-menu .feature-dropdown-element', function(event){
+        var $target = $(event.currentTarget);
+        plot_feature    = $target.attr("data-feature");
+        update_plot();  
+      });
             
-            to_add = find_sensor($target.val());
-            $("#add-sensor-btn").removeAttr('disabled');
-            $("#create-group").data("bs.modal").handleUpdate();
+      $(document.body).on('click', '.dropdown-menu .plot-from-dropdown-element', function(event){
+        var $target = $(event.currentTarget);
+        if($target.val() == -1){
+          plot_from = "none";
+          update_plot();
+        }else{
+          plot_from = new Date();
+          plot_from.setHours(plot_from.getHours() - $target.val());
+          update_plot();
+        }
+      });
 
-          }else if($target.attr('class') == "plot-destination-dropdown-element"){
+      $(document.body).on('click', '.dropdown-menu .plot-average-dropdown-element', function(event){
+        var $target = $(event.currentTarget);
+        if($target.val() == -1){
+          plot_average = "none";
+        }else{
+          plot_average = $target.val();  
+        }
+        update_plot();
+      });
 
-            plot_destination = $target.val();
-            update_plot_data(); 
+      /*
+      * Create alarm dropdown listener
+      */
+      $(document.body).on('click', '.dropdown-menu .alarm-measurement-element', function(event){
+        
+        //get measurement
+        var $target = $(event.currentTarget);
+        var measurement = find_measurement($target.val());
 
-          }else if($target.attr('class') == "plot-source-dropdown-element"){
+        console.log(measurement);
+
+        $.getJSON("metric.php", "measurement_id=" + measurement['measurement_id'], function(graph_data){
+
+          console.log(graph_data.length);
+
+          if(graph_data.length == 0){
             
-            plot_source     = $target.val();
-            update_plot_data();
+            $("#alarm-submit").prop("disabled", true);
+            $("#alarm-no-data-warning").show();
 
-          }else if($target.attr('class') == "feature-dropdown-element"){
-            
-            plot_feature    = $target.attr("data-feature");
-            update_plot();
+          }else{
 
-          }else if($target.attr('class') == "plot-from-dropdown-element"){
+            $("#alarm-submit").prop("disabled", false);
+            $("#alarm-no-data-warning").hide();
 
-            if($target.val() == -1){
-              plot_from = "none";
-              update_plot();
-            }else{
-              plot_from = new Date();
-              plot_from.setHours(plot_from.getHours() - $target.val());
-              update_plot();
+            var keys        = Object.keys(graph_data[0]);
+            var features    = [];   
+            $("#alarm-feature-dropdown-list").find(".alarm-feature-dropdown-element").remove();
+            for(x in keys){
+              if(is_feature(keys[x])){
+                features.push(keys[x]);
+                $("#alarm-feature-dropdown-list").append('<li class="alarm-feature-dropdown-element" role="presentation"  data-feature="' + keys[x] + '"><a onclick="return false;" href=""role="menuitem" tabindex="-1" >' + keys[x] + '</a></li>');
+              }
             }
-          
-          }else if($target.attr('class') == "plot-average-dropdown-element"){
-            if($target.val() == -1){
-              plot_average = "none";
-            }else{
-              plot_average = $target.val();  
-            }
-            update_plot();
+
           }
+
+        });
+
+        //fill features
       });
 
       /*
@@ -1380,19 +1694,22 @@
       */
       var to_add = null;
       $('#add-sensor-btn').click(function(){
+        add_group_sensor(to_add);
+      });
 
+      function add_group_sensor(sensor){
         //check if table already contains sensor
-        if($('#create-group-table tr > td:contains(' + to_add['sensor_id'] + ') + td:contains(' + to_add['description'] + ')').length){
+        if($('#create-group-table tr > td:contains(' + sensor['sensor_id'] + ') + td:contains(' + sensor['description'] + ')').length){
           alert("Sensor already added to group");
         }else{
-          $('#create-group-table tr:last').after( "<tr><td>" + to_add['sensor_id'] + "</td>" + 
-                                                  "<td>" + to_add['description'] + "</td>" + 
-                                                  "<td style='text-align: center;'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='create_group_remove_sensor(" + to_add['sensor_id'] + ")'></span></td>" +
+          $('#create-group-table tr:last').after( "<tr><td>" + sensor['sensor_id'] + "</td>" + 
+                                                  "<td>" + sensor['description'] + "</td>" + 
+                                                  "<td style='text-align: center;'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='create_group_remove_sensor(" + sensor['sensor_id'] + ")'></span></td>" +
                                                   "</tr>");
-          $('#create-group-table tr:last').after('<input type="hidden" name="sensor" value="' + to_add['sensor_id'] + '"/>');
+          $('#create-group-table tr:last').after('<input type="hidden" name="sensor" value="' + sensor['sensor_id'] + '"/>');
           $("#group-submit").removeAttr('disabled');
         }
-      });
+      }
 
       /*
       * Remove row containing sensor from the create group modal
@@ -1442,6 +1759,18 @@
       }
       $('#create-schedule-clear').click(clear_create_schedule);
 
+      function clear_create_alarm(){
+        $("#alarm-name").val("");
+        $("#alarm-description").val("");
+        $("#alarm-recipient").val();
+
+        //reset selected measurement
+
+        //clear features list
+
+        $("#alarm-submit").prop("disbaled", true);
+      }
+
       /*
       * Disconnect sensor
       */
@@ -1462,9 +1791,7 @@
       *
       */
       function schedule_susspend(sid){
-
         $.post("scheduler.php", {Function: "stopSchedule", Data: {sid: sid}}, function(data){
-          
           if(data == 0)
             alert("Susspended schedule " + sid);
           else
@@ -1474,7 +1801,6 @@
       }
 
       function schedule_start(sid){
-
         if(server_running == 1){
           $.post("scheduler.php", {Function: "startSchedule", Data: {sid: sid}}, function(data){
             if(isNaN(data))
@@ -1532,9 +1858,6 @@
             else if(sensor_label == "description")
               json_sensor[x].label = json_sensor[x].description;
           }
-
-          if(filter_type == "none")
-            json_sensor.push({id: 1, label: "Server"});
 
           $.getJSON("topo.php", "feature=" + feature + (filter_type == "none" ? "" : "&filter_type=" + filter_type + "&filter_id=" + filter_id), function(json_feature){
 
@@ -1622,21 +1945,9 @@
         height: '100%',
         width: '100%',
         layout: {randomSeed: 0},
-        edges: {
-          length: 200,
-          smooth: {enabled: false}
-        },
-        physics: {
-          enabled: true,
-          barnesHut: {avoidOverlap: 1},
-          repulsion: {nodeDistance: 1}
-        },
-        nodes: {
-          scaling: {
-            min: 30,
-            max: 30,
-          }
-        }
+        edges: {length: 200, smooth: {enabled: false}},
+        physics: {enabled: true, barnesHut: {avoidOverlap: 1}, repulsion: {nodeDistance: 1}},
+        nodes: {scaling: {min: 30,max: 30,}}
       };
 
       var no_sim_options = {
@@ -1644,16 +1955,9 @@
         height: '100%',
         width: '100%',
         clickToUse: true,
-        edges: {
-          length: 200,
-          smooth: {enabled: false}
-        },
+        edges: {length: 200, smooth: {enabled: false}},
         physics: {enabled: false},
-        interaction: {
-          hover: true,
-          hoverConnectedEdges: false,
-          zoomView: true
-        }
+        interaction: {hover: true, hoverConnectedEdges: false, zoomView: true}
       }
 
       var network       = new vis.Network(topo_container, topo_data, topo_options);
@@ -1689,7 +1993,6 @@
         $("[name='filter-radio']").click(function(data){
           filter_type  = $(this).attr("data-filter-type");
           filter_id    = $(this).attr("data-filter-id");
-
           load_topo(sensor_label, feature, filter_type, filter_id);
         });  
       }
@@ -1697,7 +2000,7 @@
       /*
       * Change create schdule form for the type of measurement selected
       */
-      var type_radios = document.getElementsByName("type-radio");
+      var type_radios = document.getElementsByName("method");
       for (x in type_radios){
         type_radios[x].onclick = function(){
           document.getElementById('rtt-details').style.display = 'none';
@@ -1706,6 +2009,18 @@
           document.getElementById('dns-details').style.display = 'none';        
 
           document.getElementById(this.getAttribute("data-div")).style.display = 'block';
+
+          //stop duplicate 'duration' input being submitted
+          if(this.getAttribute("data-div") != "tcp-details"){
+            $("#tcp-details-dur").prop("disabled", true);
+          }else{
+            $("#tcp-details-dur").prop("disabled", false);
+          }
+          if(this.getAttribute("data-div") != "udp-details"){
+            $("#udp-details-dur").prop("disabled", true);
+          }else{
+            $("#udp-details-dur").prop("disabled", false);
+          }
 
           $("#add-measurement").data("bs.modal").handleUpdate();
         }
@@ -1718,20 +2033,45 @@
         event.preventDefault();
 
         var measurement_json = $(this).serializeObject();
+        add_schedule_measurement(measurement_json);
 
-        $('#create-schedule-table tr:last').after( "<tr data-index='" + $('#create-schedule-index').val() + "'>" + 
-                                                  "<td>" + measurement_json['source'] + "</td>" + 
-                                                  "<td>" + measurement_json['destination'] + "</td>" + 
-                                                  "<td>" + measurement_json['type-radio'] + "</td>" + 
-                                                  "<td>" + param_string(measurement_json) + "</td>" + 
-                                                  "<td style='text-align: center;'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='create_schedule_remove_measurement(" + $('#create-schedule-index').val() + ")'></span></td>" +
-                                                  "</tr>");
-        $('#create-schedule-table tr:last').after("<input type='hidden' data-index='" + $('#create-schedule-index').val() +"'' name='measurement' value='" + JSON.stringify(measurement_json) + "'/>");
-        $('#create-schedule-index').val(parseInt($('#create-schedule-index').val()) + 1);
-        $("#schedule-submit").removeAttr('disabled');
         $("#add-measurement").modal('hide');
         $("#create-schedule").data("bs.modal").handleUpdate();        
       });
+
+      function add_schedule_measurement(json){
+
+        if(!json.hasOwnProperty('delay'))
+          json['delay'] = (parseInt(json['delay-hours']) * 60 * 60) + (parseInt(json['delay-minutes']) * 60) + parseInt(json['delay-seconds']);
+
+        if(!json.hasOwnProperty('source_name')){
+          if(json['source_type'] == 1)
+            json['source_name'] = find_group(json['source_id'])['name']
+          else 
+            json['source_name'] = find_sensor(json['source_id'])['description']
+        }
+
+        if(!json.hasOwnProperty('destination_name')){
+          if(json['destination_type'] == 1)
+            json['destination_name'] = find_group(json['destination_id'])['name']
+          else 
+            json['destination_name'] = find_sensor(json['destination_id'])['description']
+        }
+
+        console.log(json);
+
+        $('#create-schedule-table tr:last').after( "<tr data-index='" + $('#create-schedule-index').val() + "'>" + 
+                                                  "<td>" + json['source_name'] + "</td>" + 
+                                                  "<td>" + (json['destination_name'] == null ? "N/A" : json['destination_name']) + "</td>" + 
+                                                  "<td>" + json['method'] + "</td>" + 
+                                                  "<td>" + param_string(json) + "</td>" + 
+                                                  "<td>" + time_string(json['delay']) + "</td>" + 
+                                                  "<td style='text-align: center;'><span class='glyphicon glyphicon-remove remove-button table-button' aria-hidden='true' onclick='create_schedule_remove_measurement(" + $('#create-schedule-index').val() + ")'></span></td>" +
+                                                  "</tr>");
+        $('#create-schedule-table tr:last').after("<input type='hidden' data-index='" + $('#create-schedule-index').val() +"'' name='measurement' value='" + JSON.stringify(json) + "'/>");
+        $('#create-schedule-index').val(parseInt($('#create-schedule-index').val()) + 1);
+        $("#schedule-submit").removeAttr('disabled');
+      }
 
       /*
       * Create schedule POST
@@ -1752,14 +2092,13 @@
         $.post("scheduler.php", {Function: "createSchedule", Data:submit_data}, function(data){
 
           if(!isNaN(data)){
-            if(parseInt(data) == submit_data['measurement'].length){
+            if(parseInt(data) == submit_data['measurement'].length)
               alert("Created shcedule.");
-            }else{
-              alert("Created schedule with " + parseInt(data) + " out of " + submit_data['measurement'].length + " measurements. Check scheduler logs");
-            }
+            else
+              alert("Created schedule with " + parseInt(data) + " out of " + submit_data['measurement'].length + "successful measurements. Check scheduler logs");
             $('#create-schedule').modal('hide');
             clear_create_schedule();
-            //load_schedules(1);
+            load_schedules(1);
           }else{
             alert("Failed to create schedule. Check shecduler logs.");
           }
@@ -1856,19 +2195,20 @@
           return seconds + " seconds(s)"; 
       }
 
+      var flags = { 0   : "none", 32  : "cs1", 64  : "cs2", 96  : "cs3", 40  : "af11", 48  : "af12", 56  : "af13", 176 : "voice-admit", 184 : "ef"}
       function param_string(measurement){
-        if(measurement['type-radio'] == 'rtt'){
-          return "Itterations: " + measurement['rtt-details-itr'];
-        }else if(measurement['type-radio'] == 'tcp'){
-          return "Duration: " + measurement['tcp-details-dur'];
-        }else if(measurement['type-radio'] == 'udp'){
-          return  "Duration: " + measurement['udp-details-dur'] + "<br/ >" +
-                  "Size: " + measurement['udp-details-size'] + "<br />" + 
-                  "Speed: " + measurement['udp-details-speed'] + "<br />" + 
-                  "DSCP: " + (measurement['udp-details-dscp'] == "" ? "None" : measurement['udp-details-dscp']); 
-        }else if(measurement['type-radio'] == 'dns'){
-          return  "Address: " + measurement['dns-details-addr'] + "<br />" + 
-                  "Server: " + measurement['dns-details-server'];
+        if(measurement['method'] == 'rtt'){
+          return "Iterations: " + measurement['iterations'];
+        }else if(measurement['method'] == 'tcp'){
+          return "Duration: " + measurement['duration'];
+        }else if(measurement['method'] == 'udp'){
+          return  "Duration: " + measurement['duration'] + "<br/ >" +
+                  "Size: " + measurement['packet_size'] + "<br />" + 
+                  "Speed: " + measurement['send_speed'] + "<br />" + 
+                  "DSCP: " + (measurement['dscp_flag'] == "" ? "None" : flags[parseInt(measurement['dscp_flag'])]); 
+        }else if(measurement['method'] == 'dns'){
+          return  "Address: " + measurement['domain_name'] + "<br />" + 
+                  "Server: " + measurement['server'];
         }else{
           return "Invalid measurement type";
         }
@@ -1886,7 +2226,7 @@
           }else if(measurement['params'][x]['param'] == "packet_size"){
             string += "Packet Size: " + measurement['params'][x]['value'] + "<br />";
           }else if(measurement['params'][x]['param'] == "dscp_flag"){
-            string += "DSCP: " + measurement['params'][x]['value'] + "<br />";
+            string += "DSCP: " + flags[parseInt(measurement['params'][x]['value'])] + "<br />";
           }else if(measurement['params'][x]['param'] == "server"){
             string += "Server: " + measurement['params'][x]['value'] + "<br />";
           }else if(measurement['params'][x]['param'] == "domain_name"){

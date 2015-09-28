@@ -27,6 +27,14 @@ body {
   color: orange;
 }
 
+.edit-button:hover{
+  color: orange;
+}
+
+.alarm-button:hover{
+  color: orange;
+}
+
 .disconnect-button:hover{
   color: red;
 }

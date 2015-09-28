@@ -1,25 +1,6 @@
 <?php
-
-	if(!isset($_GET['sensor_id']) && !isset($_GET['dst_id'])){
-		die("sensor_id or dst_id not set");
-	}
-	
-	if(isset($_GET['type'])){
-		if(strcmp($_GET['type'], "rtt") == 0){
-			$table = "rtts";
-		}else if(strcmp($_GET['type'], "tcp") == 0){
-			$table = "bw";
-		}else if(strcmp($_GET['type'], "udp") == 0){
-			$table = "udps";
-		}else if(strcmp($_GET['type'], "dns") == 0){
-			$table = "dns";
-		}else if(strcmp($_GET['type'], "dns_failure") == 0){
-			$table = "dns_failure";
-		}else{
-			die("Unrecognised type");
-		}
-	}else{
-		die("No type set.");
+	if(!isset($_GET['measurement_id'])){
+		die("measurement_id not set");
 	}
 
 	// Opens a connection to a MySQL server
@@ -28,62 +9,65 @@
 		echo "Failed to connect to MySQL: " . mysqli_connect_error();
 	}
 
-	// Select all the rows in the markers table
-	if(strcmp($_GET['type'], "dns") == 0 || strcmp($_GET['type'], "dns_failure") == 0){
-		$query = "SELECT * FROM " . $table . " WHERE sensor_id = " . $_GET['sensor_id']; 
-	}else{
-		$query = "SELECT * FROM " . $table . " WHERE sensor_id = " . $_GET['sensor_id'] . " AND dst_id = " . $_GET['dst_id'];
-	}
+	$query = "SELECT * FROM schedule_measurements WHERE measurement_id =" . $_GET['measurement_id'];
 	$results = mysqli_query($con, $query);
-	if (!$results) {
+	if(!$results){
+		die('Invalid query1: ' . mysqli_error());
+	}
+	$measurement = @mysqli_fetch_assoc($results);
+	$table = $measurement['method'];
+
+	//dns measurements have no destination
+	if(strcmp($table, "dns") == 0)
+		$query = "SELECT * FROM " . $table . " WHERE measurement_id =" . $_GET['measurement_id'] . (isset($_GET['src_id']) ? " AND sensor_id =" . $_GET['src_id'] : "");
+	else
+		$query = "SELECT * FROM " . $table . " WHERE measurement_id =" . $_GET['measurement_id'] . (isset($_GET['src_id']) ? " AND sensor_id =" . $_GET['src_id'] : "" ) . (isset($_GET['dst_id']) ? " AND dst_id =" . $_GET['dst_id'] : "");
+	$results = mysqli_query($con, $query);
+	if (!$results){
+	  die('Invalid query2: ' . $query);
+	}
+
+	// Fill missing data will nulls
+	$data = array();
+	$query = "SELECT period FROM schedules WHERE schedule_id = (SELECT schedule_id FROM schedule_measurements WHERE measurement_id = " . $_GET['measurement_id'] . ")";
+	$period_res = mysqli_query($con, $query);
+	if (!$period_res) {
 	  die('Invalid query: ' . mysqli_error());
 	}
+	$period = @mysqli_fetch_assoc($period_res);
+	$period = intval($period['period']);
 
-	$data = array();
+	$query = "SELECT delay FROM schedule_measurements WHERE measurement_id = " . $_GET['measurement_id']; 
+	$delay_res = mysqli_query($con, $query);
+	if (!$period_res) {
+	  die('Invalid query: ' . mysqli_error());
+	}
+	$delay = @mysqli_fetch_assoc($delay_res);
+	$delay = intval($delay['delay']);
+	$interval = $delay + $period;
 
-	//fill missing data with null
-	if(isset($_GET['measurement_id'])){
+	$ltime = NULL;
+	while ($row = @mysqli_fetch_assoc($results)){
 
-		$query = "SELECT period FROM schedules WHERE schedule_id = (SELECT schedule_id FROM schedule_measurements WHERE measurement_id = " . $_GET['measurement_id'] . ")";
-		$period_res = mysqli_query($con, $query);
-		if (!$period_res) {
-		  die('Invalid query: ' . mysqli_error());
+		$curr = new DateTime($row['time']);
+
+		if(is_null($ltime)){
+			$ltime = $curr;
+
+		//time since last is larger than measurement interval
+		}else if(abs($ltime->getTimestamp() - $curr->getTimestamp()) > $interval + 20){
+			//create fake point
+			$nrow =	$row;
+			$nrow['time'] = $curr->format('Y-m-d H:i:s');
+			$nrow['defined'] = "none"; 
+			$data[] = $nrow;
 		}
-		$period = @mysqli_fetch_assoc($period_res);
-		$period = intval($period['period']);
 
-		$query = "SELECT delay FROM schedule_measurements WHERE measurement_id = " . $_GET['measurement_id']; 
-		$delay_res = mysqli_query($con, $query);
-		if (!$period_res) {
-		  die('Invalid query: ' . mysqli_error());
-		}
-		$delay = @mysqli_fetch_assoc($delay_res);
-		$delay = intval($delay['delay']);
-		$interval = $delay + $period;
-
-		$ltime = NULL;
-		while ($row = @mysqli_fetch_assoc($results)){
-
-			$curr = new DateTime($row['time']);
-
-			if(is_null($ltime)){
-				$ltime = $curr;
-			}else if(abs($ltime->getTimestamp() - $curr->getTimestamp()) > $interval + 20){
-				$nrow =	$row;
-				$nrow['time'] = $curr->format('Y-m-d H:i:s');
-				$nrow['defined'] = "none"; 
-				$data[] = $nrow;
-			}
-
-			$ltime 	= $curr;
-			$row['defined'] = 1; 
-    		$data[] = $row;
-    	}
-	}else{
-    	while ($row = @mysqli_fetch_assoc($results)){
-    		$data[] = $row;
-    	}
-    }
+		//push point
+		$ltime 	= $curr;
+		$row['defined'] = 1; 
+		$data[] = $row;
+	}
 
     echo json_encode($data);
 

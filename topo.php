@@ -11,7 +11,7 @@
 		$query = "SELECT * FROM schedule_measurements WHERE schedule_id = " . $sid;
 		$results = mysqli_query($con, $query);
 		if (!$results) {
-		  die('Invalid query: ' . mysqli_error());
+		  die('Invalid group query: ' . mysqli_error());
 		}
 
 		while($measurement = @mysqli_fetch_assoc($results)){
@@ -67,16 +67,16 @@
 	if(isset($_GET['feature'])){
 		if(strcmp($_GET['feature'], "feature-bw") == 0){
 			$column = "speed";
-			$table 	= "bw";
+			$table 	= "tcp";
 		}elseif(strcmp($_GET['feature'], "feature-rtt") == 0){
 			$column = "avg";
-			$table 	= "rtts";
+			$table 	= "rtt";
 		}elseif(strcmp($_GET['feature'], "feature-jitter") == 0){
 			$column = "jitter";
-			$table 	= "udps";
+			$table 	= "udp";
 		}elseif(strcmp($_GET['feature'], "feature-packetloss") == 0){
 			$column = "packet_loss";
-			$table 	= "udps";
+			$table 	= "udp";
 		}else{
 			die("Invalid feature");
 		}
@@ -99,7 +99,7 @@
 
 	$results = mysqli_query($con, $query);
 	if (!$results) {
-	  die('Invalid query: ' . mysqli_error());
+	  die('Invalid topo query: ' . mysqli_error());
 	}
 
 	$data = array();

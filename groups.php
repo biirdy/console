@@ -40,11 +40,12 @@
 
 			array_push($row['sensors'], $sensor);
 		}
+		$row['num_sensors'] = count($row['sensors']);
 
-		if($active == intval($row['num_sensors'])){
-			$row['status'] = 0;		// All active
-		}elseif($active == 0){
+		if($active == 0){
 			$row['status'] = 2;		// All inactive
+		}elseif($active == count($row['sensors'])){
+			$row['status'] = 0;		// All active
 		}else{
 			$row['status'] = 1;		// Some active
 		}
