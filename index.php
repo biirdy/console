@@ -62,7 +62,7 @@
 
             <!-- Log out button -->
             <b id="logout" class="navbar-right navbar-text"><a href="logout.php" >Log Out</a></b>
-            <b id="usr-management" class="navbar-right navbar-text"><a href="#" >User Management</a></b>
+            <b id="usr-management" class="navbar-right navbar-text"><a href="user_management.php" >User Management</a></b>
         </div><!--/.nav-collapse -->
         
       </div>

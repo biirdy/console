@@ -97,9 +97,9 @@
         echo 1;
 	}
 
-	if(isset($_POST['Function'])){
+	if(isset($_POST['Function']) && function_exists($_POST['Function'])){
         call_user_func($_POST['Function'], $_POST['Data']);
     }else{
-        echo("No such function");
+        echo("Function not set or does not exist");
     }
 ?>
