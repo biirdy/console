@@ -26,8 +26,8 @@
     <script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
 
     <!-- vis.js -->
-    <script type="text/javascript" src="/js/vis.js"></script>
-    <link href="/css/vis.css" rel="stylesheet" type="text/css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.12.0/vis.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.12.0/vis.min.css"/>
 
     <!-- d3 -->
     <script src="http://d3js.org/d3.v3.js"></script>
