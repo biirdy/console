@@ -163,8 +163,13 @@
     		if(confirm("Delete user?")){
     			console.log(id);
     			$.post("user_management_.php", {Function: "deleteUser", Data: {id:id}}, function(data){
-    				load_users();
-    				console.log(data);
+    				
+    				if(!isNaN(data)){
+    					load_users();	
+    					console.log(data);			
+    				}else{
+    					alert(data);
+    				}    				
     			});
     		}
     	}

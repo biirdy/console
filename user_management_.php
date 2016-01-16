@@ -67,6 +67,34 @@
             echo "Failed to connect to MySQL: " . mysqli_connect_error();
         }
 
+        //check if admin user
+       	$query = "SELECT admin FROM users WHERE id='" . $data['id'] . "'";
+       	$results = mysqli_query($con, $query);
+        if (!$results) {
+			die('Invalid query: ' . mysqli_error($con));
+        }
+        $admin = @mysqli_fetch_assoc($results)['admin'];
+
+        
+
+        if(strcmp($admin, "1") == 0){
+
+        	//get number of admin users remaining
+	        $query = "SELECT id FROM users WHERE admin=1";
+	        $results = mysqli_query($con, $query);
+	        if (!$results) {
+				die('Invalid query: ' . mysqli_error($con));
+	        }
+	        $rows = mysqli_num_rows($results);
+
+	        //check if removing last admin user
+	        if($rows == 1){
+	        	echo "Cannot remove last admin user";
+	        	mysqli_close($con);
+	        	return;
+	        }
+        }
+
         $query = "DELETE FROM users WHERE id=" . $data['id'];
         $results = mysqli_query($con, $query);
         if (!$results) {
